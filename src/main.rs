@@ -9,17 +9,21 @@ struct Args {
 
     /// Rank of the first perk
     #[arg(default_value_t = 1)]
-    rank: u8,
+    rank: u32,
 
     /// Second perk in the gizmo
     perk_two: Option<String>,
 
     /// Rank of the second perk
     #[arg(default_value_t = 1)]
-    rank_two: u8,
+    rank_two: u32,
 
     #[arg(value_enum, short('t'), long("type"))]
     gizmo_type: utils::GizmoType,
+
+    /// Invention level. Use two values separated by a comma to search in a range
+    #[arg(short('l'), long("level"), required(true), use_value_delimiter = true, value_delimiter = ',')]
+    invention_level: Vec<u32>,
 
     /// Is ancient gizmo
     #[arg(short, long)]
