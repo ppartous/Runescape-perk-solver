@@ -1,0 +1,5235 @@
+{
+  "comps": {
+    "Armadyl components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 39,
+        "perk": "Devoted",
+        "roll": 9
+      } ],
+      "tool": [ {
+        "base": 25,
+        "perk": "Charitable",
+        "roll": 28
+      } ],
+      "weapon": [ {
+        "base": 44,
+        "perk": "Precise",
+        "roll": 8
+      } ]
+    },
+    "Ascended components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 40,
+        "perk": "Efficient",
+        "roll": 8
+      }, {
+        "base": 20,
+        "perk": "Enhanced Efficient",
+        "roll": 25
+      } ],
+      "tool": [ {
+        "base": 40,
+        "perk": "Efficient",
+        "roll": 8
+      }, {
+        "base": 20,
+        "perk": "Enhanced Efficient",
+        "roll": 25
+      } ],
+      "weapon": [ {
+        "base": 40,
+        "perk": "Efficient",
+        "roll": 8
+      }, {
+        "base": 20,
+        "perk": "Enhanced Efficient",
+        "roll": 25
+      } ]
+    },
+    "Avernic components": {
+      "ancient_only": false,
+      "armour": [],
+      "tool": [],
+      "weapon": [ {
+        "base": 44,
+        "perk": "Lunging",
+        "roll": 8
+      } ]
+    },
+    "Bandos components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 44,
+        "perk": "Genocidal",
+        "roll": 8
+      }, {
+        "base": 39,
+        "perk": "Devoted",
+        "roll": 9
+      } ],
+      "tool": [],
+      "weapon": [ {
+        "base": 44,
+        "perk": "Genocidal",
+        "roll": 8
+      } ]
+    },
+    "Base parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 8,
+        "perk": "Antitheism",
+        "roll": 32
+      }, {
+        "base": 7,
+        "perk": "Talking",
+        "roll": 27
+      }, {
+        "base": 5,
+        "perk": "Dragon Slayer",
+        "roll": 15
+      }, {
+        "base": 9,
+        "perk": "Turtling",
+        "roll": 33
+      } ],
+      "tool": [ {
+        "base": 8,
+        "perk": "Antitheism",
+        "roll": 32
+      }, {
+        "base": 7,
+        "perk": "Talking",
+        "roll": 27
+      }, {
+        "base": 7,
+        "perk": "Charitable",
+        "roll": 25
+      } ],
+      "weapon": [ {
+        "base": 8,
+        "perk": "Antitheism",
+        "roll": 32
+      }, {
+        "base": 7,
+        "perk": "Talking",
+        "roll": 27
+      }, {
+        "base": 5,
+        "perk": "Dragon Slayer",
+        "roll": 15
+      }, {
+        "base": 8,
+        "perk": "Inaccurate",
+        "roll": 33
+      } ]
+    },
+    "Blade parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 8,
+        "perk": "Antitheism",
+        "roll": 32
+      }, {
+        "base": 5,
+        "perk": "Biting",
+        "roll": 15
+      }, {
+        "base": 8,
+        "perk": "Junk Food",
+        "roll": 33
+      } ],
+      "tool": [ {
+        "base": 8,
+        "perk": "Antitheism",
+        "roll": 32
+      }, {
+        "base": 7,
+        "perk": "Honed",
+        "roll": 25
+      } ],
+      "weapon": [ {
+        "base": 8,
+        "perk": "Antitheism",
+        "roll": 32
+      }, {
+        "base": 5,
+        "perk": "Biting",
+        "roll": 15
+      }, {
+        "base": 8,
+        "perk": "Junk Food",
+        "roll": 33
+      } ]
+    },
+    "Brassican components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 36,
+        "perk": "Hallucinogenic",
+        "roll": 9
+      }, {
+        "base": 45,
+        "perk": "Talking",
+        "roll": 8
+      }, {
+        "base": 49,
+        "perk": "Brassican",
+        "roll": 8
+      } ],
+      "tool": [ {
+        "base": 36,
+        "perk": "Hallucinogenic",
+        "roll": 9
+      }, {
+        "base": 45,
+        "perk": "Talking",
+        "roll": 8
+      }, {
+        "base": 49,
+        "perk": "Brassican",
+        "roll": 8
+      } ],
+      "weapon": [ {
+        "base": 36,
+        "perk": "Hallucinogenic",
+        "roll": 9
+      }, {
+        "base": 45,
+        "perk": "Talking",
+        "roll": 8
+      }, {
+        "base": 49,
+        "perk": "Brassican",
+        "roll": 8
+      } ]
+    },
+    "Classic components": {
+      "ancient_only": true,
+      "armour": [ {
+        "base": 12,
+        "perk": "Scavenging",
+        "roll": 20
+      }, {
+        "base": 12,
+        "perk": "Efficient",
+        "roll": 40
+      } ],
+      "tool": [ {
+        "base": 12,
+        "perk": "Fortune",
+        "roll": 40
+      }, {
+        "base": 12,
+        "perk": "Furnace",
+        "roll": 40
+      }, {
+        "base": 12,
+        "perk": "Efficient",
+        "roll": 40
+      } ],
+      "weapon": [ {
+        "base": 12,
+        "perk": "Scavenging",
+        "roll": 20
+      }, {
+        "base": 12,
+        "perk": "Efficient",
+        "roll": 40
+      } ]
+    },
+    "Clear parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 9,
+        "perk": "Glow Worm",
+        "roll": 33
+      }, {
+        "base": 7,
+        "perk": "Cautious",
+        "roll": 27
+      }, {
+        "base": 7,
+        "perk": "Hallucinogenic",
+        "roll": 28
+      }, {
+        "base": 5,
+        "perk": "Demon Slayer",
+        "roll": 15
+      }, {
+        "base": 8,
+        "perk": "Profane",
+        "roll": 33
+      }, {
+        "base": 5,
+        "perk": "Crystal Shield",
+        "roll": 15
+      } ],
+      "tool": [ {
+        "base": 9,
+        "perk": "Glow Worm",
+        "roll": 33
+      }, {
+        "base": 7,
+        "perk": "Cautious",
+        "roll": 27
+      }, {
+        "base": 7,
+        "perk": "Hallucinogenic",
+        "roll": 28
+      } ],
+      "weapon": [ {
+        "base": 9,
+        "perk": "Glow Worm",
+        "roll": 33
+      }, {
+        "base": 7,
+        "perk": "Cautious",
+        "roll": 27
+      }, {
+        "base": 7,
+        "perk": "Hallucinogenic",
+        "roll": 28
+      }, {
+        "base": 5,
+        "perk": "Demon Slayer",
+        "roll": 15
+      } ]
+    },
+    "Clockwork components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 45,
+        "perk": "Enhanced Efficient",
+        "roll": 8
+      } ],
+      "tool": [ {
+        "base": 45,
+        "perk": "Enhanced Efficient",
+        "roll": 8
+      }, {
+        "base": 18,
+        "perk": "Tinker",
+        "roll": 28
+      } ],
+      "weapon": [ {
+        "base": 45,
+        "perk": "Enhanced Efficient",
+        "roll": 8
+      }, {
+        "base": 25,
+        "perk": "Flanking",
+        "roll": 28
+      } ]
+    },
+    "Connector parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 9,
+        "perk": "Scavenging",
+        "roll": 33
+      }, {
+        "base": 8,
+        "perk": "Dragon Bait",
+        "roll": 32
+      }, {
+        "base": 8,
+        "perk": "Undead Bait",
+        "roll": 33
+      }, {
+        "base": 7,
+        "perk": "Mobile",
+        "roll": 28
+      } ],
+      "tool": [],
+      "weapon": [ {
+        "base": 9,
+        "perk": "Scavenging",
+        "roll": 33
+      }, {
+        "base": 8,
+        "perk": "Dragon Bait",
+        "roll": 32
+      }, {
+        "base": 8,
+        "perk": "Undead Bait",
+        "roll": 33
+      }, {
+        "base": 7,
+        "perk": "Mobile",
+        "roll": 28
+      }, {
+        "base": 5,
+        "perk": "Precise",
+        "roll": 15
+      } ]
+    },
+    "Corporeal components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 40,
+        "perk": "Brief Respite",
+        "roll": 8
+      } ],
+      "tool": [],
+      "weapon": []
+    },
+    "Cover parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 5,
+        "perk": "Shield Bashing",
+        "roll": 15
+      }, {
+        "base": 8,
+        "perk": "Profane",
+        "roll": 33
+      }, {
+        "base": 9,
+        "perk": "Bulwark",
+        "roll": 33
+      } ],
+      "tool": [ {
+        "base": 8,
+        "perk": "Confused",
+        "roll": 33
+      }, {
+        "base": 7,
+        "perk": "Furnace",
+        "roll": 25
+      } ],
+      "weapon": [ {
+        "base": 5,
+        "perk": "Shield Bashing",
+        "roll": 15
+      } ]
+    },
+    "Crafted parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 7,
+        "perk": "Hallucinogenic",
+        "roll": 28
+      }, {
+        "base": 8,
+        "perk": "Fatiguing",
+        "roll": 32
+      }, {
+        "base": 5,
+        "perk": "Preparation",
+        "roll": 15
+      } ],
+      "tool": [ {
+        "base": 7,
+        "perk": "Hallucinogenic",
+        "roll": 28
+      }, {
+        "base": 8,
+        "perk": "Fatiguing",
+        "roll": 32
+      } ],
+      "weapon": [ {
+        "base": 7,
+        "perk": "Hallucinogenic",
+        "roll": 28
+      }, {
+        "base": 8,
+        "perk": "Fatiguing",
+        "roll": 32
+      }, {
+        "base": 8,
+        "perk": "Mediocrity",
+        "roll": 33
+      } ]
+    },
+    "Crystal parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 5,
+        "perk": "Efficient",
+        "roll": 13
+      }, {
+        "base": 7,
+        "perk": "Trophy-taker's",
+        "roll": 27
+      }, {
+        "base": 5,
+        "perk": "Undead Slayer",
+        "roll": 15
+      }, {
+        "base": 8,
+        "perk": "Demon Bait",
+        "roll": 32
+      }, {
+        "base": 9,
+        "perk": "Turtling",
+        "roll": 33
+      }, {
+        "base": 8,
+        "perk": "Profane",
+        "roll": 33
+      }, {
+        "base": 5,
+        "perk": "Enhanced Devoted",
+        "roll": 15
+      } ],
+      "tool": [ {
+        "base": 5,
+        "perk": "Efficient",
+        "roll": 13
+      }, {
+        "base": 8,
+        "perk": "Cheapskate",
+        "roll": 32
+      } ],
+      "weapon": [ {
+        "base": 5,
+        "perk": "Efficient",
+        "roll": 13
+      }, {
+        "base": 7,
+        "perk": "Trophy-taker's",
+        "roll": 27
+      }, {
+        "base": 5,
+        "perk": "Undead Slayer",
+        "roll": 15
+      }, {
+        "base": 8,
+        "perk": "Demon Bait",
+        "roll": 32
+      } ]
+    },
+    "Culinary components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 39,
+        "perk": "Invigorating",
+        "roll": 9
+      }, {
+        "base": 45,
+        "perk": "Brief Respite",
+        "roll": 8
+      } ],
+      "tool": [],
+      "weapon": [ {
+        "base": 39,
+        "perk": "Invigorating",
+        "roll": 9
+      } ]
+    },
+    "Cywir components": {
+      "ancient_only": false,
+      "armour": [],
+      "tool": [],
+      "weapon": [ {
+        "base": 20,
+        "perk": "Planted Feet",
+        "roll": 20
+      } ]
+    },
+    "Deflecting parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 9,
+        "perk": "Shield Bashing",
+        "roll": 33
+      }, {
+        "base": 5,
+        "perk": "Venomblood",
+        "roll": 15
+      } ],
+      "tool": [ {
+        "base": 7,
+        "perk": "Imp Souled",
+        "roll": 27
+      } ],
+      "weapon": [ {
+        "base": 9,
+        "perk": "Shield Bashing",
+        "roll": 33
+      }, {
+        "base": 8,
+        "perk": "Inaccurate",
+        "roll": 33
+      }, {
+        "base": 8,
+        "perk": "Mediocrity",
+        "roll": 32
+      } ]
+    },
+    "Delicate parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 8,
+        "perk": "Demon Bait",
+        "roll": 32
+      }, {
+        "base": 8,
+        "perk": "Junk Food",
+        "roll": 33
+      }, {
+        "base": 5,
+        "perk": "Lucky",
+        "roll": 15
+      }, {
+        "base": 5,
+        "perk": "Enhanced Efficient",
+        "roll": 15
+      } ],
+      "tool": [ {
+        "base": 8,
+        "perk": "Butterfingers",
+        "roll": 32
+      }, {
+        "base": 7,
+        "perk": "Charitable",
+        "roll": 27
+      }, {
+        "base": 5,
+        "perk": "Enhanced Efficient",
+        "roll": 15
+      }, {
+        "base": 7,
+        "perk": "Tinker",
+        "roll": 25
+      } ],
+      "weapon": [ {
+        "base": 8,
+        "perk": "Demon Bait",
+        "roll": 32
+      }, {
+        "base": 8,
+        "perk": "Junk Food",
+        "roll": 33
+      }, {
+        "base": 5,
+        "perk": "Equilibrium",
+        "roll": 13
+      }, {
+        "base": 5,
+        "perk": "Enhanced Efficient",
+        "roll": 15
+      } ]
+    },
+    "Dextrous components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 9,
+        "perk": "Demon Slayer",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Dragon Bait",
+        "roll": 45
+      }, {
+        "base": 12,
+        "perk": "Mobile",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Reflexes",
+        "roll": 40
+      } ],
+      "tool": [ {
+        "base": 12,
+        "perk": "Polishing",
+        "roll": 44
+      }, {
+        "base": 9,
+        "perk": "Butterfingers",
+        "roll": 33
+      } ],
+      "weapon": [ {
+        "base": 9,
+        "perk": "Demon Slayer",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Dragon Bait",
+        "roll": 45
+      }, {
+        "base": 12,
+        "perk": "Mobile",
+        "roll": 44
+      } ]
+    },
+    "Direct components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 12,
+        "perk": "Cautious",
+        "roll": 44
+      }, {
+        "base": 9,
+        "perk": "Biting",
+        "roll": 33
+      } ],
+      "tool": [ {
+        "base": 12,
+        "perk": "Cautious",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Charitable",
+        "roll": 40
+      }, {
+        "base": 9,
+        "perk": "Pyromaniac",
+        "roll": 32
+      } ],
+      "weapon": [ {
+        "base": 12,
+        "perk": "Cautious",
+        "roll": 44
+      }, {
+        "base": 9,
+        "perk": "Biting",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Blunted",
+        "roll": 45
+      } ]
+    },
+    "Dragonfire components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 44,
+        "perk": "Dragon Slayer",
+        "roll": 8
+      } ],
+      "tool": [ {
+        "base": 25,
+        "perk": "Furnace",
+        "roll": 28
+      } ],
+      "weapon": [ {
+        "base": 44,
+        "perk": "Dragon Slayer",
+        "roll": 8
+      } ]
+    },
+    "Enhancing components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 12,
+        "perk": "Dragon Slayer",
+        "roll": 40
+      }, {
+        "base": 9,
+        "perk": "Invigorating",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Energising",
+        "roll": 44
+      } ],
+      "tool": [ {
+        "base": 12,
+        "perk": "Cheapskate",
+        "roll": 45
+      }, {
+        "base": 9,
+        "perk": "Refined",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Rapid",
+        "roll": 40
+      } ],
+      "weapon": [ {
+        "base": 12,
+        "perk": "Dragon Slayer",
+        "roll": 40
+      }, {
+        "base": 9,
+        "perk": "Invigorating",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Energising",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Inaccurate",
+        "roll": 45
+      } ]
+    },
+    "Ethereal components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 12,
+        "perk": "Antitheism",
+        "roll": 45
+      }, {
+        "base": 12,
+        "perk": "Wise",
+        "roll": 40
+      }, {
+        "base": 9,
+        "perk": "Brief Respite",
+        "roll": 33
+      } ],
+      "tool": [ {
+        "base": 12,
+        "perk": "Antitheism",
+        "roll": 45
+      }, {
+        "base": 12,
+        "perk": "Wise",
+        "roll": 40
+      } ],
+      "weapon": [ {
+        "base": 12,
+        "perk": "Antitheism",
+        "roll": 45
+      }, {
+        "base": 12,
+        "perk": "Wise",
+        "roll": 40
+      } ]
+    },
+    "Evasive components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 12,
+        "perk": "Cautious",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Turtling",
+        "roll": 40
+      }, {
+        "base": 9,
+        "perk": "Venomblood",
+        "roll": 33
+      } ],
+      "tool": [ {
+        "base": 12,
+        "perk": "Cautious",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Prosper",
+        "roll": 8
+      } ],
+      "weapon": [ {
+        "base": 12,
+        "perk": "Cautious",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Blunted",
+        "roll": 45
+      } ]
+    },
+    "Explosive components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 48,
+        "perk": "Crackling",
+        "roll": 5
+      }, {
+        "base": 40,
+        "perk": "Ultimatums",
+        "roll": 8
+      } ],
+      "tool": [ {
+        "base": 25,
+        "perk": "Pyromaniac",
+        "roll": 28
+      } ],
+      "weapon": [ {
+        "base": 48,
+        "perk": "Crackling",
+        "roll": 5
+      }, {
+        "base": 40,
+        "perk": "Ultimatums",
+        "roll": 8
+      } ]
+    },
+    "Faceted components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 39,
+        "perk": "Crystal Shield",
+        "roll": 9
+      }, {
+        "base": 45,
+        "perk": "Enhanced Devoted",
+        "roll": 8
+      } ],
+      "tool": [],
+      "weapon": []
+    },
+    "Flexible parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 7,
+        "perk": "Cautious",
+        "roll": 27
+      }, {
+        "base": 9,
+        "perk": "Wise",
+        "roll": 33
+      }, {
+        "base": 8,
+        "perk": "Dragon Bait",
+        "roll": 32
+      }, {
+        "base": 7,
+        "perk": "Mobile",
+        "roll": 28
+      }, {
+        "base": 5,
+        "perk": "Clear Headed",
+        "roll": 15
+      }, {
+        "base": 8,
+        "perk": "Profane",
+        "roll": 33
+      } ],
+      "tool": [ {
+        "base": 7,
+        "perk": "Cautious",
+        "roll": 27
+      }, {
+        "base": 9,
+        "perk": "Wise",
+        "roll": 33
+      } ],
+      "weapon": [ {
+        "base": 7,
+        "perk": "Cautious",
+        "roll": 27
+      }, {
+        "base": 9,
+        "perk": "Wise",
+        "roll": 33
+      }, {
+        "base": 8,
+        "perk": "Dragon Bait",
+        "roll": 32
+      }, {
+        "base": 7,
+        "perk": "Mobile",
+        "roll": 28
+      }, {
+        "base": 5,
+        "perk": "Clear Headed",
+        "roll": 15
+      } ]
+    },
+    "Fortunate components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 13,
+        "perk": "Looting",
+        "roll": 40
+      }, {
+        "base": 13,
+        "perk": "Hoarding",
+        "roll": 40
+      }, {
+        "base": 13,
+        "perk": "Brassican",
+        "roll": 40
+      }, {
+        "base": 13,
+        "perk": "Lucky",
+        "roll": 40
+      } ],
+      "tool": [ {
+        "base": 13,
+        "perk": "Hoarding",
+        "roll": 40
+      }, {
+        "base": 13,
+        "perk": "Brassican",
+        "roll": 40
+      }, {
+        "base": 13,
+        "perk": "Polishing",
+        "roll": 40
+      } ],
+      "weapon": [ {
+        "base": 13,
+        "perk": "Looting",
+        "roll": 40
+      }, {
+        "base": 13,
+        "perk": "Hoarding",
+        "roll": 40
+      }, {
+        "base": 13,
+        "perk": "Brassican",
+        "roll": 40
+      }, {
+        "base": 13,
+        "perk": "Spendthrift",
+        "roll": 40
+      } ]
+    },
+    "Fungal components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 40,
+        "perk": "Absorbative",
+        "roll": 8
+      } ],
+      "tool": [ {
+        "base": 10,
+        "perk": "Tinker",
+        "roll": 28
+      } ],
+      "weapon": []
+    },
+    "Harnessed components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 45,
+        "perk": "Reflexes",
+        "roll": 8
+      }, {
+        "base": 44,
+        "perk": "Preparation",
+        "roll": 8
+      } ],
+      "tool": [],
+      "weapon": []
+    },
+    "Head parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 7,
+        "perk": "Talking",
+        "roll": 27
+      }, {
+        "base": 5,
+        "perk": "Clear Headed",
+        "roll": 15
+      } ],
+      "tool": [ {
+        "base": 7,
+        "perk": "Talking",
+        "roll": 27
+      } ],
+      "weapon": [ {
+        "base": 7,
+        "perk": "Talking",
+        "roll": 27
+      }, {
+        "base": 5,
+        "perk": "Clear Headed",
+        "roll": 15
+      }, {
+        "base": 8,
+        "perk": "Inaccurate",
+        "roll": 33
+      }, {
+        "base": 8,
+        "perk": "Mediocrity",
+        "roll": 32
+      } ]
+    },
+    "Healthy components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 12,
+        "perk": "Committed",
+        "roll": 44
+      }, {
+        "base": 9,
+        "perk": "Efficient",
+        "roll": 32
+      }, {
+        "base": 9,
+        "perk": "Venomblood",
+        "roll": 33
+      } ],
+      "tool": [ {
+        "base": 12,
+        "perk": "Committed",
+        "roll": 44
+      }, {
+        "base": 9,
+        "perk": "Efficient",
+        "roll": 32
+      } ],
+      "weapon": [ {
+        "base": 12,
+        "perk": "Committed",
+        "roll": 44
+      }, {
+        "base": 9,
+        "perk": "Efficient",
+        "roll": 32
+      }, {
+        "base": 12,
+        "perk": "Inaccurate",
+        "roll": 45
+      } ]
+    },
+    "Heavy components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 12,
+        "perk": "Committed",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Demon Bait",
+        "roll": 45
+      }, {
+        "base": 12,
+        "perk": "Bulwark",
+        "roll": 40
+      }, {
+        "base": 9,
+        "perk": "Preparation",
+        "roll": 33
+      } ],
+      "tool": [ {
+        "base": 12,
+        "perk": "Committed",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Butterfingers",
+        "roll": 45
+      }, {
+        "base": 12,
+        "perk": "Breakdown",
+        "roll": 40
+      } ],
+      "weapon": [ {
+        "base": 12,
+        "perk": "Committed",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Demon Bait",
+        "roll": 45
+      } ]
+    },
+    "Historic components": {
+      "ancient_only": true,
+      "armour": [ {
+        "base": 11,
+        "perk": "Genocidal",
+        "roll": 33
+      }, {
+        "base": 11,
+        "perk": "Ultimatums",
+        "roll": 33
+      }, {
+        "base": 11,
+        "perk": "Looting",
+        "roll": 33
+      }, {
+        "base": 11,
+        "perk": "Turtling",
+        "roll": 33
+      } ],
+      "tool": [ {
+        "base": 11,
+        "perk": "Imp Souled",
+        "roll": 33
+      } ],
+      "weapon": [ {
+        "base": 11,
+        "perk": "Precise",
+        "roll": 33
+      }, {
+        "base": 11,
+        "perk": "Genocidal",
+        "roll": 33
+      }, {
+        "base": 11,
+        "perk": "Ultimatums",
+        "roll": 33
+      }, {
+        "base": 11,
+        "perk": "Looting",
+        "roll": 33
+      } ]
+    },
+    "Ilujankan components": {
+      "ancient_only": false,
+      "armour": [],
+      "tool": [],
+      "weapon": [ {
+        "base": 40,
+        "perk": "Aftershock",
+        "roll": 8
+      } ]
+    },
+    "Imbued components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 12,
+        "perk": "Crackling",
+        "roll": 40
+      }, {
+        "base": 9,
+        "perk": "Ultimatums",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Junk Food",
+        "roll": 45
+      }, {
+        "base": 12,
+        "perk": "Energising",
+        "roll": 44
+      } ],
+      "tool": [ {
+        "base": 12,
+        "perk": "Furnace",
+        "roll": 40
+      } ],
+      "weapon": [ {
+        "base": 12,
+        "perk": "Crackling",
+        "roll": 40
+      }, {
+        "base": 9,
+        "perk": "Ultimatums",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Junk Food",
+        "roll": 45
+      }, {
+        "base": 12,
+        "perk": "Energising",
+        "roll": 44
+      } ]
+    },
+    "Junk": {
+      "ancient_only": false,
+      "armour": [],
+      "tool": [],
+      "weapon": []
+    },
+    "Knightly components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 44,
+        "perk": "Taunting",
+        "roll": 8
+      } ],
+      "tool": [],
+      "weapon": [ {
+        "base": 44,
+        "perk": "Taunting",
+        "roll": 8
+      } ]
+    },
+    "Light components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 12,
+        "perk": "Glow Worm",
+        "roll": 40
+      }, {
+        "base": 12,
+        "perk": "Hallucinogenic",
+        "roll": 44
+      }, {
+        "base": 9,
+        "perk": "Lucky",
+        "roll": 33
+      } ],
+      "tool": [ {
+        "base": 12,
+        "perk": "Glow Worm",
+        "roll": 40
+      }, {
+        "base": 12,
+        "perk": "Hallucinogenic",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Pyromaniac",
+        "roll": 40
+      }, {
+        "base": 9,
+        "perk": "Rapid",
+        "roll": 33
+      } ],
+      "weapon": [ {
+        "base": 12,
+        "perk": "Glow Worm",
+        "roll": 40
+      }, {
+        "base": 12,
+        "perk": "Hallucinogenic",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Inaccurate",
+        "roll": 45
+      } ]
+    },
+    "Living components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 12,
+        "perk": "Talking",
+        "roll": 44
+      }, {
+        "base": 9,
+        "perk": "Undead Slayer",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Profane",
+        "roll": 45
+      } ],
+      "tool": [ {
+        "base": 12,
+        "perk": "Talking",
+        "roll": 44
+      } ],
+      "weapon": [ {
+        "base": 12,
+        "perk": "Talking",
+        "roll": 44
+      }, {
+        "base": 9,
+        "perk": "Undead Slayer",
+        "roll": 33
+      } ]
+    },
+    "Magic parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 8,
+        "perk": "Antitheism",
+        "roll": 32
+      }, {
+        "base": 8,
+        "perk": "Undead Bait",
+        "roll": 33
+      }, {
+        "base": 9,
+        "perk": "Crackling",
+        "roll": 33
+      }, {
+        "base": 5,
+        "perk": "Ultimatums",
+        "roll": 15
+      }, {
+        "base": 7,
+        "perk": "Energising",
+        "roll": 27
+      } ],
+      "tool": [ {
+        "base": 8,
+        "perk": "Antitheism",
+        "roll": 32
+      }, {
+        "base": 7,
+        "perk": "Honed",
+        "roll": 27
+      } ],
+      "weapon": [ {
+        "base": 8,
+        "perk": "Antitheism",
+        "roll": 32
+      }, {
+        "base": 8,
+        "perk": "Undead Bait",
+        "roll": 33
+      }, {
+        "base": 9,
+        "perk": "Crackling",
+        "roll": 33
+      }, {
+        "base": 5,
+        "perk": "Ultimatums",
+        "roll": 15
+      }, {
+        "base": 7,
+        "perk": "Energising",
+        "roll": 27
+      }, {
+        "base": 5,
+        "perk": "Spendthrift",
+        "roll": 13
+      } ]
+    },
+    "Metallic parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 8,
+        "perk": "Antitheism",
+        "roll": 32
+      }, {
+        "base": 9,
+        "perk": "Bulwark",
+        "roll": 33
+      }, {
+        "base": 5,
+        "perk": "Preparation",
+        "roll": 15
+      } ],
+      "tool": [ {
+        "base": 8,
+        "perk": "Antitheism",
+        "roll": 32
+      }, {
+        "base": 7,
+        "perk": "Confused",
+        "roll": 27
+      } ],
+      "weapon": [ {
+        "base": 8,
+        "perk": "Antitheism",
+        "roll": 32
+      }, {
+        "base": 8,
+        "perk": "Mediocrity",
+        "roll": 33
+      } ]
+    },
+    "Noxious components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 40,
+        "perk": "Biting",
+        "roll": 8
+      } ],
+      "tool": [],
+      "weapon": [ {
+        "base": 40,
+        "perk": "Biting",
+        "roll": 8
+      } ]
+    },
+    "Oceanic components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 45,
+        "perk": "Invigorating",
+        "roll": 8
+      } ],
+      "tool": [ {
+        "base": 25,
+        "perk": "Polishing",
+        "roll": 28
+      } ],
+      "weapon": [ {
+        "base": 45,
+        "perk": "Invigorating",
+        "roll": 8
+      } ]
+    },
+    "Organic parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 7,
+        "perk": "Talking",
+        "roll": 27
+      }, {
+        "base": 5,
+        "perk": "Invigorating",
+        "roll": 13
+      }, {
+        "base": 5,
+        "perk": "Brief Respite",
+        "roll": 15
+      } ],
+      "tool": [ {
+        "base": 7,
+        "perk": "Talking",
+        "roll": 27
+      }, {
+        "base": 7,
+        "perk": "Pyromaniac",
+        "roll": 27
+      } ],
+      "weapon": [ {
+        "base": 7,
+        "perk": "Talking",
+        "roll": 27
+      }, {
+        "base": 5,
+        "perk": "Invigorating",
+        "roll": 13
+      }, {
+        "base": 8,
+        "perk": "Inaccurate",
+        "roll": 33
+      }, {
+        "base": 8,
+        "perk": "Mediocrity",
+        "roll": 32
+      } ]
+    },
+    "Padded parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 8,
+        "perk": "Demon Bait",
+        "roll": 32
+      }, {
+        "base": 5,
+        "perk": "Absorbative",
+        "roll": 15
+      }, {
+        "base": 8,
+        "perk": "Profane",
+        "roll": 33
+      } ],
+      "tool": [ {
+        "base": 7,
+        "perk": "Polishing",
+        "roll": 28
+      }, {
+        "base": 7,
+        "perk": "Butterfingers",
+        "roll": 27
+      }, {
+        "base": 7,
+        "perk": "Breakdown",
+        "roll": 27
+      } ],
+      "weapon": [ {
+        "base": 8,
+        "perk": "Demon Bait",
+        "roll": 32
+      } ]
+    },
+    "Pestiferous components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 44,
+        "perk": "Venomblood",
+        "roll": 8
+      } ],
+      "tool": [],
+      "weapon": []
+    },
+    "Pious components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 9,
+        "perk": "Enlightened",
+        "roll": 32
+      }, {
+        "base": 9,
+        "perk": "Hoarding",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Wise",
+        "roll": 40
+      }, {
+        "base": 12,
+        "perk": "Dragon Bait",
+        "roll": 45
+      } ],
+      "tool": [ {
+        "base": 9,
+        "perk": "Enlightened",
+        "roll": 32
+      }, {
+        "base": 9,
+        "perk": "Hoarding",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Wise",
+        "roll": 40
+      }, {
+        "base": 12,
+        "perk": "Charitable",
+        "roll": 44
+      } ],
+      "weapon": [ {
+        "base": 9,
+        "perk": "Enlightened",
+        "roll": 32
+      }, {
+        "base": 9,
+        "perk": "Hoarding",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Wise",
+        "roll": 40
+      }, {
+        "base": 12,
+        "perk": "Dragon Bait",
+        "roll": 45
+      }, {
+        "base": 12,
+        "perk": "Mediocrity",
+        "roll": 44
+      } ]
+    },
+    "Plated parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 8,
+        "perk": "Committed",
+        "roll": 33
+      }, {
+        "base": 5,
+        "perk": "Absorbative",
+        "roll": 15
+      } ],
+      "tool": [ {
+        "base": 8,
+        "perk": "Committed",
+        "roll": 33
+      } ],
+      "weapon": [ {
+        "base": 8,
+        "perk": "Committed",
+        "roll": 33
+      }, {
+        "base": 8,
+        "perk": "Blunted",
+        "roll": 32
+      } ]
+    },
+    "Powerful components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 9,
+        "perk": "Genocidal",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Trophy-taker's",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Bulwark",
+        "roll": 40
+      } ],
+      "tool": [],
+      "weapon": [ {
+        "base": 9,
+        "perk": "Genocidal",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Trophy-taker's",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Blunted",
+        "roll": 45
+      } ]
+    },
+    "Precious components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 9,
+        "perk": "Looting",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Antitheism",
+        "roll": 45
+      }, {
+        "base": 12,
+        "perk": "Scavenging",
+        "roll": 40
+      } ],
+      "tool": [ {
+        "base": 12,
+        "perk": "Antitheism",
+        "roll": 45
+      } ],
+      "weapon": [ {
+        "base": 9,
+        "perk": "Looting",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Antitheism",
+        "roll": 45
+      }, {
+        "base": 12,
+        "perk": "Scavenging",
+        "roll": 40
+      }, {
+        "base": 9,
+        "perk": "Spendthrift",
+        "roll": 32
+      } ]
+    },
+    "Precise components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 12,
+        "perk": "Cautious",
+        "roll": 44
+      } ],
+      "tool": [ {
+        "base": 12,
+        "perk": "Cautious",
+        "roll": 44
+      }, {
+        "base": 9,
+        "perk": "Honed",
+        "roll": 32
+      } ],
+      "weapon": [ {
+        "base": 12,
+        "perk": "Cautious",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Blunted",
+        "roll": 45
+      }, {
+        "base": 9,
+        "perk": "Equilibrium",
+        "roll": 33
+      }, {
+        "base": 9,
+        "perk": "Precise",
+        "roll": 32
+      }, {
+        "base": 9,
+        "perk": "Flanking",
+        "roll": 32
+      } ]
+    },
+    "Protective components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 9,
+        "perk": "Hoarding",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Demon Bait",
+        "roll": 45
+      }, {
+        "base": 12,
+        "perk": "Shield Bashing",
+        "roll": 40
+      } ],
+      "tool": [ {
+        "base": 9,
+        "perk": "Hoarding",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Polishing",
+        "roll": 40
+      } ],
+      "weapon": [ {
+        "base": 9,
+        "perk": "Hoarding",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Demon Bait",
+        "roll": 45
+      }, {
+        "base": 12,
+        "perk": "Shield Bashing",
+        "roll": 40
+      } ]
+    },
+    "Refined components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 11,
+        "perk": "Hoarding",
+        "roll": 25
+      }, {
+        "base": 11,
+        "perk": "Committed",
+        "roll": 25
+      }, {
+        "base": 11,
+        "perk": "Cautious",
+        "roll": 25
+      }, {
+        "base": 11,
+        "perk": "Dragon Bait",
+        "roll": 25
+      }, {
+        "base": 11,
+        "perk": "Demon Bait",
+        "roll": 25
+      }, {
+        "base": 11,
+        "perk": "Energising",
+        "roll": 25
+      }, {
+        "base": 11,
+        "perk": "Brief Respite",
+        "roll": 25
+      } ],
+      "tool": [ {
+        "base": 11,
+        "perk": "Hoarding",
+        "roll": 25
+      }, {
+        "base": 11,
+        "perk": "Committed",
+        "roll": 25
+      }, {
+        "base": 11,
+        "perk": "Cautious",
+        "roll": 25
+      }, {
+        "base": 11,
+        "perk": "Refined",
+        "roll": 25
+      } ],
+      "weapon": [ {
+        "base": 11,
+        "perk": "Hoarding",
+        "roll": 25
+      }, {
+        "base": 11,
+        "perk": "Committed",
+        "roll": 25
+      }, {
+        "base": 11,
+        "perk": "Cautious",
+        "roll": 25
+      }, {
+        "base": 11,
+        "perk": "Dragon Bait",
+        "roll": 25
+      }, {
+        "base": 11,
+        "perk": "Demon Bait",
+        "roll": 25
+      }, {
+        "base": 11,
+        "perk": "Energising",
+        "roll": 25
+      }, {
+        "base": 11,
+        "perk": "Inaccurate",
+        "roll": 25
+      } ]
+    },
+    "Resilient components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 45,
+        "perk": "Bulwark",
+        "roll": 8
+      } ],
+      "tool": [ {
+        "base": 25,
+        "perk": "Refined",
+        "roll": 28
+      } ],
+      "weapon": []
+    },
+    "Rumbling components": {
+      "ancient_only": false,
+      "armour": [],
+      "tool": [],
+      "weapon": [ {
+        "base": 40,
+        "perk": "Equilibrium",
+        "roll": 8
+      } ]
+    },
+    "Saradomin components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 39,
+        "perk": "Devoted",
+        "roll": 9
+      } ],
+      "tool": [],
+      "weapon": [ {
+        "base": 44,
+        "perk": "Spendthrift",
+        "roll": 8
+      } ]
+    },
+    "Seren components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 40,
+        "perk": "Enlightened",
+        "roll": 8
+      }, {
+        "base": 48,
+        "perk": "Wise",
+        "roll": 5
+      } ],
+      "tool": [ {
+        "base": 40,
+        "perk": "Enlightened",
+        "roll": 8
+      }, {
+        "base": 48,
+        "perk": "Wise",
+        "roll": 5
+      } ],
+      "weapon": [ {
+        "base": 40,
+        "perk": "Enlightened",
+        "roll": 8
+      }, {
+        "base": 48,
+        "perk": "Wise",
+        "roll": 5
+      } ]
+    },
+    "Shadow components": {
+      "ancient_only": false,
+      "armour": [],
+      "tool": [],
+      "weapon": [ {
+        "base": 40,
+        "perk": "Caroming",
+        "roll": 8
+      } ]
+    },
+    "Sharp components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 12,
+        "perk": "Dragon Bait",
+        "roll": 45
+      }, {
+        "base": 9,
+        "perk": "Taunting",
+        "roll": 33
+      } ],
+      "tool": [ {
+        "base": 12,
+        "perk": "Honed",
+        "roll": 40
+      }, {
+        "base": 9,
+        "perk": "Furnace",
+        "roll": 33
+      } ],
+      "weapon": [ {
+        "base": 12,
+        "perk": "Dragon Bait",
+        "roll": 45
+      }, {
+        "base": 9,
+        "perk": "Taunting",
+        "roll": 33
+      }, {
+        "base": 9,
+        "perk": "Flanking",
+        "roll": 32
+      } ]
+    },
+    "Shifting components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 44,
+        "perk": "Efficient",
+        "roll": 8
+      }, {
+        "base": 45,
+        "perk": "Ultimatums",
+        "roll": 8
+      } ],
+      "tool": [ {
+        "base": 44,
+        "perk": "Efficient",
+        "roll": 8
+      }, {
+        "base": 25,
+        "perk": "Rapid",
+        "roll": 28
+      } ],
+      "weapon": [ {
+        "base": 44,
+        "perk": "Efficient",
+        "roll": 8
+      }, {
+        "base": 45,
+        "perk": "Ultimatums",
+        "roll": 8
+      } ]
+    },
+    "Silent components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 45,
+        "perk": "Lucky",
+        "roll": 8
+      } ],
+      "tool": [ {
+        "base": 25,
+        "perk": "Honed",
+        "roll": 28
+      } ],
+      "weapon": []
+    },
+    "Simple parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 5,
+        "perk": "Looting",
+        "roll": 15
+      }, {
+        "base": 8,
+        "perk": "Antitheism",
+        "roll": 32
+      }, {
+        "base": 7,
+        "perk": "Hallucinogenic",
+        "roll": 28
+      }, {
+        "base": 7,
+        "perk": "Talking",
+        "roll": 27
+      }, {
+        "base": 8,
+        "perk": "Profane",
+        "roll": 33
+      } ],
+      "tool": [ {
+        "base": 8,
+        "perk": "Antitheism",
+        "roll": 32
+      }, {
+        "base": 7,
+        "perk": "Hallucinogenic",
+        "roll": 28
+      }, {
+        "base": 7,
+        "perk": "Talking",
+        "roll": 27
+      } ],
+      "weapon": [ {
+        "base": 5,
+        "perk": "Looting",
+        "roll": 15
+      }, {
+        "base": 8,
+        "perk": "Antitheism",
+        "roll": 32
+      }, {
+        "base": 7,
+        "perk": "Hallucinogenic",
+        "roll": 28
+      }, {
+        "base": 7,
+        "perk": "Talking",
+        "roll": 27
+      } ]
+    },
+    "Smooth parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 9,
+        "perk": "Scavenging",
+        "roll": 33
+      }, {
+        "base": 8,
+        "perk": "Undead Bait",
+        "roll": 33
+      }, {
+        "base": 7,
+        "perk": "Energising",
+        "roll": 27
+      }, {
+        "base": 5,
+        "perk": "Reflexes",
+        "roll": 15
+      } ],
+      "tool": [ {
+        "base": 8,
+        "perk": "Cheapskate",
+        "roll": 33
+      }, {
+        "base": 7,
+        "perk": "Refined",
+        "roll": 27
+      } ],
+      "weapon": [ {
+        "base": 9,
+        "perk": "Scavenging",
+        "roll": 33
+      }, {
+        "base": 8,
+        "perk": "Undead Bait",
+        "roll": 33
+      }, {
+        "base": 7,
+        "perk": "Energising",
+        "roll": 27
+      }, {
+        "base": 8,
+        "perk": "Blunted",
+        "roll": 32
+      }, {
+        "base": 5,
+        "perk": "Equilibrium",
+        "roll": 13
+      } ]
+    },
+    "Spiked parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 7,
+        "perk": "Committed",
+        "roll": 28
+      }, {
+        "base": 8,
+        "perk": "Fatiguing",
+        "roll": 32
+      }, {
+        "base": 5,
+        "perk": "Genocidal",
+        "roll": 13
+      }, {
+        "base": 7,
+        "perk": "Trophy-taker's",
+        "roll": 27
+      }, {
+        "base": 5,
+        "perk": "Taunting",
+        "roll": 15
+      }, {
+        "base": 8,
+        "perk": "Junk Food",
+        "roll": 33
+      } ],
+      "tool": [ {
+        "base": 7,
+        "perk": "Committed",
+        "roll": 28
+      }, {
+        "base": 8,
+        "perk": "Fatiguing",
+        "roll": 32
+      } ],
+      "weapon": [ {
+        "base": 7,
+        "perk": "Committed",
+        "roll": 28
+      }, {
+        "base": 8,
+        "perk": "Fatiguing",
+        "roll": 32
+      }, {
+        "base": 5,
+        "perk": "Genocidal",
+        "roll": 13
+      }, {
+        "base": 7,
+        "perk": "Trophy-taker's",
+        "roll": 27
+      }, {
+        "base": 5,
+        "perk": "Taunting",
+        "roll": 15
+      }, {
+        "base": 8,
+        "perk": "Junk Food",
+        "roll": 33
+      }, {
+        "base": 5,
+        "perk": "Flanking",
+        "roll": 15
+      } ]
+    },
+    "Spiritual parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 5,
+        "perk": "Enlightened",
+        "roll": 13
+      }, {
+        "base": 8,
+        "perk": "Antitheism",
+        "roll": 32
+      }, {
+        "base": 5,
+        "perk": "Hoarding",
+        "roll": 15
+      }, {
+        "base": 7,
+        "perk": "Cautious",
+        "roll": 27
+      }, {
+        "base": 9,
+        "perk": "Wise",
+        "roll": 33
+      } ],
+      "tool": [ {
+        "base": 5,
+        "perk": "Enlightened",
+        "roll": 13
+      }, {
+        "base": 8,
+        "perk": "Antitheism",
+        "roll": 32
+      }, {
+        "base": 5,
+        "perk": "Hoarding",
+        "roll": 15
+      }, {
+        "base": 7,
+        "perk": "Cautious",
+        "roll": 27
+      }, {
+        "base": 9,
+        "perk": "Wise",
+        "roll": 33
+      } ],
+      "weapon": [ {
+        "base": 5,
+        "perk": "Enlightened",
+        "roll": 13
+      }, {
+        "base": 8,
+        "perk": "Antitheism",
+        "roll": 32
+      }, {
+        "base": 5,
+        "perk": "Hoarding",
+        "roll": 15
+      }, {
+        "base": 7,
+        "perk": "Cautious",
+        "roll": 27
+      }, {
+        "base": 9,
+        "perk": "Wise",
+        "roll": 33
+      }, {
+        "base": 8,
+        "perk": "Inaccurate",
+        "roll": 33
+      } ]
+    },
+    "Stave parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 5,
+        "perk": "Glow Worm",
+        "roll": 15
+      }, {
+        "base": 7,
+        "perk": "Committed",
+        "roll": 28
+      }, {
+        "base": 8,
+        "perk": "Fatiguing",
+        "roll": 32
+      }, {
+        "base": 8,
+        "perk": "Undead Bait",
+        "roll": 33
+      }, {
+        "base": 7,
+        "perk": "Energising",
+        "roll": 27
+      } ],
+      "tool": [ {
+        "base": 5,
+        "perk": "Glow Worm",
+        "roll": 15
+      }, {
+        "base": 7,
+        "perk": "Committed",
+        "roll": 28
+      }, {
+        "base": 8,
+        "perk": "Fatiguing",
+        "roll": 32
+      }, {
+        "base": 7,
+        "perk": "Rapid",
+        "roll": 25
+      }, {
+        "base": 5,
+        "perk": "Prosper",
+        "roll": 5
+      } ],
+      "weapon": [ {
+        "base": 5,
+        "perk": "Glow Worm",
+        "roll": 15
+      }, {
+        "base": 7,
+        "perk": "Committed",
+        "roll": 28
+      }, {
+        "base": 8,
+        "perk": "Fatiguing",
+        "roll": 32
+      }, {
+        "base": 8,
+        "perk": "Undead Bait",
+        "roll": 33
+      }, {
+        "base": 7,
+        "perk": "Energising",
+        "roll": 27
+      } ]
+    },
+    "Strong components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 12,
+        "perk": "Committed",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Fatiguing",
+        "roll": 45
+      }, {
+        "base": 9,
+        "perk": "Absorbative",
+        "roll": 33
+      }, {
+        "base": 9,
+        "perk": "Enhanced Devoted",
+        "roll": 32
+      } ],
+      "tool": [ {
+        "base": 12,
+        "perk": "Committed",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Fatiguing",
+        "roll": 45
+      } ],
+      "weapon": [ {
+        "base": 12,
+        "perk": "Committed",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Fatiguing",
+        "roll": 45
+      } ]
+    },
+    "Stunning components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 12,
+        "perk": "Fatiguing",
+        "roll": 45
+      }, {
+        "base": 9,
+        "perk": "Clear Headed",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Mysterious",
+        "roll": 40
+      } ],
+      "tool": [ {
+        "base": 12,
+        "perk": "Fatiguing",
+        "roll": 45
+      }, {
+        "base": 12,
+        "perk": "Mysterious",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Confused",
+        "roll": 40
+      } ],
+      "weapon": [ {
+        "base": 12,
+        "perk": "Fatiguing",
+        "roll": 45
+      }, {
+        "base": 9,
+        "perk": "Clear Headed",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Mediocrity",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Mysterious",
+        "roll": 40
+      } ]
+    },
+    "Subtle components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 9,
+        "perk": "Looting",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Demon Bait",
+        "roll": 45
+      }, {
+        "base": 12,
+        "perk": "Mobile",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Crystal Shield",
+        "roll": 40
+      } ],
+      "tool": [ {
+        "base": 12,
+        "perk": "Confused",
+        "roll": 45
+      } ],
+      "weapon": [ {
+        "base": 9,
+        "perk": "Looting",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Demon Bait",
+        "roll": 45
+      }, {
+        "base": 12,
+        "perk": "Mobile",
+        "roll": 44
+      } ]
+    },
+    "Swift components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 9,
+        "perk": "Invigorating",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Shield Bashing",
+        "roll": 40
+      } ],
+      "tool": [ {
+        "base": 12,
+        "perk": "Imp Souled",
+        "roll": 40
+      } ],
+      "weapon": [ {
+        "base": 9,
+        "perk": "Invigorating",
+        "roll": 33
+      }, {
+        "base": 12,
+        "perk": "Shield Bashing",
+        "roll": 40
+      }, {
+        "base": 12,
+        "perk": "Blunted",
+        "roll": 45
+      } ]
+    },
+    "Tensile parts": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 5,
+        "perk": "Hoarding",
+        "roll": 15
+      }, {
+        "base": 8,
+        "perk": "Profane",
+        "roll": 33
+      }, {
+        "base": 9,
+        "perk": "Mysterious",
+        "roll": 33
+      } ],
+      "tool": [ {
+        "base": 5,
+        "perk": "Hoarding",
+        "roll": 15
+      }, {
+        "base": 9,
+        "perk": "Mysterious",
+        "roll": 33
+      }, {
+        "base": 8,
+        "perk": "Butterfingers",
+        "roll": 32
+      } ],
+      "weapon": [ {
+        "base": 5,
+        "perk": "Hoarding",
+        "roll": 15
+      }, {
+        "base": 8,
+        "perk": "Blunted",
+        "roll": 32
+      }, {
+        "base": 9,
+        "perk": "Mysterious",
+        "roll": 33
+      } ]
+    },
+    "Third-age components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 44,
+        "perk": "Demon Slayer",
+        "roll": 8
+      } ],
+      "tool": [ {
+        "base": 50,
+        "perk": "Prosper",
+        "roll": 50
+      } ],
+      "weapon": [ {
+        "base": 44,
+        "perk": "Demon Slayer",
+        "roll": 8
+      } ]
+    },
+    "Timeworn components": {
+      "ancient_only": true,
+      "armour": [],
+      "tool": [ {
+        "base": 36,
+        "perk": "Fortune",
+        "roll": 30
+      }, {
+        "base": 13,
+        "perk": "Prosper",
+        "roll": 26
+      } ],
+      "weapon": [ {
+        "base": 30,
+        "perk": "Ruthless",
+        "roll": 13
+      }, {
+        "base": 26,
+        "perk": "Equilibrium",
+        "roll": 33
+      } ]
+    },
+    "Undead components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 40,
+        "perk": "Genocidal",
+        "roll": 8
+      }, {
+        "base": 48,
+        "perk": "Undead Slayer",
+        "roll": 5
+      } ],
+      "tool": [ {
+        "base": 25,
+        "perk": "Breakdown",
+        "roll": 28
+      } ],
+      "weapon": [ {
+        "base": 40,
+        "perk": "Genocidal",
+        "roll": 8
+      }, {
+        "base": 48,
+        "perk": "Undead Slayer",
+        "roll": 5
+      } ]
+    },
+    "Variable components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 12,
+        "perk": "Trophy-taker's",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Demon Bait",
+        "roll": 45
+      }, {
+        "base": 12,
+        "perk": "Clear Headed",
+        "roll": 40
+      }, {
+        "base": 9,
+        "perk": "Enhanced Efficient",
+        "roll": 32
+      } ],
+      "tool": [ {
+        "base": 12,
+        "perk": "Cheapskate",
+        "roll": 40
+      }, {
+        "base": 9,
+        "perk": "Enhanced Efficient",
+        "roll": 32
+      } ],
+      "weapon": [ {
+        "base": 12,
+        "perk": "Trophy-taker's",
+        "roll": 44
+      }, {
+        "base": 12,
+        "perk": "Demon Bait",
+        "roll": 45
+      }, {
+        "base": 12,
+        "perk": "Clear Headed",
+        "roll": 40
+      }, {
+        "base": 9,
+        "perk": "Enhanced Efficient",
+        "roll": 32
+      } ]
+    },
+    "Vintage components": {
+      "ancient_only": true,
+      "armour": [ {
+        "base": 50,
+        "perk": "Relentless",
+        "roll": 13
+      }, {
+        "base": 26,
+        "perk": "Crackling",
+        "roll": 33
+      } ],
+      "tool": [ {
+        "base": 36,
+        "perk": "Fortune",
+        "roll": 30
+      }, {
+        "base": 36,
+        "perk": "Furnace",
+        "roll": 30
+      } ],
+      "weapon": [ {
+        "base": 50,
+        "perk": "Relentless",
+        "roll": 13
+      }, {
+        "base": 26,
+        "perk": "Crackling",
+        "roll": 33
+      } ]
+    },
+    "Zamorak components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 44,
+        "perk": "Impatient",
+        "roll": 8
+      }, {
+        "base": 39,
+        "perk": "Devoted",
+        "roll": 9
+      } ],
+      "tool": [ {
+        "base": 28,
+        "perk": "Imp Souled",
+        "roll": 29
+      } ],
+      "weapon": [ {
+        "base": 44,
+        "perk": "Impatient",
+        "roll": 8
+      } ]
+    },
+    "Zaros components": {
+      "ancient_only": false,
+      "armour": [ {
+        "base": 44,
+        "perk": "Impatient",
+        "roll": 8
+      }, {
+        "base": 39,
+        "perk": "Enhanced Devoted",
+        "roll": 9
+      } ],
+      "tool": [ {
+        "base": 20,
+        "perk": "Imp Souled",
+        "roll": 25
+      } ],
+      "weapon": [ {
+        "base": 44,
+        "perk": "Impatient",
+        "roll": 8
+      } ]
+    }
+  },
+  "perks": {
+    "Absorbative": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Absorbative",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 40,
+        "doubleslot": false,
+        "perk": "Absorbative",
+        "rank": 1,
+        "threshold": 55
+      }, {
+        "ancient_only": false,
+        "cost": 90,
+        "doubleslot": false,
+        "perk": "Absorbative",
+        "rank": 2,
+        "threshold": 115
+      }, {
+        "ancient_only": false,
+        "cost": 175,
+        "doubleslot": false,
+        "perk": "Absorbative",
+        "rank": 3,
+        "threshold": 220
+      }, {
+        "ancient_only": true,
+        "cost": 185,
+        "doubleslot": false,
+        "perk": "Absorbative",
+        "rank": 4,
+        "threshold": 260
+      } ]
+    },
+    "Aftershock": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Aftershock",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 40,
+        "doubleslot": false,
+        "perk": "Aftershock",
+        "rank": 1,
+        "threshold": 55
+      }, {
+        "ancient_only": false,
+        "cost": 90,
+        "doubleslot": false,
+        "perk": "Aftershock",
+        "rank": 2,
+        "threshold": 115
+      }, {
+        "ancient_only": false,
+        "cost": 175,
+        "doubleslot": false,
+        "perk": "Aftershock",
+        "rank": 3,
+        "threshold": 170
+      }, {
+        "ancient_only": true,
+        "cost": 185,
+        "doubleslot": false,
+        "perk": "Aftershock",
+        "rank": 4,
+        "threshold": 200
+      } ]
+    },
+    "Antitheism": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Antitheism",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Antitheism",
+        "rank": 1,
+        "threshold": 50
+      } ]
+    },
+    "Biting": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Biting",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Biting",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 80,
+        "doubleslot": false,
+        "perk": "Biting",
+        "rank": 2,
+        "threshold": 100
+      }, {
+        "ancient_only": false,
+        "cost": 150,
+        "doubleslot": false,
+        "perk": "Biting",
+        "rank": 3,
+        "threshold": 200
+      }, {
+        "ancient_only": true,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Biting",
+        "rank": 4,
+        "threshold": 240
+      } ]
+    },
+    "Blunted": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Blunted",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Blunted",
+        "rank": 1,
+        "threshold": 40
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Blunted",
+        "rank": 2,
+        "threshold": 70
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Blunted",
+        "rank": 3,
+        "threshold": 120
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Blunted",
+        "rank": 4,
+        "threshold": 155
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Blunted",
+        "rank": 5,
+        "threshold": 195
+      } ]
+    },
+    "Brassican": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Brassican",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Brassican",
+        "rank": 1,
+        "threshold": 50
+      } ]
+    },
+    "Breakdown": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Breakdown",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Breakdown",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 65,
+        "doubleslot": false,
+        "perk": "Breakdown",
+        "rank": 2,
+        "threshold": 80
+      }, {
+        "ancient_only": false,
+        "cost": 120,
+        "doubleslot": false,
+        "perk": "Breakdown",
+        "rank": 3,
+        "threshold": 130
+      }, {
+        "ancient_only": false,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Breakdown",
+        "rank": 4,
+        "threshold": 170
+      }, {
+        "ancient_only": false,
+        "cost": 195,
+        "doubleslot": false,
+        "perk": "Breakdown",
+        "rank": 5,
+        "threshold": 210
+      }, {
+        "ancient_only": true,
+        "cost": 205,
+        "doubleslot": false,
+        "perk": "Breakdown",
+        "rank": 6,
+        "threshold": 250
+      } ]
+    },
+    "Brief Respite": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Brief Respite",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Brief Respite",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 80,
+        "doubleslot": false,
+        "perk": "Brief Respite",
+        "rank": 2,
+        "threshold": 100
+      }, {
+        "ancient_only": false,
+        "cost": 150,
+        "doubleslot": false,
+        "perk": "Brief Respite",
+        "rank": 3,
+        "threshold": 200
+      }, {
+        "ancient_only": true,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Brief Respite",
+        "rank": 4,
+        "threshold": 240
+      } ]
+    },
+    "Bulwark": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Bulwark",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 40,
+        "doubleslot": false,
+        "perk": "Bulwark",
+        "rank": 1,
+        "threshold": 55
+      }, {
+        "ancient_only": false,
+        "cost": 90,
+        "doubleslot": false,
+        "perk": "Bulwark",
+        "rank": 2,
+        "threshold": 115
+      }, {
+        "ancient_only": false,
+        "cost": 175,
+        "doubleslot": false,
+        "perk": "Bulwark",
+        "rank": 3,
+        "threshold": 220
+      }, {
+        "ancient_only": true,
+        "cost": 185,
+        "doubleslot": false,
+        "perk": "Bulwark",
+        "rank": 4,
+        "threshold": 260
+      } ]
+    },
+    "Butterfingers": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Butterfingers",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Butterfingers",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 65,
+        "doubleslot": false,
+        "perk": "Butterfingers",
+        "rank": 2,
+        "threshold": 80
+      }, {
+        "ancient_only": false,
+        "cost": 120,
+        "doubleslot": false,
+        "perk": "Butterfingers",
+        "rank": 3,
+        "threshold": 130
+      }, {
+        "ancient_only": false,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Butterfingers",
+        "rank": 4,
+        "threshold": 170
+      }, {
+        "ancient_only": false,
+        "cost": 195,
+        "doubleslot": false,
+        "perk": "Butterfingers",
+        "rank": 5,
+        "threshold": 210
+      } ]
+    },
+    "Caroming": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Caroming",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 40,
+        "doubleslot": false,
+        "perk": "Caroming",
+        "rank": 1,
+        "threshold": 55
+      }, {
+        "ancient_only": false,
+        "cost": 90,
+        "doubleslot": false,
+        "perk": "Caroming",
+        "rank": 2,
+        "threshold": 115
+      }, {
+        "ancient_only": false,
+        "cost": 175,
+        "doubleslot": false,
+        "perk": "Caroming",
+        "rank": 3,
+        "threshold": 170
+      }, {
+        "ancient_only": true,
+        "cost": 185,
+        "doubleslot": false,
+        "perk": "Caroming",
+        "rank": 4,
+        "threshold": 200
+      } ]
+    },
+    "Cautious": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Cautious",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Cautious",
+        "rank": 1,
+        "threshold": 45
+      } ]
+    },
+    "Charitable": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Charitable",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Charitable",
+        "rank": 1,
+        "threshold": 40
+      }, {
+        "ancient_only": false,
+        "cost": 75,
+        "doubleslot": false,
+        "perk": "Charitable",
+        "rank": 2,
+        "threshold": 90
+      }, {
+        "ancient_only": false,
+        "cost": 135,
+        "doubleslot": false,
+        "perk": "Charitable",
+        "rank": 3,
+        "threshold": 180
+      }, {
+        "ancient_only": true,
+        "cost": 145,
+        "doubleslot": false,
+        "perk": "Charitable",
+        "rank": 4,
+        "threshold": 210
+      } ]
+    },
+    "Cheapskate": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Cheapskate",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 20,
+        "doubleslot": false,
+        "perk": "Cheapskate",
+        "rank": 1,
+        "threshold": 40
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Cheapskate",
+        "rank": 2,
+        "threshold": 70
+      }, {
+        "ancient_only": false,
+        "cost": 40,
+        "doubleslot": false,
+        "perk": "Cheapskate",
+        "rank": 3,
+        "threshold": 150
+      } ]
+    },
+    "Clear Headed": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Clear Headed",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Clear Headed",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 80,
+        "doubleslot": false,
+        "perk": "Clear Headed",
+        "rank": 2,
+        "threshold": 100
+      }, {
+        "ancient_only": false,
+        "cost": 150,
+        "doubleslot": false,
+        "perk": "Clear Headed",
+        "rank": 3,
+        "threshold": 200
+      }, {
+        "ancient_only": true,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Clear Headed",
+        "rank": 4,
+        "threshold": 240
+      } ]
+    },
+    "Committed": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Committed",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Committed",
+        "rank": 1,
+        "threshold": 45
+      } ]
+    },
+    "Confused": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Confused",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 20,
+        "doubleslot": false,
+        "perk": "Confused",
+        "rank": 1,
+        "threshold": 40
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Confused",
+        "rank": 2,
+        "threshold": 70
+      }, {
+        "ancient_only": false,
+        "cost": 40,
+        "doubleslot": false,
+        "perk": "Confused",
+        "rank": 3,
+        "threshold": 150
+      } ]
+    },
+    "Crackling": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Crackling",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Crackling",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 80,
+        "doubleslot": false,
+        "perk": "Crackling",
+        "rank": 2,
+        "threshold": 100
+      }, {
+        "ancient_only": false,
+        "cost": 150,
+        "doubleslot": false,
+        "perk": "Crackling",
+        "rank": 3,
+        "threshold": 200
+      }, {
+        "ancient_only": true,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Crackling",
+        "rank": 4,
+        "threshold": 240
+      } ]
+    },
+    "Crystal Shield": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Crystal Shield",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Crystal Shield",
+        "rank": 1,
+        "threshold": 40
+      }, {
+        "ancient_only": false,
+        "cost": 120,
+        "doubleslot": false,
+        "perk": "Crystal Shield",
+        "rank": 2,
+        "threshold": 150
+      }, {
+        "ancient_only": false,
+        "cost": 150,
+        "doubleslot": false,
+        "perk": "Crystal Shield",
+        "rank": 3,
+        "threshold": 180
+      }, {
+        "ancient_only": true,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Crystal Shield",
+        "rank": 4,
+        "threshold": 210
+      } ]
+    },
+    "Demon Bait": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Demon Bait",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Demon Bait",
+        "rank": 1,
+        "threshold": 45
+      } ]
+    },
+    "Demon Slayer": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Demon Slayer",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Demon Slayer",
+        "rank": 1,
+        "threshold": 50
+      } ]
+    },
+    "Devoted": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Devoted",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 40,
+        "doubleslot": false,
+        "perk": "Devoted",
+        "rank": 1,
+        "threshold": 55
+      }, {
+        "ancient_only": false,
+        "cost": 90,
+        "doubleslot": false,
+        "perk": "Devoted",
+        "rank": 2,
+        "threshold": 115
+      }, {
+        "ancient_only": false,
+        "cost": 175,
+        "doubleslot": false,
+        "perk": "Devoted",
+        "rank": 3,
+        "threshold": 220
+      }, {
+        "ancient_only": true,
+        "cost": 185,
+        "doubleslot": false,
+        "perk": "Devoted",
+        "rank": 4,
+        "threshold": 260
+      } ]
+    },
+    "Dragon Bait": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Dragon Bait",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Dragon Bait",
+        "rank": 1,
+        "threshold": 45
+      } ]
+    },
+    "Dragon Slayer": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Dragon Slayer",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Dragon Slayer",
+        "rank": 1,
+        "threshold": 50
+      } ]
+    },
+    "Efficient": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Efficient",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Efficient",
+        "rank": 1,
+        "threshold": 40
+      }, {
+        "ancient_only": false,
+        "cost": 70,
+        "doubleslot": false,
+        "perk": "Efficient",
+        "rank": 2,
+        "threshold": 80
+      }, {
+        "ancient_only": false,
+        "cost": 100,
+        "doubleslot": false,
+        "perk": "Efficient",
+        "rank": 3,
+        "threshold": 120
+      }, {
+        "ancient_only": true,
+        "cost": 110,
+        "doubleslot": false,
+        "perk": "Efficient",
+        "rank": 4,
+        "threshold": 140
+      } ]
+    },
+    "Energising": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Energising",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Energising",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 80,
+        "doubleslot": false,
+        "perk": "Energising",
+        "rank": 2,
+        "threshold": 100
+      }, {
+        "ancient_only": false,
+        "cost": 150,
+        "doubleslot": false,
+        "perk": "Energising",
+        "rank": 3,
+        "threshold": 200
+      }, {
+        "ancient_only": true,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Energising",
+        "rank": 4,
+        "threshold": 240
+      } ]
+    },
+    "Enhanced Devoted": {
+      "doubleslot": true,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": true,
+        "perk": "Enhanced Devoted",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": true,
+        "perk": "Enhanced Devoted",
+        "rank": 1,
+        "threshold": 40
+      }, {
+        "ancient_only": false,
+        "cost": 120,
+        "doubleslot": true,
+        "perk": "Enhanced Devoted",
+        "rank": 2,
+        "threshold": 140
+      }, {
+        "ancient_only": false,
+        "cost": 220,
+        "doubleslot": true,
+        "perk": "Enhanced Devoted",
+        "rank": 3,
+        "threshold": 230
+      }, {
+        "ancient_only": true,
+        "cost": 230,
+        "doubleslot": true,
+        "perk": "Enhanced Devoted",
+        "rank": 4,
+        "threshold": 270
+      } ]
+    },
+    "Enhanced Efficient": {
+      "doubleslot": true,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": true,
+        "perk": "Enhanced Efficient",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": true,
+        "perk": "Enhanced Efficient",
+        "rank": 1,
+        "threshold": 40
+      }, {
+        "ancient_only": false,
+        "cost": 120,
+        "doubleslot": true,
+        "perk": "Enhanced Efficient",
+        "rank": 2,
+        "threshold": 140
+      }, {
+        "ancient_only": false,
+        "cost": 220,
+        "doubleslot": true,
+        "perk": "Enhanced Efficient",
+        "rank": 3,
+        "threshold": 230
+      }, {
+        "ancient_only": true,
+        "cost": 230,
+        "doubleslot": true,
+        "perk": "Enhanced Efficient",
+        "rank": 4,
+        "threshold": 270
+      } ]
+    },
+    "Enlightened": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Enlightened",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Enlightened",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 80,
+        "doubleslot": false,
+        "perk": "Enlightened",
+        "rank": 2,
+        "threshold": 100
+      }, {
+        "ancient_only": false,
+        "cost": 150,
+        "doubleslot": false,
+        "perk": "Enlightened",
+        "rank": 3,
+        "threshold": 200
+      }, {
+        "ancient_only": true,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Enlightened",
+        "rank": 4,
+        "threshold": 240
+      } ]
+    },
+    "Equilibrium": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Equilibrium",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 40,
+        "doubleslot": false,
+        "perk": "Equilibrium",
+        "rank": 1,
+        "threshold": 55
+      }, {
+        "ancient_only": false,
+        "cost": 90,
+        "doubleslot": false,
+        "perk": "Equilibrium",
+        "rank": 2,
+        "threshold": 115
+      }, {
+        "ancient_only": false,
+        "cost": 175,
+        "doubleslot": false,
+        "perk": "Equilibrium",
+        "rank": 3,
+        "threshold": 220
+      }, {
+        "ancient_only": true,
+        "cost": 185,
+        "doubleslot": false,
+        "perk": "Equilibrium",
+        "rank": 4,
+        "threshold": 260
+      } ]
+    },
+    "Fatiguing": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Fatiguing",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Fatiguing",
+        "rank": 1,
+        "threshold": 40
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Fatiguing",
+        "rank": 2,
+        "threshold": 90
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Fatiguing",
+        "rank": 3,
+        "threshold": 180
+      } ]
+    },
+    "Flanking": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Flanking",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Flanking",
+        "rank": 1,
+        "threshold": 40
+      }, {
+        "ancient_only": false,
+        "cost": 110,
+        "doubleslot": false,
+        "perk": "Flanking",
+        "rank": 2,
+        "threshold": 140
+      }, {
+        "ancient_only": false,
+        "cost": 180,
+        "doubleslot": false,
+        "perk": "Flanking",
+        "rank": 3,
+        "threshold": 210
+      }, {
+        "ancient_only": true,
+        "cost": 190,
+        "doubleslot": false,
+        "perk": "Flanking",
+        "rank": 4,
+        "threshold": 250
+      } ]
+    },
+    "Fortune": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": true,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Fortune",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": true,
+        "cost": 45,
+        "doubleslot": false,
+        "perk": "Fortune",
+        "rank": 1,
+        "threshold": 60
+      }, {
+        "ancient_only": true,
+        "cost": 90,
+        "doubleslot": false,
+        "perk": "Fortune",
+        "rank": 2,
+        "threshold": 130
+      }, {
+        "ancient_only": true,
+        "cost": 180,
+        "doubleslot": false,
+        "perk": "Fortune",
+        "rank": 3,
+        "threshold": 250
+      } ]
+    },
+    "Furnace": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Furnace",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 40,
+        "doubleslot": false,
+        "perk": "Furnace",
+        "rank": 1,
+        "threshold": 55
+      }, {
+        "ancient_only": false,
+        "cost": 90,
+        "doubleslot": false,
+        "perk": "Furnace",
+        "rank": 2,
+        "threshold": 115
+      }, {
+        "ancient_only": false,
+        "cost": 175,
+        "doubleslot": false,
+        "perk": "Furnace",
+        "rank": 3,
+        "threshold": 220
+      }, {
+        "ancient_only": true,
+        "cost": 185,
+        "doubleslot": false,
+        "perk": "Furnace",
+        "rank": 4,
+        "threshold": 260
+      } ]
+    },
+    "Genocidal": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Genocidal",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 50,
+        "doubleslot": false,
+        "perk": "Genocidal",
+        "rank": 1,
+        "threshold": 65
+      } ]
+    },
+    "Glow Worm": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Glow Worm",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Glow Worm",
+        "rank": 1,
+        "threshold": 50
+      } ]
+    },
+    "Hallucinogenic": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Hallucinogenic",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Hallucinogenic",
+        "rank": 1,
+        "threshold": 50
+      } ]
+    },
+    "Hoarding": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Hoarding",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Hoarding",
+        "rank": 1,
+        "threshold": 50
+      } ]
+    },
+    "Honed": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Honed",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Honed",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 65,
+        "doubleslot": false,
+        "perk": "Honed",
+        "rank": 2,
+        "threshold": 80
+      }, {
+        "ancient_only": false,
+        "cost": 120,
+        "doubleslot": false,
+        "perk": "Honed",
+        "rank": 3,
+        "threshold": 130
+      }, {
+        "ancient_only": false,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Honed",
+        "rank": 4,
+        "threshold": 170
+      }, {
+        "ancient_only": false,
+        "cost": 195,
+        "doubleslot": false,
+        "perk": "Honed",
+        "rank": 5,
+        "threshold": 210
+      }, {
+        "ancient_only": true,
+        "cost": 205,
+        "doubleslot": false,
+        "perk": "Honed",
+        "rank": 6,
+        "threshold": 250
+      } ]
+    },
+    "Imp Souled": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Imp Souled",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Imp Souled",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 65,
+        "doubleslot": false,
+        "perk": "Imp Souled",
+        "rank": 2,
+        "threshold": 80
+      }, {
+        "ancient_only": false,
+        "cost": 120,
+        "doubleslot": false,
+        "perk": "Imp Souled",
+        "rank": 3,
+        "threshold": 130
+      }, {
+        "ancient_only": false,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Imp Souled",
+        "rank": 4,
+        "threshold": 170
+      }, {
+        "ancient_only": false,
+        "cost": 195,
+        "doubleslot": false,
+        "perk": "Imp Souled",
+        "rank": 5,
+        "threshold": 210
+      }, {
+        "ancient_only": true,
+        "cost": 205,
+        "doubleslot": false,
+        "perk": "Imp Souled",
+        "rank": 6,
+        "threshold": 250
+      } ]
+    },
+    "Impatient": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Impatient",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Impatient",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 80,
+        "doubleslot": false,
+        "perk": "Impatient",
+        "rank": 2,
+        "threshold": 100
+      }, {
+        "ancient_only": false,
+        "cost": 150,
+        "doubleslot": false,
+        "perk": "Impatient",
+        "rank": 3,
+        "threshold": 200
+      }, {
+        "ancient_only": true,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Impatient",
+        "rank": 4,
+        "threshold": 240
+      } ]
+    },
+    "Inaccurate": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Inaccurate",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Inaccurate",
+        "rank": 1,
+        "threshold": 40
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Inaccurate",
+        "rank": 2,
+        "threshold": 70
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Inaccurate",
+        "rank": 3,
+        "threshold": 120
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Inaccurate",
+        "rank": 4,
+        "threshold": 155
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Inaccurate",
+        "rank": 5,
+        "threshold": 195
+      } ]
+    },
+    "Invigorating": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Invigorating",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Invigorating",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 80,
+        "doubleslot": false,
+        "perk": "Invigorating",
+        "rank": 2,
+        "threshold": 100
+      }, {
+        "ancient_only": false,
+        "cost": 150,
+        "doubleslot": false,
+        "perk": "Invigorating",
+        "rank": 3,
+        "threshold": 200
+      }, {
+        "ancient_only": true,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Invigorating",
+        "rank": 4,
+        "threshold": 240
+      } ]
+    },
+    "Junk Food": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Junk Food",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Junk Food",
+        "rank": 1,
+        "threshold": 40
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Junk Food",
+        "rank": 2,
+        "threshold": 90
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Junk Food",
+        "rank": 3,
+        "threshold": 180
+      } ]
+    },
+    "Looting": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Looting",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 50,
+        "doubleslot": false,
+        "perk": "Looting",
+        "rank": 1,
+        "threshold": 65
+      } ]
+    },
+    "Lucky": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Lucky",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Lucky",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 65,
+        "doubleslot": false,
+        "perk": "Lucky",
+        "rank": 2,
+        "threshold": 80
+      }, {
+        "ancient_only": false,
+        "cost": 120,
+        "doubleslot": false,
+        "perk": "Lucky",
+        "rank": 3,
+        "threshold": 130
+      }, {
+        "ancient_only": false,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Lucky",
+        "rank": 4,
+        "threshold": 170
+      }, {
+        "ancient_only": false,
+        "cost": 195,
+        "doubleslot": false,
+        "perk": "Lucky",
+        "rank": 5,
+        "threshold": 210
+      }, {
+        "ancient_only": true,
+        "cost": 205,
+        "doubleslot": false,
+        "perk": "Lucky",
+        "rank": 6,
+        "threshold": 250
+      } ]
+    },
+    "Lunging": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Lunging",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 40,
+        "doubleslot": false,
+        "perk": "Lunging",
+        "rank": 1,
+        "threshold": 55
+      }, {
+        "ancient_only": false,
+        "cost": 90,
+        "doubleslot": false,
+        "perk": "Lunging",
+        "rank": 2,
+        "threshold": 115
+      }, {
+        "ancient_only": false,
+        "cost": 175,
+        "doubleslot": false,
+        "perk": "Lunging",
+        "rank": 3,
+        "threshold": 170
+      }, {
+        "ancient_only": true,
+        "cost": 185,
+        "doubleslot": false,
+        "perk": "Lunging",
+        "rank": 4,
+        "threshold": 200
+      } ]
+    },
+    "Mediocrity": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Mediocrity",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Mediocrity",
+        "rank": 1,
+        "threshold": 40
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Mediocrity",
+        "rank": 2,
+        "threshold": 90
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Mediocrity",
+        "rank": 3,
+        "threshold": 180
+      } ]
+    },
+    "Mobile": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Mobile",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Mobile",
+        "rank": 1,
+        "threshold": 50
+      } ]
+    },
+    "Mysterious": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Mysterious",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 20,
+        "doubleslot": false,
+        "perk": "Mysterious",
+        "rank": 1,
+        "threshold": 25
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Mysterious",
+        "rank": 2,
+        "threshold": 45
+      }, {
+        "ancient_only": false,
+        "cost": 40,
+        "doubleslot": false,
+        "perk": "Mysterious",
+        "rank": 3,
+        "threshold": 120
+      }, {
+        "ancient_only": false,
+        "cost": 50,
+        "doubleslot": false,
+        "perk": "Mysterious",
+        "rank": 4,
+        "threshold": 175
+      }, {
+        "ancient_only": false,
+        "cost": 60,
+        "doubleslot": false,
+        "perk": "Mysterious",
+        "rank": 5,
+        "threshold": 250
+      }, {
+        "ancient_only": true,
+        "cost": 70,
+        "doubleslot": false,
+        "perk": "Mysterious",
+        "rank": 6,
+        "threshold": 300
+      } ]
+    },
+    "No effect": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "No effect",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "No effect",
+        "rank": 1,
+        "threshold": 0
+      } ]
+    },
+    "Planted Feet": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Planted Feet",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 60,
+        "doubleslot": false,
+        "perk": "Planted Feet",
+        "rank": 1,
+        "threshold": 60
+      } ]
+    },
+    "Polishing": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Polishing",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Polishing",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 80,
+        "doubleslot": false,
+        "perk": "Polishing",
+        "rank": 2,
+        "threshold": 100
+      }, {
+        "ancient_only": false,
+        "cost": 150,
+        "doubleslot": false,
+        "perk": "Polishing",
+        "rank": 3,
+        "threshold": 200
+      }, {
+        "ancient_only": true,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Polishing",
+        "rank": 4,
+        "threshold": 240
+      } ]
+    },
+    "Precise": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Precise",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Precise",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 65,
+        "doubleslot": false,
+        "perk": "Precise",
+        "rank": 2,
+        "threshold": 80
+      }, {
+        "ancient_only": false,
+        "cost": 120,
+        "doubleslot": false,
+        "perk": "Precise",
+        "rank": 3,
+        "threshold": 130
+      }, {
+        "ancient_only": false,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Precise",
+        "rank": 4,
+        "threshold": 170
+      }, {
+        "ancient_only": false,
+        "cost": 195,
+        "doubleslot": false,
+        "perk": "Precise",
+        "rank": 5,
+        "threshold": 210
+      }, {
+        "ancient_only": true,
+        "cost": 205,
+        "doubleslot": false,
+        "perk": "Precise",
+        "rank": 6,
+        "threshold": 250
+      } ]
+    },
+    "Preparation": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Preparation",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 40,
+        "doubleslot": false,
+        "perk": "Preparation",
+        "rank": 1,
+        "threshold": 55
+      }, {
+        "ancient_only": false,
+        "cost": 90,
+        "doubleslot": false,
+        "perk": "Preparation",
+        "rank": 2,
+        "threshold": 115
+      }, {
+        "ancient_only": false,
+        "cost": 175,
+        "doubleslot": false,
+        "perk": "Preparation",
+        "rank": 3,
+        "threshold": 220
+      }, {
+        "ancient_only": true,
+        "cost": 185,
+        "doubleslot": false,
+        "perk": "Preparation",
+        "rank": 4,
+        "threshold": 260
+      } ]
+    },
+    "Profane": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Profane",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Profane",
+        "rank": 1,
+        "threshold": 45
+      } ]
+    },
+    "Prosper": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Prosper",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Prosper",
+        "rank": 1,
+        "threshold": 50
+      } ]
+    },
+    "Pyromaniac": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Pyromaniac",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Pyromaniac",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 65,
+        "doubleslot": false,
+        "perk": "Pyromaniac",
+        "rank": 2,
+        "threshold": 80
+      }, {
+        "ancient_only": false,
+        "cost": 120,
+        "doubleslot": false,
+        "perk": "Pyromaniac",
+        "rank": 3,
+        "threshold": 130
+      }, {
+        "ancient_only": false,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Pyromaniac",
+        "rank": 4,
+        "threshold": 170
+      }, {
+        "ancient_only": false,
+        "cost": 195,
+        "doubleslot": false,
+        "perk": "Pyromaniac",
+        "rank": 5,
+        "threshold": 210
+      }, {
+        "ancient_only": true,
+        "cost": 205,
+        "doubleslot": false,
+        "perk": "Pyromaniac",
+        "rank": 6,
+        "threshold": 250
+      } ]
+    },
+    "Rapid": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Rapid",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 40,
+        "doubleslot": false,
+        "perk": "Rapid",
+        "rank": 1,
+        "threshold": 55
+      }, {
+        "ancient_only": false,
+        "cost": 90,
+        "doubleslot": false,
+        "perk": "Rapid",
+        "rank": 2,
+        "threshold": 115
+      }, {
+        "ancient_only": false,
+        "cost": 175,
+        "doubleslot": false,
+        "perk": "Rapid",
+        "rank": 3,
+        "threshold": 220
+      }, {
+        "ancient_only": true,
+        "cost": 185,
+        "doubleslot": false,
+        "perk": "Rapid",
+        "rank": 4,
+        "threshold": 260
+      } ]
+    },
+    "Refined": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Refined",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 40,
+        "doubleslot": false,
+        "perk": "Refined",
+        "rank": 1,
+        "threshold": 55
+      }, {
+        "ancient_only": false,
+        "cost": 90,
+        "doubleslot": false,
+        "perk": "Refined",
+        "rank": 2,
+        "threshold": 115
+      }, {
+        "ancient_only": false,
+        "cost": 175,
+        "doubleslot": false,
+        "perk": "Refined",
+        "rank": 3,
+        "threshold": 220
+      }, {
+        "ancient_only": true,
+        "cost": 185,
+        "doubleslot": false,
+        "perk": "Refined",
+        "rank": 4,
+        "threshold": 260
+      } ]
+    },
+    "Reflexes": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Reflexes",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Reflexes",
+        "rank": 1,
+        "threshold": 50
+      } ]
+    },
+    "Relentless": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": true,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Relentless",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": true,
+        "cost": 45,
+        "doubleslot": false,
+        "perk": "Relentless",
+        "rank": 1,
+        "threshold": 60
+      }, {
+        "ancient_only": true,
+        "cost": 75,
+        "doubleslot": false,
+        "perk": "Relentless",
+        "rank": 2,
+        "threshold": 130
+      }, {
+        "ancient_only": true,
+        "cost": 130,
+        "doubleslot": false,
+        "perk": "Relentless",
+        "rank": 3,
+        "threshold": 200
+      }, {
+        "ancient_only": true,
+        "cost": 170,
+        "doubleslot": false,
+        "perk": "Relentless",
+        "rank": 4,
+        "threshold": 280
+      }, {
+        "ancient_only": true,
+        "cost": 205,
+        "doubleslot": false,
+        "perk": "Relentless",
+        "rank": 5,
+        "threshold": 380
+      } ]
+    },
+    "Ruthless": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": true,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Ruthless",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": true,
+        "cost": 45,
+        "doubleslot": false,
+        "perk": "Ruthless",
+        "rank": 1,
+        "threshold": 60
+      }, {
+        "ancient_only": true,
+        "cost": 90,
+        "doubleslot": false,
+        "perk": "Ruthless",
+        "rank": 2,
+        "threshold": 130
+      }, {
+        "ancient_only": true,
+        "cost": 180,
+        "doubleslot": false,
+        "perk": "Ruthless",
+        "rank": 3,
+        "threshold": 250
+      } ]
+    },
+    "Scavenging": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Scavenging",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 40,
+        "doubleslot": false,
+        "perk": "Scavenging",
+        "rank": 1,
+        "threshold": 55
+      }, {
+        "ancient_only": false,
+        "cost": 90,
+        "doubleslot": false,
+        "perk": "Scavenging",
+        "rank": 2,
+        "threshold": 115
+      }, {
+        "ancient_only": false,
+        "cost": 175,
+        "doubleslot": false,
+        "perk": "Scavenging",
+        "rank": 3,
+        "threshold": 220
+      }, {
+        "ancient_only": true,
+        "cost": 185,
+        "doubleslot": false,
+        "perk": "Scavenging",
+        "rank": 4,
+        "threshold": 260
+      } ]
+    },
+    "Shield Bashing": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Shield Bashing",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Shield Bashing",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 80,
+        "doubleslot": false,
+        "perk": "Shield Bashing",
+        "rank": 2,
+        "threshold": 100
+      }, {
+        "ancient_only": false,
+        "cost": 150,
+        "doubleslot": false,
+        "perk": "Shield Bashing",
+        "rank": 3,
+        "threshold": 200
+      }, {
+        "ancient_only": true,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Shield Bashing",
+        "rank": 4,
+        "threshold": 240
+      } ]
+    },
+    "Spendthrift": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Spendthrift",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 40,
+        "doubleslot": false,
+        "perk": "Spendthrift",
+        "rank": 1,
+        "threshold": 55
+      }, {
+        "ancient_only": false,
+        "cost": 75,
+        "doubleslot": false,
+        "perk": "Spendthrift",
+        "rank": 2,
+        "threshold": 90
+      }, {
+        "ancient_only": false,
+        "cost": 135,
+        "doubleslot": false,
+        "perk": "Spendthrift",
+        "rank": 3,
+        "threshold": 150
+      }, {
+        "ancient_only": false,
+        "cost": 170,
+        "doubleslot": false,
+        "perk": "Spendthrift",
+        "rank": 4,
+        "threshold": 185
+      }, {
+        "ancient_only": false,
+        "cost": 210,
+        "doubleslot": false,
+        "perk": "Spendthrift",
+        "rank": 5,
+        "threshold": 220
+      }, {
+        "ancient_only": true,
+        "cost": 220,
+        "doubleslot": false,
+        "perk": "Spendthrift",
+        "rank": 6,
+        "threshold": 260
+      } ]
+    },
+    "Talking": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Talking",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Talking",
+        "rank": 1,
+        "threshold": 50
+      } ]
+    },
+    "Taunting": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Taunting",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Taunting",
+        "rank": 1,
+        "threshold": 50
+      } ]
+    },
+    "Tinker": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Tinker",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 20,
+        "doubleslot": false,
+        "perk": "Tinker",
+        "rank": 1,
+        "threshold": 40
+      }, {
+        "ancient_only": false,
+        "cost": 30,
+        "doubleslot": false,
+        "perk": "Tinker",
+        "rank": 2,
+        "threshold": 70
+      }, {
+        "ancient_only": false,
+        "cost": 40,
+        "doubleslot": false,
+        "perk": "Tinker",
+        "rank": 3,
+        "threshold": 150
+      }, {
+        "ancient_only": true,
+        "cost": 50,
+        "doubleslot": false,
+        "perk": "Tinker",
+        "rank": 4,
+        "threshold": 180
+      } ]
+    },
+    "Trophy-taker's": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Trophy-taker's",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Trophy-taker's",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 65,
+        "doubleslot": false,
+        "perk": "Trophy-taker's",
+        "rank": 2,
+        "threshold": 80
+      }, {
+        "ancient_only": false,
+        "cost": 120,
+        "doubleslot": false,
+        "perk": "Trophy-taker's",
+        "rank": 3,
+        "threshold": 130
+      }, {
+        "ancient_only": false,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Trophy-taker's",
+        "rank": 4,
+        "threshold": 170
+      }, {
+        "ancient_only": false,
+        "cost": 195,
+        "doubleslot": false,
+        "perk": "Trophy-taker's",
+        "rank": 5,
+        "threshold": 210
+      }, {
+        "ancient_only": true,
+        "cost": 205,
+        "doubleslot": false,
+        "perk": "Trophy-taker's",
+        "rank": 6,
+        "threshold": 250
+      } ]
+    },
+    "Turtling": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Turtling",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Turtling",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 80,
+        "doubleslot": false,
+        "perk": "Turtling",
+        "rank": 2,
+        "threshold": 100
+      }, {
+        "ancient_only": false,
+        "cost": 150,
+        "doubleslot": false,
+        "perk": "Turtling",
+        "rank": 3,
+        "threshold": 200
+      }, {
+        "ancient_only": true,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Turtling",
+        "rank": 4,
+        "threshold": 240
+      } ]
+    },
+    "Ultimatums": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Ultimatums",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Ultimatums",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 80,
+        "doubleslot": false,
+        "perk": "Ultimatums",
+        "rank": 2,
+        "threshold": 100
+      }, {
+        "ancient_only": false,
+        "cost": 150,
+        "doubleslot": false,
+        "perk": "Ultimatums",
+        "rank": 3,
+        "threshold": 200
+      }, {
+        "ancient_only": true,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Ultimatums",
+        "rank": 4,
+        "threshold": 240
+      } ]
+    },
+    "Undead Bait": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Undead Bait",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Undead Bait",
+        "rank": 1,
+        "threshold": 45
+      } ]
+    },
+    "Undead Slayer": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Undead Slayer",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Undead Slayer",
+        "rank": 1,
+        "threshold": 50
+      } ]
+    },
+    "Venomblood": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Venomblood",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Venomblood",
+        "rank": 1,
+        "threshold": 50
+      } ]
+    },
+    "Wise": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "perk": "Wise",
+        "rank": 0,
+        "threshold": 0
+      }, {
+        "ancient_only": false,
+        "cost": 35,
+        "doubleslot": false,
+        "perk": "Wise",
+        "rank": 1,
+        "threshold": 50
+      }, {
+        "ancient_only": false,
+        "cost": 80,
+        "doubleslot": false,
+        "perk": "Wise",
+        "rank": 2,
+        "threshold": 100
+      }, {
+        "ancient_only": false,
+        "cost": 150,
+        "doubleslot": false,
+        "perk": "Wise",
+        "rank": 3,
+        "threshold": 200
+      }, {
+        "ancient_only": true,
+        "cost": 160,
+        "doubleslot": false,
+        "perk": "Wise",
+        "rank": 4,
+        "threshold": 240
+      } ]
+    }
+  }
+}
