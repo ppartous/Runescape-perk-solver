@@ -67,6 +67,12 @@ pub struct WantedPerk {
     pub doubleslot: bool
 }
 
+impl Default for WantedPerk {
+    fn default() -> Self {
+        WantedPerk { perk: PerkName::Empty, rank: 0, doubleslot: false }
+    }
+}
+
 #[derive(Debug)]
 pub struct WantedGizmo (pub WantedPerk, pub WantedPerk);
 

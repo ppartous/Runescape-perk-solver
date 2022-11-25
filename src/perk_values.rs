@@ -8,7 +8,7 @@ pub fn get_perk_values<'a>(data: &'a Data, input_materials: &Vec<MaterialName>, 
     let mut perk_values_order = Vec::new();
     let mut possible_perks: HashMap<PerkName, PerkValues> = HashMap::new();
 
-    for mat in input_materials.iter() {
+    for mat in input_materials {
         let mat_data = &data.comps[mat][gizmo_type];
         let is_ancient_mat = data.comps[mat].ancient_only;
 
@@ -16,7 +16,7 @@ pub fn get_perk_values<'a>(data: &'a Data, input_materials: &Vec<MaterialName>, 
             continue;
         }
 
-        for perk_data in mat_data.iter() {
+        for perk_data in mat_data {
             let mut perk_roll = perk_data.roll;
             let mut perk_base = perk_data.base;
 
@@ -44,7 +44,7 @@ pub fn get_perk_values<'a>(data: &'a Data, input_materials: &Vec<MaterialName>, 
     }
 
     let mut perk_values_arr = Vec::with_capacity(possible_perks.len());
-    for name in perk_values_order.iter() {
+    for name in perk_values_order {
         let x = possible_perks.remove(&name).unwrap();
         perk_values_arr.push(x);
     }
@@ -111,6 +111,48 @@ pub fn calc_perk_rank_probabilities<'a>(data: &'a Data, perk_values_arr: &mut Ve
             }
         }
     }
+}
+
+/// Quick check if it is even possible to generate the wanted perk rank. This won't catch all impossible material orders.
+pub fn can_generate_wanted_ranks(data: &Data, perk_values_arr: &Vec<PerkValues>, wanted_gizmo: &WantedGizmo) -> bool {
+    let wanted_rank1 = wanted_gizmo.0.rank as usize;
+    let wanted_rank2 = wanted_gizmo.1.rank as usize;
+
+    let perk1_ranks = &data.perks[&wanted_gizmo.0.perk].ranks;
+    let perk2_ranks = &data.perks[&wanted_gizmo.1.perk].ranks;
+
+    let perk1_threshold = perk1_ranks[wanted_rank1].threshold as usize;
+    let perk1_next_threshold = if wanted_rank1 + 1 < perk1_ranks.len() { perk1_ranks[wanted_rank1 + 1].threshold as usize } else { usize::MAX };
+
+    let perk2_threshold = perk2_ranks[wanted_rank2].threshold as usize;
+    let perk2_next_threshold = if wanted_rank2 + 1 < perk2_ranks.len() { perk2_ranks[wanted_rank2 + 1].threshold as usize } else { usize::MAX };
+
+    let mut perk1_base = None;
+    let mut perk1_max_roll = None;
+    let mut perk2_base = None;
+    let mut perk2_max_roll = None;
+
+    for perk_value in perk_values_arr {
+        if perk_value.perk == wanted_gizmo.0.perk {
+            perk1_base = Some(perk_value.base as usize);
+            perk1_max_roll = Some(perk_value.rolls.iter().map(|x| *x as usize).sum::<usize>() - perk_value.rolls.len());
+        }
+        if perk_value.perk == wanted_gizmo.1.perk {
+            perk2_base = Some(perk_value.base as usize);
+            perk2_max_roll = Some(perk_value.rolls.iter().map(|x| *x as usize).sum::<usize>() - perk_value.rolls.len());
+        }
+    }
+
+    if perk1_base == None || (wanted_gizmo.1.perk != PerkName::Empty && perk2_base == None) {
+        return false;
+    } else if !(perk1_base.unwrap() + perk1_max_roll.unwrap() >= perk1_threshold && perk1_base.unwrap() < perk1_next_threshold) {
+        return false;
+    } else if wanted_gizmo.1.perk != PerkName::Empty
+    && !(perk2_base.unwrap() + perk2_max_roll.unwrap() >= perk2_threshold && perk2_base.unwrap() < perk2_next_threshold) {
+        return false;
+    }
+
+    true
 }
 
 #[cfg(test)]
@@ -349,7 +391,6 @@ mod tests {
 
     mod calc_perk_rank_probabilities_tests {
         use std::collections::HashMap;
-
         use super::*;
 
         lazy_static!{
@@ -668,6 +709,184 @@ mod tests {
             ];
             calc_perk_rank_probabilities(&*DATA, &mut perk_values_arr, true);
             assert_perk_values_eq(&perk_values_arr, &expected);
+        }
+    }
+
+    mod can_generate_wanted_ranks_test {
+        use super::*;
+        use std::collections::HashMap;
+
+        lazy_static!{
+            static ref DATA: Data = Data {
+                comps: HashMap::new(),
+                perks: HashMap::from([
+                    (PerkName::Empty, PerkRanksData {
+                        doubleslot: false,
+                        ranks: vec![
+                            PerkRankValues { rank: 0, threshold: 0, ..Default::default() },
+                        ]
+                    }),
+                    (PerkName::Precise, PerkRanksData {
+                        doubleslot: false,
+                        ranks: vec![
+                            PerkRankValues { rank: 0, threshold: 0, ..Default::default() },
+                            PerkRankValues { rank: 1, threshold: 10, ..Default::default() },
+                            PerkRankValues { rank: 2, threshold: 100, ..Default::default() },
+                            PerkRankValues { rank: 3, threshold: 150, ..Default::default() },
+                        ]
+                    }),
+                    (PerkName::Biting, PerkRanksData {
+                        doubleslot: false,
+                        ranks: vec![
+                            PerkRankValues { rank: 0, threshold: 0, ..Default::default() },
+                            PerkRankValues { rank: 1, threshold: 50, ..Default::default() },
+                            PerkRankValues { rank: 2, threshold: 80, ..Default::default() },
+                            PerkRankValues { rank: 3, threshold: 200, ..Default::default() },
+                            PerkRankValues { rank: 4, threshold: 250, ..Default::default() },
+                        ]
+                    }),
+                    (PerkName::Equilibrium, PerkRanksData {
+                        doubleslot: false,
+                        ranks: vec![
+                            PerkRankValues { rank: 0, threshold: 0, ..Default::default() },
+                            PerkRankValues { rank: 1, threshold: 50, ..Default::default() },
+                            PerkRankValues { rank: 2, threshold: 80, ..Default::default() },
+                            PerkRankValues { rank: 3, threshold: 200, ..Default::default() },
+                            PerkRankValues { rank: 4, threshold: 250, ..Default::default() },
+                        ]
+                    }),
+                ])
+            };
+        }
+
+        #[test]
+        fn single_wanted_not_in_perk_values() {
+            let perk_values_arr = vec![
+                PerkValues { perk: PerkName::Precise, base: 50, rolls: smallvec![20, 20], ..Default::default() },
+                PerkValues { perk: PerkName::Biting, base: 50, rolls: smallvec![20, 20], ..Default::default() },
+            ];
+            let wanted_gizmo = WantedGizmo (
+                WantedPerk { perk: PerkName::Equilibrium, rank: 2, ..Default::default() },
+                WantedPerk { perk: PerkName::Empty, ..Default::default() },
+            );
+            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, &wanted_gizmo))
+        }
+
+        #[test]
+        fn first_wanted_not_in_perk_values() {
+            let perk_values_arr = vec![
+                PerkValues { perk: PerkName::Precise, base: 50, rolls: smallvec![20, 20], ..Default::default() },
+                PerkValues { perk: PerkName::Biting, base: 50, rolls: smallvec![20, 20], ..Default::default() },
+            ];
+            let wanted_gizmo = WantedGizmo (
+                WantedPerk { perk: PerkName::Equilibrium, rank: 2, ..Default::default() },
+                WantedPerk { perk: PerkName::Precise, rank: 2, ..Default::default() },
+            );
+            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, &wanted_gizmo))
+        }
+
+        #[test]
+        fn second_wanted_not_in_perk_values() {
+            let perk_values_arr = vec![
+                PerkValues { perk: PerkName::Precise, base: 50, rolls: smallvec![20, 20], ..Default::default() },
+                PerkValues { perk: PerkName::Biting, base: 50, rolls: smallvec![20, 20], ..Default::default() },
+            ];
+            let wanted_gizmo = WantedGizmo (
+                WantedPerk { perk: PerkName::Precise, rank: 2, ..Default::default() },
+                WantedPerk { perk: PerkName::Equilibrium, rank: 2, ..Default::default() },
+            );
+            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, &wanted_gizmo))
+        }
+
+        #[test]
+        fn single_wanted_pv_below_threshold() {
+            let perk_values_arr = vec![
+                PerkValues { perk: PerkName::Precise, base: 10, rolls: smallvec![20, 71], ..Default::default() },
+                PerkValues { perk: PerkName::Biting, base: 50, rolls: smallvec![20, 20], ..Default::default() },
+            ];
+            let wanted_gizmo = WantedGizmo (
+                WantedPerk { perk: PerkName::Precise, rank: 2, ..Default::default() },
+                WantedPerk { perk: PerkName::Empty, ..Default::default() },
+            );
+            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, &wanted_gizmo))
+        }
+
+        #[test]
+        fn first_wanted_pv_below_threshold() {
+            let perk_values_arr = vec![
+                PerkValues { perk: PerkName::Precise, base: 10, rolls: smallvec![20, 71], ..Default::default() },
+                PerkValues { perk: PerkName::Biting, base: 50, rolls: smallvec![20, 20], ..Default::default() },
+            ];
+            let wanted_gizmo = WantedGizmo (
+                WantedPerk { perk: PerkName::Precise, rank: 2, ..Default::default() },
+                WantedPerk { perk: PerkName::Biting, rank: 1, ..Default::default() },
+            );
+            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, &wanted_gizmo))
+        }
+
+        #[test]
+        fn second_wanted_pv_below_threshold() {
+            let perk_values_arr = vec![
+                PerkValues { perk: PerkName::Precise, base: 10, rolls: smallvec![20, 20], ..Default::default() },
+                PerkValues { perk: PerkName::Biting, base: 50, rolls: smallvec![20, 20], ..Default::default() },
+            ];
+            let wanted_gizmo = WantedGizmo (
+                WantedPerk { perk: PerkName::Biting, rank: 1, ..Default::default() },
+                WantedPerk { perk: PerkName::Precise, rank: 2, ..Default::default() },
+            );
+            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, &wanted_gizmo))
+        }
+
+        #[test]
+        fn single_wanted_pv_above_threshold() {
+            let perk_values_arr = vec![
+                PerkValues { perk: PerkName::Precise, base: 50, rolls: smallvec![20, 20], ..Default::default() },
+                PerkValues { perk: PerkName::Biting, base: 12, rolls: smallvec![20, 20], ..Default::default() },
+            ];
+            let wanted_gizmo = WantedGizmo (
+                WantedPerk { perk: PerkName::Biting, rank: 1, ..Default::default() },
+                WantedPerk { perk: PerkName::Empty, ..Default::default() },
+            );
+            assert_eq!(true, can_generate_wanted_ranks(&*DATA, &perk_values_arr, &wanted_gizmo))
+        }
+
+        #[test]
+        fn both_wanted_pv_above_threshold() {
+            let perk_values_arr = vec![
+                PerkValues { perk: PerkName::Precise, base: 50, rolls: smallvec![20, 40], ..Default::default() },
+                PerkValues { perk: PerkName::Biting, base: 50, rolls: smallvec![20, 20], ..Default::default() },
+            ];
+            let wanted_gizmo = WantedGizmo (
+                WantedPerk { perk: PerkName::Biting, rank: 1, ..Default::default() },
+                WantedPerk { perk: PerkName::Precise, rank: 2, ..Default::default() },
+            );
+            assert_eq!(true, can_generate_wanted_ranks(&*DATA, &perk_values_arr, &wanted_gizmo))
+        }
+
+        #[test]
+        fn first_wanted_pv_base_too_high() {
+            let perk_values_arr = vec![
+                PerkValues { perk: PerkName::Precise, base: 80, rolls: smallvec![20, 20], ..Default::default() },
+                PerkValues { perk: PerkName::Biting, base: 100, rolls: smallvec![20, 20], ..Default::default() },
+            ];
+            let wanted_gizmo = WantedGizmo (
+                WantedPerk { perk: PerkName::Biting, rank: 1, ..Default::default() },
+                WantedPerk { perk: PerkName::Precise, rank: 2, ..Default::default() },
+            );
+            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, &wanted_gizmo))
+        }
+
+        #[test]
+        fn second_wanted_pv_base_too_high() {
+            let perk_values_arr = vec![
+                PerkValues { perk: PerkName::Precise, base: 160, rolls: smallvec![20, 20], ..Default::default() },
+                PerkValues { perk: PerkName::Biting, base: 50, rolls: smallvec![20, 20], ..Default::default() },
+            ];
+            let wanted_gizmo = WantedGizmo (
+                WantedPerk { perk: PerkName::Biting, rank: 1, ..Default::default() },
+                WantedPerk { perk: PerkName::Precise, rank: 2, ..Default::default() },
+            );
+            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, &wanted_gizmo))
         }
     }
 }
