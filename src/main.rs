@@ -1,19 +1,18 @@
-mod utils;
-mod definitions;
-use std::{str::FromStr, fs};
+use perk_solver::{definitions::*, utils, load_data};
+use std::{str::FromStr};
 use clap::Parser;
-use definitions::*;
 
 fn main() {
     let args = Args::parse();
-    let data = fs::read_to_string("data.json").unwrap();
-    let data: Data = serde_json::from_str(&data).unwrap();
+    let data = load_data();
     let wanted_gizmo = process_wanted_gizmo(&args, &data);
 
     validate_input(&args, &wanted_gizmo, &data);
 
     println!("{:#?}", args);
     println!("{:#?}", wanted_gizmo);
+
+    perk_solver::perk_solver(&args, &data, &wanted_gizmo);
 }
 
 fn process_wanted_gizmo(args: &Args, data: &Data) -> WantedGizmo {
@@ -30,12 +29,12 @@ fn process_wanted_gizmo(args: &Args, data: &Data) -> WantedGizmo {
     };
 
     WantedGizmo(
-        Perk {
+        WantedPerk {
             perk: perk_one,
             rank: args.rank,
             doubleslot: data.perks[&perk_one].doubleslot
         },
-        Perk {
+        WantedPerk {
             perk: perk_two,
             rank: if let Some(_) = &args.perk_two { args.rank_two } else { 0 },
             doubleslot: if perk_two != PerkName::Empty { data.perks[&perk_two].doubleslot } else { false }

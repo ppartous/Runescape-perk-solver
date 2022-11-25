@@ -1,8 +1,9 @@
 use clap::{Parser, ValueEnum};
 use derive_more::Display;
-use std::{fmt, str::FromStr, collections::HashMap};
+use std::{fmt, str::FromStr, collections::HashMap, ops::Index};
 use serde::Deserialize;
 use serde_with::DeserializeFromStr;
+use smallvec::{SmallVec, smallvec};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
@@ -60,16 +61,127 @@ pub enum SortType {
 }
 
 #[derive(Debug)]
-pub struct Perk {
+pub struct WantedPerk {
     pub perk: PerkName,
     pub rank: u8,
     pub doubleslot: bool
 }
 
 #[derive(Debug)]
-pub struct WantedGizmo (pub Perk, pub Perk);
+pub struct WantedGizmo (pub WantedPerk, pub WantedPerk);
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, DeserializeFromStr, Hash)]
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq, Eq, Display)]
+#[display(fmt = "{{\n\tperk = {},\n\trank = {},\n\tdoubleslot = {},\n\tancient_only = {},\n\tcost = {},\n\tthreshold = {}\n}}", perk, rank, doubleslot, ancient_only, cost, threshold)]
+pub struct PerkRankValues {
+    pub ancient_only: bool,
+    pub cost: u16,
+    pub doubleslot: bool,
+    pub perk: PerkName,
+    pub rank: u8,
+    pub threshold: u16,
+}
+
+impl Default for PerkRankValues {
+    fn default() -> Self {
+        PerkRankValues {
+            ancient_only: false,
+            cost: 0,
+            doubleslot: false,
+            perk: PerkName::Empty,
+            rank: 0,
+            threshold: 0
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct PerkRankValuesProbabilityContainer<'a> {
+    pub values: &'a PerkRankValues,
+    pub probability: f64,
+}
+
+#[derive(Debug)]
+pub struct PerkValues<'a> {
+    pub perk: PerkName,
+    pub base: u16,
+    pub rolls: SmallVec<[u8; 9]>,
+    pub doubleslot: bool,
+    pub ranks: SmallVec<[PerkRankValuesProbabilityContainer<'a>; 7]>,
+    pub i_first: u8,
+    pub i_last: u8,
+}
+
+impl<'a> Default for PerkValues<'a> {
+    fn default() -> PerkValues<'a> {
+        PerkValues {
+            perk: PerkName::Empty,
+            base: 0,
+            rolls: smallvec![],
+            doubleslot: false,
+            ranks: smallvec![],
+            i_first: 0,
+            i_last: 0
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PerkRanksData {
+    pub doubleslot: bool,
+    pub ranks: Vec<PerkRankValues>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ComponentValues {
+    pub base: u16,
+    pub perk: PerkName,
+    pub roll: u16,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CompPerksPerGizmoType {
+    pub ancient_only: bool,
+    pub armour: Vec<ComponentValues>,
+    pub tool: Vec<ComponentValues>,
+    pub weapon: Vec<ComponentValues>,
+}
+
+impl Index<GizmoType> for CompPerksPerGizmoType {
+    type Output = Vec<ComponentValues>;
+
+    fn index(&self, index: GizmoType) -> &Self::Output {
+        match index {
+                GizmoType::Armour => &self.armour,
+                GizmoType::Tool => &self.tool,
+                GizmoType::Weapon => &self.weapon
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Data {
+    pub comps: HashMap<MaterialName, CompPerksPerGizmoType>,
+    pub perks: HashMap<PerkName, PerkRanksData>
+}
+
+#[derive(Debug)]
+pub struct SplitMaterials {
+    pub conflict: Vec<MaterialName>,
+    pub no_conflict: Vec<MaterialName>
+}
+
+pub struct Range<T> {
+    pub min: T,
+    pub max: T
+}
+
+pub struct Budget {
+    pub dist: Vec<f64>,
+    pub level: u16,
+    pub range: Range<u16>
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, DeserializeFromStr, Hash)]
 pub enum PerkName {
     Biting,
     Tinker,
@@ -322,7 +434,7 @@ impl FromStr for PerkName {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, DeserializeFromStr, Hash)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, DeserializeFromStr, Hash)]
 pub enum MaterialName {
     ArmadylComponents,
     AscendedComponents,
@@ -581,41 +693,4 @@ impl FromStr for MaterialName {
             _ => Err("Unknown material name")
         }
     }
-}
-
-#[derive(Debug, Clone, Copy, Deserialize)]
-pub struct PerkRankValues {
-    pub ancient_only: bool,
-    pub cost: u16,
-    pub doubleslot: bool,
-    pub perk: PerkName,
-    pub rank: u8,
-    pub threshold: u16,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct PerkRankData {
-    pub doubleslot: bool,
-    pub ranks: Vec<PerkRankValues>,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct ComponentValues {
-    pub base: u16,
-    pub perk: PerkName,
-    pub roll: u16,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct CompPerksPerGizmoType {
-    pub ancient_only: bool,
-    pub armour: Vec<ComponentValues>,
-    pub tool: Vec<ComponentValues>,
-    pub weapon: Vec<ComponentValues>,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct Data {
-    pub comps: HashMap<MaterialName, CompPerksPerGizmoType>,
-    pub perks: HashMap<PerkName, PerkRankData>
 }
