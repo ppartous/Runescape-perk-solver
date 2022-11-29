@@ -101,24 +101,32 @@ impl Default for PerkRankValues {
 }
 
 #[derive(Debug, Clone)]
-pub struct PerkRankValuesProbabilityContainer<'a> {
-    pub values: &'a PerkRankValues,
+pub struct PerkRankValuesProbabilityContainer {
+    pub values: PerkRankValues,
     pub probability: f64,
 }
 
+pub type PRVPC = PerkRankValuesProbabilityContainer;
+
+#[derive(Debug, PartialEq)]
+pub struct RankCombination {
+    pub ranks: SmallVec<[PerkRankValues; 8]>,
+    pub probability: f64
+}
+
 #[derive(Debug)]
-pub struct PerkValues<'a> {
+pub struct PerkValues {
     pub perk: PerkName,
     pub base: u16,
     pub rolls: SmallVec<[u8; 9]>,
     pub doubleslot: bool,
-    pub ranks: SmallVec<[PerkRankValuesProbabilityContainer<'a>; 7]>,
-    pub i_first: u8,
-    pub i_last: u8,
+    pub ranks: SmallVec<[PerkRankValuesProbabilityContainer; 7]>,
+    pub i_first: usize,
+    pub i_last: usize,
 }
 
-impl<'a> Default for PerkValues<'a> {
-    fn default() -> PerkValues<'a> {
+impl Default for PerkValues {
+    fn default() -> PerkValues {
         PerkValues {
             perk: PerkName::Empty,
             base: 0,
@@ -128,6 +136,20 @@ impl<'a> Default for PerkValues<'a> {
             i_first: 0,
             i_last: 0
         }
+    }
+}
+
+impl PerkValues {
+    pub fn iter_ranks<'a>(self: &'a Self) -> impl Iterator<Item = &'a PerkRankValuesProbabilityContainer> {
+        let i_first = self.i_first as usize;
+        let i_last = self.i_last as usize;
+        self.ranks.iter().skip(i_first).take(i_last - i_first + 1)
+    }
+
+    pub fn iter_ranks_no_zero<'a>(self: &'a Self) -> impl Iterator<Item = &'a PerkRankValuesProbabilityContainer> {
+        let i_first = 1.max(self.i_first as usize);
+        let i_last = self.i_last as usize;
+        self.ranks.iter().skip(i_first).take(i_last - i_first + 1)
     }
 }
 

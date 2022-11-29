@@ -15,7 +15,7 @@ pub fn load_data() -> Data {
 pub fn perk_solver(args: &Args, data: &Data, wanted_gizmo: &WantedGizmo) {
     let materials = get_materials(&args, &data, &wanted_gizmo);
     let materials = split_materials(&args, &data, &wanted_gizmo, materials);
-    let budgets = gererate_budgets(&args);
+    let budgets = generate_budgets(&args);
     let slot_count = if args.ancient { 9 } else { 5 };
 
     let total_combination_count = calc_combination_count(materials.conflict.len(), materials.no_conflict.len(), args.ancient);
@@ -95,7 +95,7 @@ fn split_materials(args: &Args, data: &Data, wanted_gizmo: &WantedGizmo, mats: V
 }
 
 /// Each budget is a cumulative probability distribution for the invention level related random rolls.
-fn gererate_budgets(args: &Args) -> Vec<Budget> {
+fn generate_budgets(args: &Args) -> Vec<Budget> {
     let rolls = if args.ancient { 6 } else { 5 };
     let (low, high) = if args.invention_level.len() == 1 {
         (args.invention_level[0], args.invention_level[0])
@@ -106,7 +106,7 @@ fn gererate_budgets(args: &Args) -> Vec<Budget> {
 
     for lvl in (low..=high).step_by(2) {
         let dist = dice::get_cumulative_distribution(lvl as usize / 2 + 20, rolls as usize);
-        let max = dist.len();
+        let max = dist.len() - 1;
         let budget = Budget {
             dist,
             level: lvl as u16,

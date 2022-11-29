@@ -7,5 +7,10 @@
 			"path": "../../Lua/perkCalc"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"lldb.displayFormat": "auto",
+		"lldb.showDisassembly": "auto",
+		"lldb.dereferencePointers": true,
+		"lldb.consoleMode": "commands"
+	}
 }
