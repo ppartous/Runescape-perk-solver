@@ -60,21 +60,80 @@ pub enum SortType {
     Price
 }
 
-#[derive(Debug)]
-pub struct WantedPerk {
+#[derive(Debug, PartialEq)]
+pub struct Perk {
     pub perk: PerkName,
-    pub rank: u8,
-    pub doubleslot: bool
+    pub rank: u8
 }
 
-impl Default for WantedPerk {
+impl Default for Perk {
     fn default() -> Self {
-        WantedPerk { perk: PerkName::Empty, rank: 0, doubleslot: false }
+        Perk { perk: PerkName::Empty, rank: 0 }
     }
 }
 
 #[derive(Debug)]
-pub struct WantedGizmo (pub WantedPerk, pub WantedPerk);
+pub struct Gizmo {
+    pub perks: (Perk, Perk),
+    pub cost: i16,
+    pub probability: f64
+}
+
+impl Default for Gizmo {
+    fn default() -> Self {
+        Gizmo {
+            perks: (Perk::default(), Perk::default()),
+            cost: 0,
+            probability: 0.0
+        }
+    }
+}
+
+impl Gizmo {
+    pub fn eq(&self, other: &Self) -> bool {
+        (self.perks.0 == other.perks.0 && self.perks.1 == other.perks.1)
+        || (self.perks.1 == other.perks.0 && self.perks.0 == other.perks.1)
+    }
+
+    pub fn fuzzy_eq(&self, other: &Self) -> bool {
+        self.perks.0 == other.perks.0 || self.perks.1 == other.perks.0
+    }
+
+    pub fn create(x: &PerkRankValues, y: Option<&PerkRankValues>) -> Gizmo {
+        Gizmo {
+            perks: (
+                Perk {
+                    perk: x.perk,
+                    rank: x.rank
+                },
+                if let Some(y) = y {
+                    Perk {
+                        perk: y.perk,
+                        rank: y.rank
+                    }
+                } else {
+                    Perk { ..Default::default() }
+                }
+            ),
+            cost: (x.cost + if let Some(y) = y { y.cost } else { 0 }) as i16,
+            probability: 0.0
+        }
+    }
+
+    pub fn create_from_doubleslot(x: &PerkRankValues, y: Option<&PerkRankValues>) -> Gizmo {
+        Gizmo {
+            perks: (
+                Perk {
+                    perk: x.perk,
+                    rank: x.rank
+                },
+                Perk { ..Default::default() }
+            ),
+            cost: (x.cost + if let Some(y) = y { y.cost } else { 0 }) as i16,
+            probability: 0.0
+        }
+    }
+}
 
 #[derive(Debug, Clone, Copy, Deserialize, PartialEq, Eq, Display)]
 #[display(fmt = "{{\n\tperk = {},\n\trank = {},\n\tdoubleslot = {},\n\tancient_only = {},\n\tcost = {},\n\tthreshold = {}\n}}", perk, rank, doubleslot, ancient_only, cost, threshold)]
@@ -719,6 +778,205 @@ impl FromStr for MaterialName {
             "zamorak components" => Ok(MaterialName::ZamorakComponents),
             "zaros components" => Ok(MaterialName::ZarosComponents),
             _ => Err("Unknown material name")
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    mod gizmo_tests {
+        use super::*;
+
+        #[test]
+        fn one_perk_equal() {
+            let x = Gizmo {
+                perks: (
+                    Perk { perk: PerkName::Precise, rank: 1, ..Default::default() },
+                    Perk { perk: PerkName::Empty, rank: 0, ..Default::default() },
+                ),
+                ..Default::default()
+            };
+            let y = Gizmo {
+                perks: (
+                    Perk { perk: PerkName::Precise, rank: 1, ..Default::default() },
+                    Perk { perk: PerkName::Empty, rank: 0, ..Default::default() },
+                ),
+                ..Default::default()
+            };
+            assert_eq!(x.eq(&y), true);
+        }
+
+        #[test]
+        fn one_perk_not_equal_but_same_rank() {
+            let x = Gizmo {
+                perks: (
+                    Perk { perk: PerkName::Precise, rank: 1, ..Default::default() },
+                    Perk { perk: PerkName::Empty, rank: 0, ..Default::default() },
+                ),
+                ..Default::default()
+            };
+            let y = Gizmo {
+                perks: (
+                    Perk { perk: PerkName::Biting, rank: 1, ..Default::default() },
+                    Perk { perk: PerkName::Empty, rank: 0, ..Default::default() },
+                ),
+                ..Default::default()
+            };
+            assert_eq!(x.eq(&y), false);
+        }
+
+        #[test]
+        fn one_perk_equal_but_not_same_rank() {
+            let x = Gizmo {
+                perks: (
+                    Perk { perk: PerkName::Precise, rank: 1, ..Default::default() },
+                    Perk { perk: PerkName::Empty, rank: 0, ..Default::default() },
+                ),
+                ..Default::default()
+            };
+            let y = Gizmo {
+                perks: (
+                    Perk { perk: PerkName::Precise, rank: 2, ..Default::default() },
+                    Perk { perk: PerkName::Empty, rank: 0, ..Default::default() },
+                ),
+                ..Default::default()
+            };
+            assert_eq!(x.eq(&y), false);
+        }
+
+        #[test]
+        fn two_perks_equal_same_order() {
+            let x = Gizmo {
+                perks: (
+                    Perk { perk: PerkName::Precise, rank: 1, ..Default::default() },
+                    Perk { perk: PerkName::Biting, rank: 2, ..Default::default() },
+                ),
+                ..Default::default()
+            };
+            let y = Gizmo {
+                perks: (
+                    Perk { perk: PerkName::Precise, rank: 1, ..Default::default() },
+                    Perk { perk: PerkName::Biting, rank: 2, ..Default::default() },
+                ),
+                ..Default::default()
+            };
+            assert_eq!(x.eq(&y), true);
+        }
+
+        #[test]
+        fn two_perks_equal_not_same_order() {
+            let x = Gizmo {
+                perks: (
+                    Perk { perk: PerkName::Precise, rank: 1, ..Default::default() },
+                    Perk { perk: PerkName::Biting, rank: 2, ..Default::default() },
+                ),
+                ..Default::default()
+            };
+            let y = Gizmo {
+                perks: (
+                    Perk { perk: PerkName::Biting, rank: 2, ..Default::default() },
+                    Perk { perk: PerkName::Precise, rank: 1, ..Default::default() },
+                ),
+                ..Default::default()
+            };
+            assert_eq!(x.eq(&y), true);
+        }
+
+        #[test]
+        fn two_perks_equal_perks_not_same_ranks() {
+            let x = Gizmo {
+                perks: (
+                    Perk { perk: PerkName::Precise, rank: 1, ..Default::default() },
+                    Perk { perk: PerkName::Biting, rank: 2, ..Default::default() },
+                ),
+                ..Default::default()
+            };
+            let y = Gizmo {
+                perks: (
+                    Perk { perk: PerkName::Precise, rank: 1, ..Default::default() },
+                    Perk { perk: PerkName::Biting, rank: 3, ..Default::default() },
+                ),
+                ..Default::default()
+            };
+            assert_eq!(x.eq(&y), false);
+        }
+
+        #[test]
+        fn two_perks_not_equal_perks_same_ranks() {
+            let x = Gizmo {
+                perks: (
+                    Perk { perk: PerkName::Precise, rank: 1, ..Default::default() },
+                    Perk { perk: PerkName::Biting, rank: 2, ..Default::default() },
+                ),
+                ..Default::default()
+            };
+            let y = Gizmo {
+                perks: (
+                    Perk { perk: PerkName::Equilibrium, rank: 1, ..Default::default() },
+                    Perk { perk: PerkName::Biting, rank: 2, ..Default::default() },
+                ),
+                ..Default::default()
+            };
+            assert_eq!(x.eq(&y), false);
+        }
+
+        #[test]
+        fn fuzzy_match_first_perk() {
+            let x = Gizmo {
+                perks: (
+                    Perk { perk: PerkName::Precise, rank: 1, ..Default::default() },
+                    Perk { perk: PerkName::Biting, rank: 2, ..Default::default() },
+                ),
+                ..Default::default()
+            };
+            let y = Gizmo {
+                perks: (
+                    Perk { perk: PerkName::Precise, rank: 1, ..Default::default() },
+                    Perk { ..Default::default() },
+                ),
+                ..Default::default()
+            };
+            assert_eq!(x.fuzzy_eq(&y), true);
+        }
+
+        #[test]
+        fn fuzzy_match_second_perk() {
+            let x = Gizmo {
+                perks: (
+                    Perk { perk: PerkName::Biting, rank: 2, ..Default::default() },
+                    Perk { perk: PerkName::Precise, rank: 1, ..Default::default() },
+                ),
+                ..Default::default()
+            };
+            let y = Gizmo {
+                perks: (
+                    Perk { perk: PerkName::Precise, rank: 1, ..Default::default() },
+                    Perk { ..Default::default() },
+                ),
+                ..Default::default()
+            };
+            assert_eq!(x.fuzzy_eq(&y), true);
+        }
+
+        #[test]
+        fn fuzzy_match_none() {
+            let x = Gizmo {
+                perks: (
+                    Perk { perk: PerkName::Biting, rank: 2, ..Default::default() },
+                    Perk { perk: PerkName::Precise, rank: 1, ..Default::default() },
+                ),
+                ..Default::default()
+            };
+            let y = Gizmo {
+                perks: (
+                    Perk { perk: PerkName::Precise, rank: 2, ..Default::default() },
+                    Perk { ..Default::default() },
+                ),
+                ..Default::default()
+            };
+            assert_eq!(x.fuzzy_eq(&y), false);
         }
     }
 }

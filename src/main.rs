@@ -5,7 +5,7 @@ use clap::Parser;
 fn main() {
     let args = Args::parse();
     let data = load_data();
-    let wanted_gizmo = process_wanted_gizmo(&args, &data);
+    let wanted_gizmo = process_wanted_gizmo(&args);
 
     validate_input(&args, &wanted_gizmo, &data);
 
@@ -15,7 +15,7 @@ fn main() {
     perk_solver::perk_solver(&args, &data, &wanted_gizmo);
 }
 
-fn process_wanted_gizmo(args: &Args, data: &Data) -> WantedGizmo {
+fn process_wanted_gizmo(args: &Args) -> Gizmo {
     let perk_one = PerkName::from_str(&args.perk).unwrap_or_else(|_| {
         utils::print_error(format!("Perk '{}' does not exist.", &args.perk).as_str())
     });
@@ -28,38 +28,39 @@ fn process_wanted_gizmo(args: &Args, data: &Data) -> WantedGizmo {
         PerkName::Empty
     };
 
-    WantedGizmo(
-        WantedPerk {
-            perk: perk_one,
-            rank: args.rank,
-            doubleslot: data.perks[&perk_one].doubleslot
-        },
-        WantedPerk {
-            perk: perk_two,
-            rank: if let Some(_) = &args.perk_two { args.rank_two } else { 0 },
-            doubleslot: if perk_two != PerkName::Empty { data.perks[&perk_two].doubleslot } else { false }
-        }
-    )
+    Gizmo {
+        perks: (
+            Perk {
+                perk: perk_one,
+                rank: args.rank,
+            },
+            Perk {
+                perk: perk_two,
+                rank: if let Some(_) = &args.perk_two { args.rank_two } else { 0 },
+            }
+        ),
+        ..Default::default()
+    }
 }
 
-fn validate_input(args: &Args, wanted_gizmo: &WantedGizmo, data: &Data) {
-    if wanted_gizmo.0.doubleslot && wanted_gizmo.1.perk != PerkName::Empty {
-        utils::print_error(format!("Perk '{}' can't be combined with another perk as it uses both slots.", wanted_gizmo.0.perk).as_str())
+fn validate_input(args: &Args, wanted_gizmo: &Gizmo, data: &Data) {
+    if data.perks[&wanted_gizmo.perks.0.perk].doubleslot && wanted_gizmo.perks.1.perk != PerkName::Empty {
+        utils::print_error(format!("Perk '{}' can't be combined with another perk as it uses both slots.", wanted_gizmo.perks.0.perk).as_str())
     }
-    if wanted_gizmo.1.doubleslot {
-        utils::print_error(format!("Perk '{}' can't be combined with another perk as it uses both slots.", wanted_gizmo.1.perk).as_str())
-    }
-
-    if wanted_gizmo.0.rank as usize >= data.perks[&wanted_gizmo.0.perk].ranks.len() {
-        utils::print_error(format!("Perk '{}' only goes up to rank {}.",
-            &wanted_gizmo.0.perk,
-            data.perks[&wanted_gizmo.0.perk].ranks.len() - 1).as_str())
+    if data.perks[&wanted_gizmo.perks.1.perk].doubleslot {
+        utils::print_error(format!("Perk '{}' can't be combined with another perk as it uses both slots.", wanted_gizmo.perks.1.perk).as_str())
     }
 
-    if &wanted_gizmo.1.perk != &PerkName::Empty && wanted_gizmo.1.rank as usize >= data.perks[&wanted_gizmo.1.perk].ranks.len() {
+    if wanted_gizmo.perks.0.rank as usize >= data.perks[&wanted_gizmo.perks.0.perk].ranks.len() {
         utils::print_error(format!("Perk '{}' only goes up to rank {}.",
-            &wanted_gizmo.1.perk,
-            data.perks[&wanted_gizmo.1.perk].ranks.len() - 1).as_str())
+            &wanted_gizmo.perks.0.perk,
+            data.perks[&wanted_gizmo.perks.0.perk].ranks.len() - 1).as_str())
+    }
+
+    if &wanted_gizmo.perks.1.perk != &PerkName::Empty && wanted_gizmo.perks.1.rank as usize >= data.perks[&wanted_gizmo.perks.1.perk].ranks.len() {
+        utils::print_error(format!("Perk '{}' only goes up to rank {}.",
+            &wanted_gizmo.perks.1.perk,
+            data.perks[&wanted_gizmo.perks.1.perk].ranks.len() - 1).as_str())
     }
 
     match &args.invention_level.len() {
