@@ -5,6 +5,8 @@ use serde::Deserialize;
 use serde_with::DeserializeFromStr;
 use smallvec::{SmallVec, smallvec};
 
+// ---------------------------------------------------------------------------------------------------------------------
+
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
 pub struct Args {
@@ -46,6 +48,8 @@ pub struct Args {
     pub sort_type: SortType
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+
 #[derive(Debug, Display, Copy, Clone, PartialEq, Eq, ValueEnum)]
 pub enum GizmoType {
     Weapon,
@@ -53,12 +57,16 @@ pub enum GizmoType {
     Tool
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+
 #[derive(Debug, Display, Copy, Clone, PartialEq, Eq, ValueEnum)]
 pub enum SortType {
     Gizmo,
     Attempt,
     Price
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 #[derive(Debug, PartialEq)]
 pub struct Perk {
@@ -71,6 +79,35 @@ impl Default for Perk {
         Perk { perk: PerkName::Empty, rank: 0 }
     }
 }
+
+impl PartialEq<PerkRankValues> for Perk {
+    fn eq(&self, other: &PerkRankValues) -> bool {
+        self.perk == other.perk && self.rank == other.rank
+    }
+}
+
+impl PartialEq<Perk> for PerkRankValues {
+    fn eq(&self, other: &Perk) -> bool {
+        other == self
+    }
+}
+
+impl From<&PerkRankValues> for Perk {
+    fn from(x: &PerkRankValues) -> Self {
+        Perk {
+            perk: x.perk,
+            rank: x.rank
+        }
+    }
+}
+
+impl Perk {
+    pub fn is_empty(&self) -> bool {
+        self.perk == PerkName::Empty
+    }
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 #[derive(Debug)]
 pub struct Gizmo {
@@ -135,6 +172,8 @@ impl Gizmo {
     }
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+
 #[derive(Debug, Clone, Copy, Deserialize, PartialEq, Eq, Display)]
 #[display(fmt = "{{\n\tperk = {},\n\trank = {},\n\tdoubleslot = {},\n\tancient_only = {},\n\tcost = {},\n\tthreshold = {}\n}}", perk, rank, doubleslot, ancient_only, cost, threshold)]
 pub struct PerkRankValues {
@@ -159,6 +198,8 @@ impl Default for PerkRankValues {
     }
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+
 #[derive(Debug, Clone)]
 pub struct PerkRankValuesProbabilityContainer {
     pub values: PerkRankValues,
@@ -167,11 +208,15 @@ pub struct PerkRankValuesProbabilityContainer {
 
 pub type PRVPC = PerkRankValuesProbabilityContainer;
 
+// ---------------------------------------------------------------------------------------------------------------------
+
 #[derive(Debug, PartialEq)]
 pub struct RankCombination {
     pub ranks: SmallVec<[PerkRankValues; 8]>,
     pub probability: f64
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 #[derive(Debug)]
 pub struct PerkValues {
@@ -212,11 +257,15 @@ impl PerkValues {
     }
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+
 #[derive(Debug, Deserialize)]
 pub struct PerkRanksData {
     pub doubleslot: bool,
     pub ranks: Vec<PerkRankValues>,
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 #[derive(Debug, Deserialize)]
 pub struct ComponentValues {
@@ -224,6 +273,8 @@ pub struct ComponentValues {
     pub perk: PerkName,
     pub roll: u16,
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 #[derive(Debug, Deserialize)]
 pub struct CompPerksPerGizmoType {
@@ -245,11 +296,15 @@ impl Index<GizmoType> for CompPerksPerGizmoType {
     }
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+
 #[derive(Debug, Deserialize)]
 pub struct Data {
     pub comps: HashMap<MaterialName, CompPerksPerGizmoType>,
     pub perks: HashMap<PerkName, PerkRanksData>
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 #[derive(Debug)]
 pub struct SplitMaterials {
@@ -257,10 +312,14 @@ pub struct SplitMaterials {
     pub no_conflict: Vec<MaterialName>
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+
 pub struct Range<T> {
     pub min: T,
     pub max: T
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 pub struct Budget {
     pub dist: Vec<f64>,
@@ -268,167 +327,169 @@ pub struct Budget {
     pub range: Range<u16>
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+
 #[derive(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, DeserializeFromStr, Hash)]
 pub enum PerkName {
-    Biting,
-    Tinker,
-    JunkFood,
-    Inaccurate,
-    DemonSlayer,
-    Looting,
-    Antitheism,
-    Confused,
-    Relentless,
-    GlowWorm,
-    BriefRespite,
-    Blunted,
-    Wise,
-    PlantedFeet,
-    Genocidal,
-    Invigorating,
-    Breakdown,
-    Prosper,
-    Pyromaniac,
-    Furnace,
-    Bulwark,
-    Reflexes,
-    ClearHeaded,
-    ShieldBashing,
-    Preparation,
-    EnhancedEfficient,
-    Fatiguing,
-    Hoarding,
-    Turtling,
+    Empty,
+    Absorbative,
     Aftershock,
-    Precise,
-    Lunging,
-    Hallucinogenic,
-    Honed,
-    Devoted,
-    UndeadSlayer,
+    Antitheism,
+    Biting,
+    Blunted,
+    Brassican,
+    Breakdown,
+    BriefRespite,
+    Bulwark,
+    Butterfingers,
+    Caroming,
     Cautious,
-    Venomblood,
-    Profane,
+    Charitable,
+    Cheapskate,
+    ClearHeaded,
+    Committed,
+    Confused,
     Crackling,
-    Ultimatums,
-    Energising,
-    EnhancedDevoted,
-    Impatient,
+    CrystalShield,
+    DemonBait,
+    DemonSlayer,
+    Devoted,
     DragonBait,
     DragonSlayer,
-    Refined,
-    CrystalShield,
-    Cheapskate,
-    Committed,
-    DemonBait,
-    Butterfingers,
-    Mediocrity,
-    Polishing,
-    Talking,
-    TrophyTaker,
-    NoEffect,
-    Mysterious,
-    Equilibrium,
-    Fortune,
-    Lucky,
-    ImpSouled,
-    Taunting,
-    Rapid,
-    Absorbative,
-    Spendthrift,
-    UndeadBait,
     Efficient,
-    Brassican,
-    Caroming,
-    Mobile,
-    Flanking,
-    Ruthless,
-    Charitable,
+    Energising,
+    EnhancedDevoted,
+    EnhancedEfficient,
     Enlightened,
+    Equilibrium,
+    Fatiguing,
+    Flanking,
+    Fortune,
+    Furnace,
+    Genocidal,
+    GlowWorm,
+    Hallucinogenic,
+    Hoarding,
+    Honed,
+    Impatient,
+    ImpSouled,
+    Inaccurate,
+    Invigorating,
+    JunkFood,
+    Looting,
+    Lucky,
+    Lunging,
+    Mediocrity,
+    Mobile,
+    Mysterious,
+    NoEffect,
+    PlantedFeet,
+    Polishing,
+    Precise,
+    Preparation,
+    Profane,
+    Prosper,
+    Pyromaniac,
+    Rapid,
+    Refined,
+    Reflexes,
+    Relentless,
+    Ruthless,
     Scavenging,
-    Empty
+    ShieldBashing,
+    Spendthrift,
+    Talking,
+    Taunting,
+    Tinker,
+    TrophyTaker,
+    Turtling,
+    Ultimatums,
+    UndeadBait,
+    UndeadSlayer,
+    Venomblood,
+    Wise,
 }
 
 impl fmt::Display for PerkName {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            PerkName::Biting => write!(f, "Biting"),
-            PerkName::Tinker => write!(f, "Tinker"),
-            PerkName::JunkFood => write!(f, "Junk Food"),
-            PerkName::Inaccurate => write!(f, "Inaccurate"),
-            PerkName::DemonSlayer => write!(f, "Demon Slayer"),
-            PerkName::Looting => write!(f, "Looting"),
-            PerkName::Antitheism => write!(f, "Antitheism"),
-            PerkName::Confused => write!(f, "Confused"),
-            PerkName::Relentless => write!(f, "Relentless"),
-            PerkName::GlowWorm => write!(f, "Glow Worm"),
-            PerkName::BriefRespite => write!(f, "Brief Respite"),
-            PerkName::Blunted => write!(f, "Blunted"),
-            PerkName::Wise => write!(f, "Wise"),
-            PerkName::PlantedFeet => write!(f, "Planted Feet"),
-            PerkName::Genocidal => write!(f, "Genocidal"),
-            PerkName::Invigorating => write!(f, "Invigorating"),
-            PerkName::Breakdown => write!(f, "Breakdown"),
-            PerkName::Prosper => write!(f, "Prosper"),
-            PerkName::Pyromaniac => write!(f, "Pyromaniac"),
-            PerkName::Furnace => write!(f, "Furnace"),
-            PerkName::Bulwark => write!(f, "Bulwark"),
-            PerkName::Reflexes => write!(f, "Reflexes"),
-            PerkName::ClearHeaded => write!(f, "Clear Headed"),
-            PerkName::ShieldBashing => write!(f, "Shield Bashing"),
-            PerkName::Preparation => write!(f, "Preparation"),
-            PerkName::EnhancedEfficient => write!(f, "Enhanced Efficient"),
-            PerkName::Fatiguing => write!(f, "Fatiguing"),
-            PerkName::Hoarding => write!(f, "Hoarding"),
-            PerkName::Turtling => write!(f, "Turtling"),
+            PerkName::Empty => write!(f, "Empty"),
+            PerkName::Absorbative => write!(f, "Absorbative"),
             PerkName::Aftershock => write!(f, "Aftershock"),
-            PerkName::Precise => write!(f, "Precise"),
-            PerkName::Lunging => write!(f, "Lunging"),
-            PerkName::Hallucinogenic => write!(f, "Hallucinogenic"),
-            PerkName::Honed => write!(f, "Honed"),
-            PerkName::Devoted => write!(f, "Devoted"),
-            PerkName::UndeadSlayer => write!(f, "Undead Slayer"),
+            PerkName::Antitheism => write!(f, "Antitheism"),
+            PerkName::Biting => write!(f, "Biting"),
+            PerkName::Blunted => write!(f, "Blunted"),
+            PerkName::Brassican => write!(f, "Brassican"),
+            PerkName::Breakdown => write!(f, "Breakdown"),
+            PerkName::BriefRespite => write!(f, "Brief Respite"),
+            PerkName::Bulwark => write!(f, "Bulwark"),
+            PerkName::Butterfingers => write!(f, "Butterfingers"),
+            PerkName::Caroming => write!(f, "Caroming"),
             PerkName::Cautious => write!(f, "Cautious"),
-            PerkName::Venomblood => write!(f, "Venomblood"),
-            PerkName::Profane => write!(f, "Profane"),
+            PerkName::Charitable => write!(f, "Charitable"),
+            PerkName::Cheapskate => write!(f, "Cheapskate"),
+            PerkName::ClearHeaded => write!(f, "Clear Headed"),
+            PerkName::Committed => write!(f, "Committed"),
+            PerkName::Confused => write!(f, "Confused"),
             PerkName::Crackling => write!(f, "Crackling"),
-            PerkName::Ultimatums => write!(f, "Ultimatums"),
-            PerkName::Energising => write!(f, "Energising"),
-            PerkName::EnhancedDevoted => write!(f, "Enhanced Devoted"),
-            PerkName::Impatient => write!(f, "Impatient"),
+            PerkName::CrystalShield => write!(f, "Crystal Shield"),
+            PerkName::DemonBait => write!(f, "Demon Bait"),
+            PerkName::DemonSlayer => write!(f, "Demon Slayer"),
+            PerkName::Devoted => write!(f, "Devoted"),
             PerkName::DragonBait => write!(f, "Dragon Bait"),
             PerkName::DragonSlayer => write!(f, "Dragon Slayer"),
-            PerkName::Refined => write!(f, "Refined"),
-            PerkName::CrystalShield => write!(f, "Crystal Shield"),
-            PerkName::Cheapskate => write!(f, "Cheapskate"),
-            PerkName::Committed => write!(f, "Committed"),
-            PerkName::DemonBait => write!(f, "Demon Bait"),
-            PerkName::Butterfingers => write!(f, "Butterfingers"),
-            PerkName::Mediocrity => write!(f, "Mediocrity"),
-            PerkName::Polishing => write!(f, "Polishing"),
-            PerkName::Talking => write!(f, "Talking"),
-            PerkName::TrophyTaker => write!(f, "Trophy-taker's"),
-            PerkName::NoEffect => write!(f, "No effect"),
-            PerkName::Mysterious => write!(f, "Mysterious"),
-            PerkName::Equilibrium => write!(f, "Equilibrium"),
-            PerkName::Fortune => write!(f, "Fortune"),
-            PerkName::Lucky => write!(f, "Lucky"),
-            PerkName::ImpSouled => write!(f, "Imp Souled"),
-            PerkName::Taunting => write!(f, "Taunting"),
-            PerkName::Rapid => write!(f, "Rapid"),
-            PerkName::Absorbative => write!(f, "Absorbative"),
-            PerkName::Spendthrift => write!(f, "Spendthrift"),
-            PerkName::UndeadBait => write!(f, "Undead Bait"),
             PerkName::Efficient => write!(f, "Efficient"),
-            PerkName::Brassican => write!(f, "Brassican"),
-            PerkName::Caroming => write!(f, "Caroming"),
-            PerkName::Mobile => write!(f, "Mobile"),
-            PerkName::Flanking => write!(f, "Flanking"),
-            PerkName::Ruthless => write!(f, "Ruthless"),
-            PerkName::Charitable => write!(f, "Charitable"),
+            PerkName::Energising => write!(f, "Energising"),
+            PerkName::EnhancedDevoted => write!(f, "Enhanced Devoted"),
+            PerkName::EnhancedEfficient => write!(f, "Enhanced Efficient"),
             PerkName::Enlightened => write!(f, "Enlightened"),
+            PerkName::Equilibrium => write!(f, "Equilibrium"),
+            PerkName::Fatiguing => write!(f, "Fatiguing"),
+            PerkName::Flanking => write!(f, "Flanking"),
+            PerkName::Fortune => write!(f, "Fortune"),
+            PerkName::Furnace => write!(f, "Furnace"),
+            PerkName::Genocidal => write!(f, "Genocidal"),
+            PerkName::GlowWorm => write!(f, "Glow Worm"),
+            PerkName::Hallucinogenic => write!(f, "Hallucinogenic"),
+            PerkName::Hoarding => write!(f, "Hoarding"),
+            PerkName::Honed => write!(f, "Honed"),
+            PerkName::Impatient => write!(f, "Impatient"),
+            PerkName::ImpSouled => write!(f, "Imp Souled"),
+            PerkName::Inaccurate => write!(f, "Inaccurate"),
+            PerkName::Invigorating => write!(f, "Invigorating"),
+            PerkName::JunkFood => write!(f, "Junk Food"),
+            PerkName::Looting => write!(f, "Looting"),
+            PerkName::Lucky => write!(f, "Lucky"),
+            PerkName::Lunging => write!(f, "Lunging"),
+            PerkName::Mediocrity => write!(f, "Mediocrity"),
+            PerkName::Mobile => write!(f, "Mobile"),
+            PerkName::Mysterious => write!(f, "Mysterious"),
+            PerkName::NoEffect => write!(f, "No effect"),
+            PerkName::PlantedFeet => write!(f, "Planted Feet"),
+            PerkName::Polishing => write!(f, "Polishing"),
+            PerkName::Precise => write!(f, "Precise"),
+            PerkName::Preparation => write!(f, "Preparation"),
+            PerkName::Profane => write!(f, "Profane"),
+            PerkName::Prosper => write!(f, "Prosper"),
+            PerkName::Pyromaniac => write!(f, "Pyromaniac"),
+            PerkName::Rapid => write!(f, "Rapid"),
+            PerkName::Refined => write!(f, "Refined"),
+            PerkName::Reflexes => write!(f, "Reflexes"),
+            PerkName::Relentless => write!(f, "Relentless"),
+            PerkName::Ruthless => write!(f, "Ruthless"),
             PerkName::Scavenging => write!(f, "Scavenging"),
-            PerkName::Empty => write!(f, "Empty")
+            PerkName::ShieldBashing => write!(f, "Shield Bashing"),
+            PerkName::Spendthrift => write!(f, "Spendthrift"),
+            PerkName::Talking => write!(f, "Talking"),
+            PerkName::Taunting => write!(f, "Taunting"),
+            PerkName::Tinker => write!(f, "Tinker"),
+            PerkName::TrophyTaker => write!(f, "Trophy-taker's"),
+            PerkName::Turtling => write!(f, "Turtling"),
+            PerkName::Ultimatums => write!(f, "Ultimatums"),
+            PerkName::UndeadBait => write!(f, "Undead Bait"),
+            PerkName::UndeadSlayer => write!(f, "Undead Slayer"),
+            PerkName::Venomblood => write!(f, "Venomblood"),
+            PerkName::Wise => write!(f, "Wise"),
         }
     }
 }
@@ -438,88 +499,90 @@ impl FromStr for PerkName {
 
     fn from_str(perk: &str) -> Result<Self, Self::Err> {
         match perk.to_lowercase().as_str() {
-            "biting" => Ok(PerkName::Biting),
-            "tinker" => Ok(PerkName::Tinker),
-            "junk food" => Ok(PerkName::JunkFood),
-            "inaccurate" => Ok(PerkName::Inaccurate),
-            "demon slayer" => Ok(PerkName::DemonSlayer),
-            "looting" => Ok(PerkName::Looting),
-            "antitheism" => Ok(PerkName::Antitheism),
-            "confused" => Ok(PerkName::Confused),
-            "relentless" => Ok(PerkName::Relentless),
-            "glow worm" => Ok(PerkName::GlowWorm),
-            "brief respite" => Ok(PerkName::BriefRespite),
-            "blunted" => Ok(PerkName::Blunted),
-            "wise" => Ok(PerkName::Wise),
-            "planted feet" => Ok(PerkName::PlantedFeet),
-            "genocidal" => Ok(PerkName::Genocidal),
-            "invigorating" => Ok(PerkName::Invigorating),
-            "breakdown" => Ok(PerkName::Breakdown),
-            "prosper" => Ok(PerkName::Prosper),
-            "pyromaniac" => Ok(PerkName::Pyromaniac),
-            "furnace" => Ok(PerkName::Furnace),
-            "bulwark" => Ok(PerkName::Bulwark),
-            "reflexes" => Ok(PerkName::Reflexes),
-            "clear headed" => Ok(PerkName::ClearHeaded),
-            "shield bashing" => Ok(PerkName::ShieldBashing),
-            "preparation" => Ok(PerkName::Preparation),
-            "enhanced efficient" => Ok(PerkName::EnhancedEfficient),
-            "fatiguing" => Ok(PerkName::Fatiguing),
-            "hoarding" => Ok(PerkName::Hoarding),
-            "turtling" => Ok(PerkName::Turtling),
+            "absorbative" => Ok(PerkName::Absorbative),
             "aftershock" => Ok(PerkName::Aftershock),
-            "precise" => Ok(PerkName::Precise),
-            "lunging" => Ok(PerkName::Lunging),
-            "hallucinogenic" => Ok(PerkName::Hallucinogenic),
-            "honed" => Ok(PerkName::Honed),
-            "devoted" => Ok(PerkName::Devoted),
-            "undead slayer" => Ok(PerkName::UndeadSlayer),
+            "antitheism" => Ok(PerkName::Antitheism),
+            "biting" => Ok(PerkName::Biting),
+            "blunted" => Ok(PerkName::Blunted),
+            "brassican" => Ok(PerkName::Brassican),
+            "breakdown" => Ok(PerkName::Breakdown),
+            "brief respite" => Ok(PerkName::BriefRespite),
+            "bulwark" => Ok(PerkName::Bulwark),
+            "butterfingers" => Ok(PerkName::Butterfingers),
+            "caroming" => Ok(PerkName::Caroming),
             "cautious" => Ok(PerkName::Cautious),
-            "venomblood" => Ok(PerkName::Venomblood),
-            "profane" => Ok(PerkName::Profane),
+            "charitable" => Ok(PerkName::Charitable),
+            "cheapskate" => Ok(PerkName::Cheapskate),
+            "clear headed" => Ok(PerkName::ClearHeaded),
+            "committed" => Ok(PerkName::Committed),
+            "confused" => Ok(PerkName::Confused),
             "crackling" => Ok(PerkName::Crackling),
-            "ultimatums" => Ok(PerkName::Ultimatums),
-            "energising" => Ok(PerkName::Energising),
-            "enhanced devoted" => Ok(PerkName::EnhancedDevoted),
-            "impatient" => Ok(PerkName::Impatient),
+            "crystal shield" => Ok(PerkName::CrystalShield),
+            "demon bait" => Ok(PerkName::DemonBait),
+            "demon slayer" => Ok(PerkName::DemonSlayer),
+            "devoted" => Ok(PerkName::Devoted),
             "dragon bait" => Ok(PerkName::DragonBait),
             "dragon slayer" => Ok(PerkName::DragonSlayer),
-            "refined" => Ok(PerkName::Refined),
-            "crystal shield" => Ok(PerkName::CrystalShield),
-            "cheapskate" => Ok(PerkName::Cheapskate),
-            "committed" => Ok(PerkName::Committed),
-            "demon bait" => Ok(PerkName::DemonBait),
-            "butterfingers" => Ok(PerkName::Butterfingers),
+            "efficient" => Ok(PerkName::Efficient),
+            "energising" => Ok(PerkName::Energising),
+            "enhanced devoted" => Ok(PerkName::EnhancedDevoted),
+            "enhanced efficient" => Ok(PerkName::EnhancedEfficient),
+            "enlightened" => Ok(PerkName::Enlightened),
+            "equilibrium" => Ok(PerkName::Equilibrium),
+            "fatiguing" => Ok(PerkName::Fatiguing),
+            "flanking" => Ok(PerkName::Flanking),
+            "fortune" => Ok(PerkName::Fortune),
+            "furnace" => Ok(PerkName::Furnace),
+            "genocidal" => Ok(PerkName::Genocidal),
+            "glow worm" => Ok(PerkName::GlowWorm),
+            "hallucinogenic" => Ok(PerkName::Hallucinogenic),
+            "hoarding" => Ok(PerkName::Hoarding),
+            "honed" => Ok(PerkName::Honed),
+            "imp souled" => Ok(PerkName::ImpSouled),
+            "impatient" => Ok(PerkName::Impatient),
+            "inaccurate" => Ok(PerkName::Inaccurate),
+            "invigorating" => Ok(PerkName::Invigorating),
+            "junk food" => Ok(PerkName::JunkFood),
+            "looting" => Ok(PerkName::Looting),
+            "lucky" => Ok(PerkName::Lucky),
+            "lunging" => Ok(PerkName::Lunging),
             "mediocrity" => Ok(PerkName::Mediocrity),
+            "mobile" => Ok(PerkName::Mobile),
+            "mysterious" => Ok(PerkName::Mysterious),
+            "no effect" => Ok(PerkName::NoEffect),
+            "planted feet" => Ok(PerkName::PlantedFeet),
             "polishing" => Ok(PerkName::Polishing),
+            "precise" => Ok(PerkName::Precise),
+            "preparation" => Ok(PerkName::Preparation),
+            "profane" => Ok(PerkName::Profane),
+            "prosper" => Ok(PerkName::Prosper),
+            "pyromaniac" => Ok(PerkName::Pyromaniac),
+            "rapid" => Ok(PerkName::Rapid),
+            "refined" => Ok(PerkName::Refined),
+            "reflexes" => Ok(PerkName::Reflexes),
+            "relentless" => Ok(PerkName::Relentless),
+            "ruthless" => Ok(PerkName::Ruthless),
+            "scavenging" => Ok(PerkName::Scavenging),
+            "shield bashing" => Ok(PerkName::ShieldBashing),
+            "spendthrift" => Ok(PerkName::Spendthrift),
             "talking" => Ok(PerkName::Talking),
+            "taunting" => Ok(PerkName::Taunting),
+            "tinker" => Ok(PerkName::Tinker),
+            "trophy taker" => Ok(PerkName::TrophyTaker),
             "trophy-taker's" => Ok(PerkName::TrophyTaker),
             "trophy-taker" => Ok(PerkName::TrophyTaker),
-            "trophy taker" => Ok(PerkName::TrophyTaker),
-            "no effect" => Ok(PerkName::NoEffect),
-            "mysterious" => Ok(PerkName::Mysterious),
-            "equilibrium" => Ok(PerkName::Equilibrium),
-            "fortune" => Ok(PerkName::Fortune),
-            "lucky" => Ok(PerkName::Lucky),
-            "imp souled" => Ok(PerkName::ImpSouled),
-            "taunting" => Ok(PerkName::Taunting),
-            "rapid" => Ok(PerkName::Rapid),
-            "absorbative" => Ok(PerkName::Absorbative),
-            "spendthrift" => Ok(PerkName::Spendthrift),
+            "turtling" => Ok(PerkName::Turtling),
+            "ultimatums" => Ok(PerkName::Ultimatums),
             "undead bait" => Ok(PerkName::UndeadBait),
-            "efficient" => Ok(PerkName::Efficient),
-            "brassican" => Ok(PerkName::Brassican),
-            "caroming" => Ok(PerkName::Caroming),
-            "mobile" => Ok(PerkName::Mobile),
-            "flanking" => Ok(PerkName::Flanking),
-            "ruthless" => Ok(PerkName::Ruthless),
-            "charitable" => Ok(PerkName::Charitable),
-            "enlightened" => Ok(PerkName::Enlightened),
-            "scavenging" => Ok(PerkName::Scavenging),
+            "undead slayer" => Ok(PerkName::UndeadSlayer),
+            "venomblood" => Ok(PerkName::Venomblood),
+            "wise" => Ok(PerkName::Wise),
             _ => Err("Unknown perk")
         }
     }
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, DeserializeFromStr, Hash)]
 pub enum MaterialName {
@@ -781,6 +844,8 @@ impl FromStr for MaterialName {
         }
     }
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 #[cfg(test)]
 mod test {

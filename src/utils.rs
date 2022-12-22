@@ -25,7 +25,7 @@ pub fn format_int(mut num: i64) -> String {
     s.chars().rev().collect()
 }
 
-/// Convolutes two arrays https://en.wikipedia.org/wiki/Convolution
+/// Convolutes two arrays <https://en.wikipedia.org/wiki/Convolution>
 pub fn convolve(x: &Vec<f64>, y: &Vec<f64>) -> Vec<f64> {
     let xlen = x.len() as i64;
     let ylen = y.len() as i64;

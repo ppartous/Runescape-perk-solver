@@ -1,4 +1,4 @@
-/// Binomial coefficient $\frac{n!}{k!(n-k)!}$
+/// Binomial coefficient $`\frac{n!}{k!(n-k)!}`$
 pub fn choose(n: usize, k: usize) -> f64 {
     if k > n {
         return 0.0
@@ -16,7 +16,7 @@ pub fn choose(n: usize, k: usize) -> f64 {
 
 /// Calculates the chance to roll `val` with `die_count` amount of dice where each die has `die_sides` faces.
 ///
-/// https://mathworld.wolfram.com/Dice.html
+/// <https://mathworld.wolfram.com/Dice.html>
 pub fn dice_roll(val: usize, die_count: usize, die_sides: usize) -> f64 {
     let mut res = 0.0;
 
