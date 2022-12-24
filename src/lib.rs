@@ -267,6 +267,8 @@ fn calc_combination_count(conflict_size: usize, no_conflict_size: usize, is_anci
 }
 
 #[allow(unused_variables, dead_code)]
-fn calc_gizmo_probabilities(data: &Data, args: &Args, invent_budgets: &Vec<Budget>, input_materials: &Vec<MaterialName>, wanted_gizmo: &Gizmo) {
+fn calc_gizmo_probabilities(data: &Data, args: &Args, invent_budgets: &Vec<Budget>, input_materials: &Vec<MaterialName>,
+    wanted_gizmo: &Gizmo)
+{
     todo!();
 }
