@@ -16,6 +16,9 @@ pub use perk::*;
 pub mod gizmo;
 pub use gizmo::*;
 
+pub mod budget;
+pub use budget::*;
+
 use smallvec::{SmallVec, smallvec};
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -40,7 +43,7 @@ pub struct RankCombination {
 
 #[derive(Debug)]
 pub struct PerkValues {
-    pub perk: PerkName,
+    pub name: PerkName,
     pub base: u16,
     pub rolls: SmallVec<[u8; 9]>,
     pub doubleslot: bool,
@@ -52,7 +55,7 @@ pub struct PerkValues {
 impl Default for PerkValues {
     fn default() -> PerkValues {
         PerkValues {
-            perk: PerkName::Empty,
+            name: PerkName::Empty,
             base: 0,
             rolls: smallvec![],
             doubleslot: false,
@@ -84,21 +87,3 @@ pub struct SplitMaterials {
     pub conflict: Vec<MaterialName>,
     pub no_conflict: Vec<MaterialName>
 }
-
-// ---------------------------------------------------------------------------------------------------------------------
-
-pub struct Range<T> {
-    pub min: T,
-    pub max: T
-}
-
-// ---------------------------------------------------------------------------------------------------------------------
-
-pub struct Budget {
-    pub dist: Vec<f64>,
-    pub level: u16,
-    pub range: Range<u16>
-}
-
-// ---------------------------------------------------------------------------------------------------------------------
-

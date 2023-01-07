@@ -1,7 +1,7 @@
 use serde_with::DeserializeFromStr;
-use std::{fmt, str::FromStr};
+use std::{fmt, str::FromStr, sync::atomic::AtomicBool};
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, DeserializeFromStr, Hash)]
+#[derive(PartialEq, Eq, Clone, Copy, PartialOrd, Ord, DeserializeFromStr, Hash)]
 pub enum PerkName {
     Empty,
     Absorbative,
@@ -82,87 +82,140 @@ pub enum PerkName {
     Wise,
 }
 
+static mut USE_SIMPLE_PRINT_STYLE: AtomicBool = AtomicBool::new(false);
+
+impl PerkName {
+    pub const A: PerkName = PerkName::Absorbative;
+    pub const B: PerkName = PerkName::Aftershock;
+    pub const C: PerkName = PerkName::Antitheism;
+    pub const D: PerkName = PerkName::Biting;
+    pub const E: PerkName = PerkName::Blunted;
+    pub const F: PerkName = PerkName::Brassican;
+    pub const G: PerkName = PerkName::Breakdown;
+    pub const H: PerkName = PerkName::BriefRespite;
+    pub const I: PerkName = PerkName::Bulwark;
+    pub const J: PerkName = PerkName::Butterfingers;
+    pub const K: PerkName = PerkName::Caroming;
+
+    pub fn using_simplified_names() {
+        unsafe {
+            *USE_SIMPLE_PRINT_STYLE.get_mut() = true;
+        }
+    }
+
+    pub fn using_full_names() {
+        unsafe {
+            *USE_SIMPLE_PRINT_STYLE.get_mut() = false;
+        }
+    }
+}
+
 impl fmt::Display for PerkName {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            PerkName::Empty => write!(f, "Empty"),
-            PerkName::Absorbative => write!(f, "Absorbative"),
-            PerkName::Aftershock => write!(f, "Aftershock"),
-            PerkName::Antitheism => write!(f, "Antitheism"),
-            PerkName::Biting => write!(f, "Biting"),
-            PerkName::Blunted => write!(f, "Blunted"),
-            PerkName::Brassican => write!(f, "Brassican"),
-            PerkName::Breakdown => write!(f, "Breakdown"),
-            PerkName::BriefRespite => write!(f, "Brief Respite"),
-            PerkName::Bulwark => write!(f, "Bulwark"),
-            PerkName::Butterfingers => write!(f, "Butterfingers"),
-            PerkName::Caroming => write!(f, "Caroming"),
-            PerkName::Cautious => write!(f, "Cautious"),
-            PerkName::Charitable => write!(f, "Charitable"),
-            PerkName::Cheapskate => write!(f, "Cheapskate"),
-            PerkName::ClearHeaded => write!(f, "Clear Headed"),
-            PerkName::Committed => write!(f, "Committed"),
-            PerkName::Confused => write!(f, "Confused"),
-            PerkName::Crackling => write!(f, "Crackling"),
-            PerkName::CrystalShield => write!(f, "Crystal Shield"),
-            PerkName::DemonBait => write!(f, "Demon Bait"),
-            PerkName::DemonSlayer => write!(f, "Demon Slayer"),
-            PerkName::Devoted => write!(f, "Devoted"),
-            PerkName::DragonBait => write!(f, "Dragon Bait"),
-            PerkName::DragonSlayer => write!(f, "Dragon Slayer"),
-            PerkName::Efficient => write!(f, "Efficient"),
-            PerkName::Energising => write!(f, "Energising"),
-            PerkName::EnhancedDevoted => write!(f, "Enhanced Devoted"),
-            PerkName::EnhancedEfficient => write!(f, "Enhanced Efficient"),
-            PerkName::Enlightened => write!(f, "Enlightened"),
-            PerkName::Equilibrium => write!(f, "Equilibrium"),
-            PerkName::Fatiguing => write!(f, "Fatiguing"),
-            PerkName::Flanking => write!(f, "Flanking"),
-            PerkName::Fortune => write!(f, "Fortune"),
-            PerkName::Furnace => write!(f, "Furnace"),
-            PerkName::Genocidal => write!(f, "Genocidal"),
-            PerkName::GlowWorm => write!(f, "Glow Worm"),
-            PerkName::Hallucinogenic => write!(f, "Hallucinogenic"),
-            PerkName::Hoarding => write!(f, "Hoarding"),
-            PerkName::Honed => write!(f, "Honed"),
-            PerkName::Impatient => write!(f, "Impatient"),
-            PerkName::ImpSouled => write!(f, "Imp Souled"),
-            PerkName::Inaccurate => write!(f, "Inaccurate"),
-            PerkName::Invigorating => write!(f, "Invigorating"),
-            PerkName::JunkFood => write!(f, "Junk Food"),
-            PerkName::Looting => write!(f, "Looting"),
-            PerkName::Lucky => write!(f, "Lucky"),
-            PerkName::Lunging => write!(f, "Lunging"),
-            PerkName::Mediocrity => write!(f, "Mediocrity"),
-            PerkName::Mobile => write!(f, "Mobile"),
-            PerkName::Mysterious => write!(f, "Mysterious"),
-            PerkName::NoEffect => write!(f, "No effect"),
-            PerkName::PlantedFeet => write!(f, "Planted Feet"),
-            PerkName::Polishing => write!(f, "Polishing"),
-            PerkName::Precise => write!(f, "Precise"),
-            PerkName::Preparation => write!(f, "Preparation"),
-            PerkName::Profane => write!(f, "Profane"),
-            PerkName::Prosper => write!(f, "Prosper"),
-            PerkName::Pyromaniac => write!(f, "Pyromaniac"),
-            PerkName::Rapid => write!(f, "Rapid"),
-            PerkName::Refined => write!(f, "Refined"),
-            PerkName::Reflexes => write!(f, "Reflexes"),
-            PerkName::Relentless => write!(f, "Relentless"),
-            PerkName::Ruthless => write!(f, "Ruthless"),
-            PerkName::Scavenging => write!(f, "Scavenging"),
-            PerkName::ShieldBashing => write!(f, "Shield Bashing"),
-            PerkName::Spendthrift => write!(f, "Spendthrift"),
-            PerkName::Talking => write!(f, "Talking"),
-            PerkName::Taunting => write!(f, "Taunting"),
-            PerkName::Tinker => write!(f, "Tinker"),
-            PerkName::TrophyTaker => write!(f, "Trophy-taker's"),
-            PerkName::Turtling => write!(f, "Turtling"),
-            PerkName::Ultimatums => write!(f, "Ultimatums"),
-            PerkName::UndeadBait => write!(f, "Undead Bait"),
-            PerkName::UndeadSlayer => write!(f, "Undead Slayer"),
-            PerkName::Venomblood => write!(f, "Venomblood"),
-            PerkName::Wise => write!(f, "Wise"),
+
+        if unsafe { *USE_SIMPLE_PRINT_STYLE.get_mut() } {
+            match *self {
+                PerkName::Empty => write!(f, "Empty"),
+                PerkName::A => write!(f, "A"),
+                PerkName::B => write!(f, "B"),
+                PerkName::C => write!(f, "C"),
+                PerkName::D => write!(f, "D"),
+                PerkName::E => write!(f, "E"),
+                PerkName::F => write!(f, "F"),
+                PerkName::G => write!(f, "G"),
+                PerkName::H => write!(f, "H"),
+                PerkName::I => write!(f, "I"),
+                PerkName::J => write!(f, "J"),
+                PerkName::K => write!(f, "K"),
+                _ => write!(f, "Empty")
+            }
+        } else {
+            match self {
+                PerkName::Empty => write!(f, "Empty"),
+                PerkName::Absorbative => write!(f, "Absorbative"),
+                PerkName::Aftershock => write!(f, "Aftershock"),
+                PerkName::Antitheism => write!(f, "Antitheism"),
+                PerkName::Biting => write!(f, "Biting"),
+                PerkName::Blunted => write!(f, "Blunted"),
+                PerkName::Brassican => write!(f, "Brassican"),
+                PerkName::Breakdown => write!(f, "Breakdown"),
+                PerkName::BriefRespite => write!(f, "Brief Respite"),
+                PerkName::Bulwark => write!(f, "Bulwark"),
+                PerkName::Butterfingers => write!(f, "Butterfingers"),
+                PerkName::Caroming => write!(f, "Caroming"),
+                PerkName::Cautious => write!(f, "Cautious"),
+                PerkName::Charitable => write!(f, "Charitable"),
+                PerkName::Cheapskate => write!(f, "Cheapskate"),
+                PerkName::ClearHeaded => write!(f, "Clear Headed"),
+                PerkName::Committed => write!(f, "Committed"),
+                PerkName::Confused => write!(f, "Confused"),
+                PerkName::Crackling => write!(f, "Crackling"),
+                PerkName::CrystalShield => write!(f, "Crystal Shield"),
+                PerkName::DemonBait => write!(f, "Demon Bait"),
+                PerkName::DemonSlayer => write!(f, "Demon Slayer"),
+                PerkName::Devoted => write!(f, "Devoted"),
+                PerkName::DragonBait => write!(f, "Dragon Bait"),
+                PerkName::DragonSlayer => write!(f, "Dragon Slayer"),
+                PerkName::Efficient => write!(f, "Efficient"),
+                PerkName::Energising => write!(f, "Energising"),
+                PerkName::EnhancedDevoted => write!(f, "Enhanced Devoted"),
+                PerkName::EnhancedEfficient => write!(f, "Enhanced Efficient"),
+                PerkName::Enlightened => write!(f, "Enlightened"),
+                PerkName::Equilibrium => write!(f, "Equilibrium"),
+                PerkName::Fatiguing => write!(f, "Fatiguing"),
+                PerkName::Flanking => write!(f, "Flanking"),
+                PerkName::Fortune => write!(f, "Fortune"),
+                PerkName::Furnace => write!(f, "Furnace"),
+                PerkName::Genocidal => write!(f, "Genocidal"),
+                PerkName::GlowWorm => write!(f, "Glow Worm"),
+                PerkName::Hallucinogenic => write!(f, "Hallucinogenic"),
+                PerkName::Hoarding => write!(f, "Hoarding"),
+                PerkName::Honed => write!(f, "Honed"),
+                PerkName::Impatient => write!(f, "Impatient"),
+                PerkName::ImpSouled => write!(f, "Imp Souled"),
+                PerkName::Inaccurate => write!(f, "Inaccurate"),
+                PerkName::Invigorating => write!(f, "Invigorating"),
+                PerkName::JunkFood => write!(f, "Junk Food"),
+                PerkName::Looting => write!(f, "Looting"),
+                PerkName::Lucky => write!(f, "Lucky"),
+                PerkName::Lunging => write!(f, "Lunging"),
+                PerkName::Mediocrity => write!(f, "Mediocrity"),
+                PerkName::Mobile => write!(f, "Mobile"),
+                PerkName::Mysterious => write!(f, "Mysterious"),
+                PerkName::NoEffect => write!(f, "No effect"),
+                PerkName::PlantedFeet => write!(f, "Planted Feet"),
+                PerkName::Polishing => write!(f, "Polishing"),
+                PerkName::Precise => write!(f, "Precise"),
+                PerkName::Preparation => write!(f, "Preparation"),
+                PerkName::Profane => write!(f, "Profane"),
+                PerkName::Prosper => write!(f, "Prosper"),
+                PerkName::Pyromaniac => write!(f, "Pyromaniac"),
+                PerkName::Rapid => write!(f, "Rapid"),
+                PerkName::Refined => write!(f, "Refined"),
+                PerkName::Reflexes => write!(f, "Reflexes"),
+                PerkName::Relentless => write!(f, "Relentless"),
+                PerkName::Ruthless => write!(f, "Ruthless"),
+                PerkName::Scavenging => write!(f, "Scavenging"),
+                PerkName::ShieldBashing => write!(f, "Shield Bashing"),
+                PerkName::Spendthrift => write!(f, "Spendthrift"),
+                PerkName::Talking => write!(f, "Talking"),
+                PerkName::Taunting => write!(f, "Taunting"),
+                PerkName::Tinker => write!(f, "Tinker"),
+                PerkName::TrophyTaker => write!(f, "Trophy-taker's"),
+                PerkName::Turtling => write!(f, "Turtling"),
+                PerkName::Ultimatums => write!(f, "Ultimatums"),
+                PerkName::UndeadBait => write!(f, "Undead Bait"),
+                PerkName::UndeadSlayer => write!(f, "Undead Slayer"),
+                PerkName::Venomblood => write!(f, "Venomblood"),
+                PerkName::Wise => write!(f, "Wise"),
+            }
         }
+    }
+}
+
+impl std::fmt::Debug for PerkName {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        std::fmt::Display::fmt(&self, f)
     }
 }
 

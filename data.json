@@ -2672,35 +2672,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Absorbative",
+        "name": "Absorbative",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 40,
         "doubleslot": false,
-        "perk": "Absorbative",
+        "name": "Absorbative",
         "rank": 1,
         "threshold": 55
       }, {
         "ancient_only": false,
         "cost": 90,
         "doubleslot": false,
-        "perk": "Absorbative",
+        "name": "Absorbative",
         "rank": 2,
         "threshold": 115
       }, {
         "ancient_only": false,
         "cost": 175,
         "doubleslot": false,
-        "perk": "Absorbative",
+        "name": "Absorbative",
         "rank": 3,
         "threshold": 220
       }, {
         "ancient_only": true,
         "cost": 185,
         "doubleslot": false,
-        "perk": "Absorbative",
+        "name": "Absorbative",
         "rank": 4,
         "threshold": 260
       } ]
@@ -2711,35 +2711,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Aftershock",
+        "name": "Aftershock",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 40,
         "doubleslot": false,
-        "perk": "Aftershock",
+        "name": "Aftershock",
         "rank": 1,
         "threshold": 55
       }, {
         "ancient_only": false,
         "cost": 90,
         "doubleslot": false,
-        "perk": "Aftershock",
+        "name": "Aftershock",
         "rank": 2,
         "threshold": 115
       }, {
         "ancient_only": false,
         "cost": 175,
         "doubleslot": false,
-        "perk": "Aftershock",
+        "name": "Aftershock",
         "rank": 3,
         "threshold": 170
       }, {
         "ancient_only": true,
         "cost": 185,
         "doubleslot": false,
-        "perk": "Aftershock",
+        "name": "Aftershock",
         "rank": 4,
         "threshold": 200
       } ]
@@ -2750,14 +2750,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Antitheism",
+        "name": "Antitheism",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Antitheism",
+        "name": "Antitheism",
         "rank": 1,
         "threshold": 50
       } ]
@@ -2768,35 +2768,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Biting",
+        "name": "Biting",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Biting",
+        "name": "Biting",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 80,
         "doubleslot": false,
-        "perk": "Biting",
+        "name": "Biting",
         "rank": 2,
         "threshold": 100
       }, {
         "ancient_only": false,
         "cost": 150,
         "doubleslot": false,
-        "perk": "Biting",
+        "name": "Biting",
         "rank": 3,
         "threshold": 200
       }, {
         "ancient_only": true,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Biting",
+        "name": "Biting",
         "rank": 4,
         "threshold": 240
       } ]
@@ -2807,42 +2807,42 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Blunted",
+        "name": "Blunted",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Blunted",
+        "name": "Blunted",
         "rank": 1,
         "threshold": 40
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Blunted",
+        "name": "Blunted",
         "rank": 2,
         "threshold": 70
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Blunted",
+        "name": "Blunted",
         "rank": 3,
         "threshold": 120
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Blunted",
+        "name": "Blunted",
         "rank": 4,
         "threshold": 155
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Blunted",
+        "name": "Blunted",
         "rank": 5,
         "threshold": 195
       } ]
@@ -2853,14 +2853,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Brassican",
+        "name": "Brassican",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Brassican",
+        "name": "Brassican",
         "rank": 1,
         "threshold": 50
       } ]
@@ -2871,49 +2871,49 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Breakdown",
+        "name": "Breakdown",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Breakdown",
+        "name": "Breakdown",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 65,
         "doubleslot": false,
-        "perk": "Breakdown",
+        "name": "Breakdown",
         "rank": 2,
         "threshold": 80
       }, {
         "ancient_only": false,
         "cost": 120,
         "doubleslot": false,
-        "perk": "Breakdown",
+        "name": "Breakdown",
         "rank": 3,
         "threshold": 130
       }, {
         "ancient_only": false,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Breakdown",
+        "name": "Breakdown",
         "rank": 4,
         "threshold": 170
       }, {
         "ancient_only": false,
         "cost": 195,
         "doubleslot": false,
-        "perk": "Breakdown",
+        "name": "Breakdown",
         "rank": 5,
         "threshold": 210
       }, {
         "ancient_only": true,
         "cost": 205,
         "doubleslot": false,
-        "perk": "Breakdown",
+        "name": "Breakdown",
         "rank": 6,
         "threshold": 250
       } ]
@@ -2924,35 +2924,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Brief Respite",
+        "name": "Brief Respite",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Brief Respite",
+        "name": "Brief Respite",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 80,
         "doubleslot": false,
-        "perk": "Brief Respite",
+        "name": "Brief Respite",
         "rank": 2,
         "threshold": 100
       }, {
         "ancient_only": false,
         "cost": 150,
         "doubleslot": false,
-        "perk": "Brief Respite",
+        "name": "Brief Respite",
         "rank": 3,
         "threshold": 200
       }, {
         "ancient_only": true,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Brief Respite",
+        "name": "Brief Respite",
         "rank": 4,
         "threshold": 240
       } ]
@@ -2963,35 +2963,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Bulwark",
+        "name": "Bulwark",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 40,
         "doubleslot": false,
-        "perk": "Bulwark",
+        "name": "Bulwark",
         "rank": 1,
         "threshold": 55
       }, {
         "ancient_only": false,
         "cost": 90,
         "doubleslot": false,
-        "perk": "Bulwark",
+        "name": "Bulwark",
         "rank": 2,
         "threshold": 115
       }, {
         "ancient_only": false,
         "cost": 175,
         "doubleslot": false,
-        "perk": "Bulwark",
+        "name": "Bulwark",
         "rank": 3,
         "threshold": 220
       }, {
         "ancient_only": true,
         "cost": 185,
         "doubleslot": false,
-        "perk": "Bulwark",
+        "name": "Bulwark",
         "rank": 4,
         "threshold": 260
       } ]
@@ -3002,42 +3002,42 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Butterfingers",
+        "name": "Butterfingers",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Butterfingers",
+        "name": "Butterfingers",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 65,
         "doubleslot": false,
-        "perk": "Butterfingers",
+        "name": "Butterfingers",
         "rank": 2,
         "threshold": 80
       }, {
         "ancient_only": false,
         "cost": 120,
         "doubleslot": false,
-        "perk": "Butterfingers",
+        "name": "Butterfingers",
         "rank": 3,
         "threshold": 130
       }, {
         "ancient_only": false,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Butterfingers",
+        "name": "Butterfingers",
         "rank": 4,
         "threshold": 170
       }, {
         "ancient_only": false,
         "cost": 195,
         "doubleslot": false,
-        "perk": "Butterfingers",
+        "name": "Butterfingers",
         "rank": 5,
         "threshold": 210
       } ]
@@ -3048,35 +3048,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Caroming",
+        "name": "Caroming",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 40,
         "doubleslot": false,
-        "perk": "Caroming",
+        "name": "Caroming",
         "rank": 1,
         "threshold": 55
       }, {
         "ancient_only": false,
         "cost": 90,
         "doubleslot": false,
-        "perk": "Caroming",
+        "name": "Caroming",
         "rank": 2,
         "threshold": 115
       }, {
         "ancient_only": false,
         "cost": 175,
         "doubleslot": false,
-        "perk": "Caroming",
+        "name": "Caroming",
         "rank": 3,
         "threshold": 170
       }, {
         "ancient_only": true,
         "cost": 185,
         "doubleslot": false,
-        "perk": "Caroming",
+        "name": "Caroming",
         "rank": 4,
         "threshold": 200
       } ]
@@ -3087,14 +3087,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Cautious",
+        "name": "Cautious",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Cautious",
+        "name": "Cautious",
         "rank": 1,
         "threshold": 45
       } ]
@@ -3105,35 +3105,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Charitable",
+        "name": "Charitable",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Charitable",
+        "name": "Charitable",
         "rank": 1,
         "threshold": 40
       }, {
         "ancient_only": false,
         "cost": 75,
         "doubleslot": false,
-        "perk": "Charitable",
+        "name": "Charitable",
         "rank": 2,
         "threshold": 90
       }, {
         "ancient_only": false,
         "cost": 135,
         "doubleslot": false,
-        "perk": "Charitable",
+        "name": "Charitable",
         "rank": 3,
         "threshold": 180
       }, {
         "ancient_only": true,
         "cost": 145,
         "doubleslot": false,
-        "perk": "Charitable",
+        "name": "Charitable",
         "rank": 4,
         "threshold": 210
       } ]
@@ -3144,28 +3144,28 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Cheapskate",
+        "name": "Cheapskate",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 20,
         "doubleslot": false,
-        "perk": "Cheapskate",
+        "name": "Cheapskate",
         "rank": 1,
         "threshold": 40
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Cheapskate",
+        "name": "Cheapskate",
         "rank": 2,
         "threshold": 70
       }, {
         "ancient_only": false,
         "cost": 40,
         "doubleslot": false,
-        "perk": "Cheapskate",
+        "name": "Cheapskate",
         "rank": 3,
         "threshold": 150
       } ]
@@ -3176,35 +3176,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Clear Headed",
+        "name": "Clear Headed",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Clear Headed",
+        "name": "Clear Headed",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 80,
         "doubleslot": false,
-        "perk": "Clear Headed",
+        "name": "Clear Headed",
         "rank": 2,
         "threshold": 100
       }, {
         "ancient_only": false,
         "cost": 150,
         "doubleslot": false,
-        "perk": "Clear Headed",
+        "name": "Clear Headed",
         "rank": 3,
         "threshold": 200
       }, {
         "ancient_only": true,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Clear Headed",
+        "name": "Clear Headed",
         "rank": 4,
         "threshold": 240
       } ]
@@ -3215,14 +3215,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Committed",
+        "name": "Committed",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Committed",
+        "name": "Committed",
         "rank": 1,
         "threshold": 45
       } ]
@@ -3233,28 +3233,28 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Confused",
+        "name": "Confused",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 20,
         "doubleslot": false,
-        "perk": "Confused",
+        "name": "Confused",
         "rank": 1,
         "threshold": 40
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Confused",
+        "name": "Confused",
         "rank": 2,
         "threshold": 70
       }, {
         "ancient_only": false,
         "cost": 40,
         "doubleslot": false,
-        "perk": "Confused",
+        "name": "Confused",
         "rank": 3,
         "threshold": 150
       } ]
@@ -3265,35 +3265,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Crackling",
+        "name": "Crackling",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Crackling",
+        "name": "Crackling",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 80,
         "doubleslot": false,
-        "perk": "Crackling",
+        "name": "Crackling",
         "rank": 2,
         "threshold": 100
       }, {
         "ancient_only": false,
         "cost": 150,
         "doubleslot": false,
-        "perk": "Crackling",
+        "name": "Crackling",
         "rank": 3,
         "threshold": 200
       }, {
         "ancient_only": true,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Crackling",
+        "name": "Crackling",
         "rank": 4,
         "threshold": 240
       } ]
@@ -3304,35 +3304,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Crystal Shield",
+        "name": "Crystal Shield",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Crystal Shield",
+        "name": "Crystal Shield",
         "rank": 1,
         "threshold": 40
       }, {
         "ancient_only": false,
         "cost": 120,
         "doubleslot": false,
-        "perk": "Crystal Shield",
+        "name": "Crystal Shield",
         "rank": 2,
         "threshold": 150
       }, {
         "ancient_only": false,
         "cost": 150,
         "doubleslot": false,
-        "perk": "Crystal Shield",
+        "name": "Crystal Shield",
         "rank": 3,
         "threshold": 180
       }, {
         "ancient_only": true,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Crystal Shield",
+        "name": "Crystal Shield",
         "rank": 4,
         "threshold": 210
       } ]
@@ -3343,14 +3343,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Demon Bait",
+        "name": "Demon Bait",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Demon Bait",
+        "name": "Demon Bait",
         "rank": 1,
         "threshold": 45
       } ]
@@ -3361,14 +3361,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Demon Slayer",
+        "name": "Demon Slayer",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Demon Slayer",
+        "name": "Demon Slayer",
         "rank": 1,
         "threshold": 50
       } ]
@@ -3379,35 +3379,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Devoted",
+        "name": "Devoted",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 40,
         "doubleslot": false,
-        "perk": "Devoted",
+        "name": "Devoted",
         "rank": 1,
         "threshold": 55
       }, {
         "ancient_only": false,
         "cost": 90,
         "doubleslot": false,
-        "perk": "Devoted",
+        "name": "Devoted",
         "rank": 2,
         "threshold": 115
       }, {
         "ancient_only": false,
         "cost": 175,
         "doubleslot": false,
-        "perk": "Devoted",
+        "name": "Devoted",
         "rank": 3,
         "threshold": 220
       }, {
         "ancient_only": true,
         "cost": 185,
         "doubleslot": false,
-        "perk": "Devoted",
+        "name": "Devoted",
         "rank": 4,
         "threshold": 260
       } ]
@@ -3418,14 +3418,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Dragon Bait",
+        "name": "Dragon Bait",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Dragon Bait",
+        "name": "Dragon Bait",
         "rank": 1,
         "threshold": 45
       } ]
@@ -3436,14 +3436,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Dragon Slayer",
+        "name": "Dragon Slayer",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Dragon Slayer",
+        "name": "Dragon Slayer",
         "rank": 1,
         "threshold": 50
       } ]
@@ -3454,35 +3454,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Efficient",
+        "name": "Efficient",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Efficient",
+        "name": "Efficient",
         "rank": 1,
         "threshold": 40
       }, {
         "ancient_only": false,
         "cost": 70,
         "doubleslot": false,
-        "perk": "Efficient",
+        "name": "Efficient",
         "rank": 2,
         "threshold": 80
       }, {
         "ancient_only": false,
         "cost": 100,
         "doubleslot": false,
-        "perk": "Efficient",
+        "name": "Efficient",
         "rank": 3,
         "threshold": 120
       }, {
         "ancient_only": true,
         "cost": 110,
         "doubleslot": false,
-        "perk": "Efficient",
+        "name": "Efficient",
         "rank": 4,
         "threshold": 140
       } ]
@@ -3493,35 +3493,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Energising",
+        "name": "Energising",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Energising",
+        "name": "Energising",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 80,
         "doubleslot": false,
-        "perk": "Energising",
+        "name": "Energising",
         "rank": 2,
         "threshold": 100
       }, {
         "ancient_only": false,
         "cost": 150,
         "doubleslot": false,
-        "perk": "Energising",
+        "name": "Energising",
         "rank": 3,
         "threshold": 200
       }, {
         "ancient_only": true,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Energising",
+        "name": "Energising",
         "rank": 4,
         "threshold": 240
       } ]
@@ -3532,35 +3532,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": true,
-        "perk": "Enhanced Devoted",
+        "name": "Enhanced Devoted",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": true,
-        "perk": "Enhanced Devoted",
+        "name": "Enhanced Devoted",
         "rank": 1,
         "threshold": 40
       }, {
         "ancient_only": false,
         "cost": 120,
         "doubleslot": true,
-        "perk": "Enhanced Devoted",
+        "name": "Enhanced Devoted",
         "rank": 2,
         "threshold": 140
       }, {
         "ancient_only": false,
         "cost": 220,
         "doubleslot": true,
-        "perk": "Enhanced Devoted",
+        "name": "Enhanced Devoted",
         "rank": 3,
         "threshold": 230
       }, {
         "ancient_only": true,
         "cost": 230,
         "doubleslot": true,
-        "perk": "Enhanced Devoted",
+        "name": "Enhanced Devoted",
         "rank": 4,
         "threshold": 270
       } ]
@@ -3571,35 +3571,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": true,
-        "perk": "Enhanced Efficient",
+        "name": "Enhanced Efficient",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": true,
-        "perk": "Enhanced Efficient",
+        "name": "Enhanced Efficient",
         "rank": 1,
         "threshold": 40
       }, {
         "ancient_only": false,
         "cost": 120,
         "doubleslot": true,
-        "perk": "Enhanced Efficient",
+        "name": "Enhanced Efficient",
         "rank": 2,
         "threshold": 140
       }, {
         "ancient_only": false,
         "cost": 220,
         "doubleslot": true,
-        "perk": "Enhanced Efficient",
+        "name": "Enhanced Efficient",
         "rank": 3,
         "threshold": 230
       }, {
         "ancient_only": true,
         "cost": 230,
         "doubleslot": true,
-        "perk": "Enhanced Efficient",
+        "name": "Enhanced Efficient",
         "rank": 4,
         "threshold": 270
       } ]
@@ -3610,35 +3610,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Enlightened",
+        "name": "Enlightened",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Enlightened",
+        "name": "Enlightened",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 80,
         "doubleslot": false,
-        "perk": "Enlightened",
+        "name": "Enlightened",
         "rank": 2,
         "threshold": 100
       }, {
         "ancient_only": false,
         "cost": 150,
         "doubleslot": false,
-        "perk": "Enlightened",
+        "name": "Enlightened",
         "rank": 3,
         "threshold": 200
       }, {
         "ancient_only": true,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Enlightened",
+        "name": "Enlightened",
         "rank": 4,
         "threshold": 240
       } ]
@@ -3649,35 +3649,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Equilibrium",
+        "name": "Equilibrium",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 40,
         "doubleslot": false,
-        "perk": "Equilibrium",
+        "name": "Equilibrium",
         "rank": 1,
         "threshold": 55
       }, {
         "ancient_only": false,
         "cost": 90,
         "doubleslot": false,
-        "perk": "Equilibrium",
+        "name": "Equilibrium",
         "rank": 2,
         "threshold": 115
       }, {
         "ancient_only": false,
         "cost": 175,
         "doubleslot": false,
-        "perk": "Equilibrium",
+        "name": "Equilibrium",
         "rank": 3,
         "threshold": 220
       }, {
         "ancient_only": true,
         "cost": 185,
         "doubleslot": false,
-        "perk": "Equilibrium",
+        "name": "Equilibrium",
         "rank": 4,
         "threshold": 260
       } ]
@@ -3688,28 +3688,28 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Fatiguing",
+        "name": "Fatiguing",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Fatiguing",
+        "name": "Fatiguing",
         "rank": 1,
         "threshold": 40
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Fatiguing",
+        "name": "Fatiguing",
         "rank": 2,
         "threshold": 90
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Fatiguing",
+        "name": "Fatiguing",
         "rank": 3,
         "threshold": 180
       } ]
@@ -3720,35 +3720,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Flanking",
+        "name": "Flanking",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Flanking",
+        "name": "Flanking",
         "rank": 1,
         "threshold": 40
       }, {
         "ancient_only": false,
         "cost": 110,
         "doubleslot": false,
-        "perk": "Flanking",
+        "name": "Flanking",
         "rank": 2,
         "threshold": 140
       }, {
         "ancient_only": false,
         "cost": 180,
         "doubleslot": false,
-        "perk": "Flanking",
+        "name": "Flanking",
         "rank": 3,
         "threshold": 210
       }, {
         "ancient_only": true,
         "cost": 190,
         "doubleslot": false,
-        "perk": "Flanking",
+        "name": "Flanking",
         "rank": 4,
         "threshold": 250
       } ]
@@ -3759,28 +3759,28 @@
         "ancient_only": true,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Fortune",
+        "name": "Fortune",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": true,
         "cost": 45,
         "doubleslot": false,
-        "perk": "Fortune",
+        "name": "Fortune",
         "rank": 1,
         "threshold": 60
       }, {
         "ancient_only": true,
         "cost": 90,
         "doubleslot": false,
-        "perk": "Fortune",
+        "name": "Fortune",
         "rank": 2,
         "threshold": 130
       }, {
         "ancient_only": true,
         "cost": 180,
         "doubleslot": false,
-        "perk": "Fortune",
+        "name": "Fortune",
         "rank": 3,
         "threshold": 250
       } ]
@@ -3791,35 +3791,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Furnace",
+        "name": "Furnace",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 40,
         "doubleslot": false,
-        "perk": "Furnace",
+        "name": "Furnace",
         "rank": 1,
         "threshold": 55
       }, {
         "ancient_only": false,
         "cost": 90,
         "doubleslot": false,
-        "perk": "Furnace",
+        "name": "Furnace",
         "rank": 2,
         "threshold": 115
       }, {
         "ancient_only": false,
         "cost": 175,
         "doubleslot": false,
-        "perk": "Furnace",
+        "name": "Furnace",
         "rank": 3,
         "threshold": 220
       }, {
         "ancient_only": true,
         "cost": 185,
         "doubleslot": false,
-        "perk": "Furnace",
+        "name": "Furnace",
         "rank": 4,
         "threshold": 260
       } ]
@@ -3830,14 +3830,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Genocidal",
+        "name": "Genocidal",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 50,
         "doubleslot": false,
-        "perk": "Genocidal",
+        "name": "Genocidal",
         "rank": 1,
         "threshold": 65
       } ]
@@ -3848,14 +3848,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Glow Worm",
+        "name": "Glow Worm",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Glow Worm",
+        "name": "Glow Worm",
         "rank": 1,
         "threshold": 50
       } ]
@@ -3866,14 +3866,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Hallucinogenic",
+        "name": "Hallucinogenic",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Hallucinogenic",
+        "name": "Hallucinogenic",
         "rank": 1,
         "threshold": 50
       } ]
@@ -3884,14 +3884,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Hoarding",
+        "name": "Hoarding",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Hoarding",
+        "name": "Hoarding",
         "rank": 1,
         "threshold": 50
       } ]
@@ -3902,49 +3902,49 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Honed",
+        "name": "Honed",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Honed",
+        "name": "Honed",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 65,
         "doubleslot": false,
-        "perk": "Honed",
+        "name": "Honed",
         "rank": 2,
         "threshold": 80
       }, {
         "ancient_only": false,
         "cost": 120,
         "doubleslot": false,
-        "perk": "Honed",
+        "name": "Honed",
         "rank": 3,
         "threshold": 130
       }, {
         "ancient_only": false,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Honed",
+        "name": "Honed",
         "rank": 4,
         "threshold": 170
       }, {
         "ancient_only": false,
         "cost": 195,
         "doubleslot": false,
-        "perk": "Honed",
+        "name": "Honed",
         "rank": 5,
         "threshold": 210
       }, {
         "ancient_only": true,
         "cost": 205,
         "doubleslot": false,
-        "perk": "Honed",
+        "name": "Honed",
         "rank": 6,
         "threshold": 250
       } ]
@@ -3955,49 +3955,49 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Imp Souled",
+        "name": "Imp Souled",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Imp Souled",
+        "name": "Imp Souled",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 65,
         "doubleslot": false,
-        "perk": "Imp Souled",
+        "name": "Imp Souled",
         "rank": 2,
         "threshold": 80
       }, {
         "ancient_only": false,
         "cost": 120,
         "doubleslot": false,
-        "perk": "Imp Souled",
+        "name": "Imp Souled",
         "rank": 3,
         "threshold": 130
       }, {
         "ancient_only": false,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Imp Souled",
+        "name": "Imp Souled",
         "rank": 4,
         "threshold": 170
       }, {
         "ancient_only": false,
         "cost": 195,
         "doubleslot": false,
-        "perk": "Imp Souled",
+        "name": "Imp Souled",
         "rank": 5,
         "threshold": 210
       }, {
         "ancient_only": true,
         "cost": 205,
         "doubleslot": false,
-        "perk": "Imp Souled",
+        "name": "Imp Souled",
         "rank": 6,
         "threshold": 250
       } ]
@@ -4008,35 +4008,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Impatient",
+        "name": "Impatient",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Impatient",
+        "name": "Impatient",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 80,
         "doubleslot": false,
-        "perk": "Impatient",
+        "name": "Impatient",
         "rank": 2,
         "threshold": 100
       }, {
         "ancient_only": false,
         "cost": 150,
         "doubleslot": false,
-        "perk": "Impatient",
+        "name": "Impatient",
         "rank": 3,
         "threshold": 200
       }, {
         "ancient_only": true,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Impatient",
+        "name": "Impatient",
         "rank": 4,
         "threshold": 240
       } ]
@@ -4047,42 +4047,42 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Inaccurate",
+        "name": "Inaccurate",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Inaccurate",
+        "name": "Inaccurate",
         "rank": 1,
         "threshold": 40
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Inaccurate",
+        "name": "Inaccurate",
         "rank": 2,
         "threshold": 70
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Inaccurate",
+        "name": "Inaccurate",
         "rank": 3,
         "threshold": 120
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Inaccurate",
+        "name": "Inaccurate",
         "rank": 4,
         "threshold": 155
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Inaccurate",
+        "name": "Inaccurate",
         "rank": 5,
         "threshold": 195
       } ]
@@ -4093,35 +4093,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Invigorating",
+        "name": "Invigorating",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Invigorating",
+        "name": "Invigorating",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 80,
         "doubleslot": false,
-        "perk": "Invigorating",
+        "name": "Invigorating",
         "rank": 2,
         "threshold": 100
       }, {
         "ancient_only": false,
         "cost": 150,
         "doubleslot": false,
-        "perk": "Invigorating",
+        "name": "Invigorating",
         "rank": 3,
         "threshold": 200
       }, {
         "ancient_only": true,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Invigorating",
+        "name": "Invigorating",
         "rank": 4,
         "threshold": 240
       } ]
@@ -4132,28 +4132,28 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Junk Food",
+        "name": "Junk Food",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Junk Food",
+        "name": "Junk Food",
         "rank": 1,
         "threshold": 40
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Junk Food",
+        "name": "Junk Food",
         "rank": 2,
         "threshold": 90
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Junk Food",
+        "name": "Junk Food",
         "rank": 3,
         "threshold": 180
       } ]
@@ -4164,14 +4164,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Looting",
+        "name": "Looting",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 50,
         "doubleslot": false,
-        "perk": "Looting",
+        "name": "Looting",
         "rank": 1,
         "threshold": 65
       } ]
@@ -4182,49 +4182,49 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Lucky",
+        "name": "Lucky",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Lucky",
+        "name": "Lucky",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 65,
         "doubleslot": false,
-        "perk": "Lucky",
+        "name": "Lucky",
         "rank": 2,
         "threshold": 80
       }, {
         "ancient_only": false,
         "cost": 120,
         "doubleslot": false,
-        "perk": "Lucky",
+        "name": "Lucky",
         "rank": 3,
         "threshold": 130
       }, {
         "ancient_only": false,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Lucky",
+        "name": "Lucky",
         "rank": 4,
         "threshold": 170
       }, {
         "ancient_only": false,
         "cost": 195,
         "doubleslot": false,
-        "perk": "Lucky",
+        "name": "Lucky",
         "rank": 5,
         "threshold": 210
       }, {
         "ancient_only": true,
         "cost": 205,
         "doubleslot": false,
-        "perk": "Lucky",
+        "name": "Lucky",
         "rank": 6,
         "threshold": 250
       } ]
@@ -4235,35 +4235,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Lunging",
+        "name": "Lunging",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 40,
         "doubleslot": false,
-        "perk": "Lunging",
+        "name": "Lunging",
         "rank": 1,
         "threshold": 55
       }, {
         "ancient_only": false,
         "cost": 90,
         "doubleslot": false,
-        "perk": "Lunging",
+        "name": "Lunging",
         "rank": 2,
         "threshold": 115
       }, {
         "ancient_only": false,
         "cost": 175,
         "doubleslot": false,
-        "perk": "Lunging",
+        "name": "Lunging",
         "rank": 3,
         "threshold": 170
       }, {
         "ancient_only": true,
         "cost": 185,
         "doubleslot": false,
-        "perk": "Lunging",
+        "name": "Lunging",
         "rank": 4,
         "threshold": 200
       } ]
@@ -4274,28 +4274,28 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Mediocrity",
+        "name": "Mediocrity",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Mediocrity",
+        "name": "Mediocrity",
         "rank": 1,
         "threshold": 40
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Mediocrity",
+        "name": "Mediocrity",
         "rank": 2,
         "threshold": 90
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Mediocrity",
+        "name": "Mediocrity",
         "rank": 3,
         "threshold": 180
       } ]
@@ -4306,14 +4306,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Mobile",
+        "name": "Mobile",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Mobile",
+        "name": "Mobile",
         "rank": 1,
         "threshold": 50
       } ]
@@ -4324,49 +4324,49 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Mysterious",
+        "name": "Mysterious",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 20,
         "doubleslot": false,
-        "perk": "Mysterious",
+        "name": "Mysterious",
         "rank": 1,
         "threshold": 25
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Mysterious",
+        "name": "Mysterious",
         "rank": 2,
         "threshold": 45
       }, {
         "ancient_only": false,
         "cost": 40,
         "doubleslot": false,
-        "perk": "Mysterious",
+        "name": "Mysterious",
         "rank": 3,
         "threshold": 120
       }, {
         "ancient_only": false,
         "cost": 50,
         "doubleslot": false,
-        "perk": "Mysterious",
+        "name": "Mysterious",
         "rank": 4,
         "threshold": 175
       }, {
         "ancient_only": false,
         "cost": 60,
         "doubleslot": false,
-        "perk": "Mysterious",
+        "name": "Mysterious",
         "rank": 5,
         "threshold": 250
       }, {
         "ancient_only": true,
         "cost": 70,
         "doubleslot": false,
-        "perk": "Mysterious",
+        "name": "Mysterious",
         "rank": 6,
         "threshold": 300
       } ]
@@ -4377,14 +4377,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "No effect",
+        "name": "No effect",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "No effect",
+        "name": "No effect",
         "rank": 1,
         "threshold": 0
       } ]
@@ -4395,14 +4395,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Planted Feet",
+        "name": "Planted Feet",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 60,
         "doubleslot": false,
-        "perk": "Planted Feet",
+        "name": "Planted Feet",
         "rank": 1,
         "threshold": 60
       } ]
@@ -4413,35 +4413,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Polishing",
+        "name": "Polishing",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Polishing",
+        "name": "Polishing",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 80,
         "doubleslot": false,
-        "perk": "Polishing",
+        "name": "Polishing",
         "rank": 2,
         "threshold": 100
       }, {
         "ancient_only": false,
         "cost": 150,
         "doubleslot": false,
-        "perk": "Polishing",
+        "name": "Polishing",
         "rank": 3,
         "threshold": 200
       }, {
         "ancient_only": true,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Polishing",
+        "name": "Polishing",
         "rank": 4,
         "threshold": 240
       } ]
@@ -4452,49 +4452,49 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Precise",
+        "name": "Precise",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Precise",
+        "name": "Precise",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 65,
         "doubleslot": false,
-        "perk": "Precise",
+        "name": "Precise",
         "rank": 2,
         "threshold": 80
       }, {
         "ancient_only": false,
         "cost": 120,
         "doubleslot": false,
-        "perk": "Precise",
+        "name": "Precise",
         "rank": 3,
         "threshold": 130
       }, {
         "ancient_only": false,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Precise",
+        "name": "Precise",
         "rank": 4,
         "threshold": 170
       }, {
         "ancient_only": false,
         "cost": 195,
         "doubleslot": false,
-        "perk": "Precise",
+        "name": "Precise",
         "rank": 5,
         "threshold": 210
       }, {
         "ancient_only": true,
         "cost": 205,
         "doubleslot": false,
-        "perk": "Precise",
+        "name": "Precise",
         "rank": 6,
         "threshold": 250
       } ]
@@ -4505,35 +4505,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Preparation",
+        "name": "Preparation",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 40,
         "doubleslot": false,
-        "perk": "Preparation",
+        "name": "Preparation",
         "rank": 1,
         "threshold": 55
       }, {
         "ancient_only": false,
         "cost": 90,
         "doubleslot": false,
-        "perk": "Preparation",
+        "name": "Preparation",
         "rank": 2,
         "threshold": 115
       }, {
         "ancient_only": false,
         "cost": 175,
         "doubleslot": false,
-        "perk": "Preparation",
+        "name": "Preparation",
         "rank": 3,
         "threshold": 220
       }, {
         "ancient_only": true,
         "cost": 185,
         "doubleslot": false,
-        "perk": "Preparation",
+        "name": "Preparation",
         "rank": 4,
         "threshold": 260
       } ]
@@ -4544,14 +4544,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Profane",
+        "name": "Profane",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Profane",
+        "name": "Profane",
         "rank": 1,
         "threshold": 45
       } ]
@@ -4562,14 +4562,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Prosper",
+        "name": "Prosper",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Prosper",
+        "name": "Prosper",
         "rank": 1,
         "threshold": 50
       } ]
@@ -4580,49 +4580,49 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Pyromaniac",
+        "name": "Pyromaniac",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Pyromaniac",
+        "name": "Pyromaniac",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 65,
         "doubleslot": false,
-        "perk": "Pyromaniac",
+        "name": "Pyromaniac",
         "rank": 2,
         "threshold": 80
       }, {
         "ancient_only": false,
         "cost": 120,
         "doubleslot": false,
-        "perk": "Pyromaniac",
+        "name": "Pyromaniac",
         "rank": 3,
         "threshold": 130
       }, {
         "ancient_only": false,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Pyromaniac",
+        "name": "Pyromaniac",
         "rank": 4,
         "threshold": 170
       }, {
         "ancient_only": false,
         "cost": 195,
         "doubleslot": false,
-        "perk": "Pyromaniac",
+        "name": "Pyromaniac",
         "rank": 5,
         "threshold": 210
       }, {
         "ancient_only": true,
         "cost": 205,
         "doubleslot": false,
-        "perk": "Pyromaniac",
+        "name": "Pyromaniac",
         "rank": 6,
         "threshold": 250
       } ]
@@ -4633,35 +4633,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Rapid",
+        "name": "Rapid",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 40,
         "doubleslot": false,
-        "perk": "Rapid",
+        "name": "Rapid",
         "rank": 1,
         "threshold": 55
       }, {
         "ancient_only": false,
         "cost": 90,
         "doubleslot": false,
-        "perk": "Rapid",
+        "name": "Rapid",
         "rank": 2,
         "threshold": 115
       }, {
         "ancient_only": false,
         "cost": 175,
         "doubleslot": false,
-        "perk": "Rapid",
+        "name": "Rapid",
         "rank": 3,
         "threshold": 220
       }, {
         "ancient_only": true,
         "cost": 185,
         "doubleslot": false,
-        "perk": "Rapid",
+        "name": "Rapid",
         "rank": 4,
         "threshold": 260
       } ]
@@ -4672,35 +4672,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Refined",
+        "name": "Refined",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 40,
         "doubleslot": false,
-        "perk": "Refined",
+        "name": "Refined",
         "rank": 1,
         "threshold": 55
       }, {
         "ancient_only": false,
         "cost": 90,
         "doubleslot": false,
-        "perk": "Refined",
+        "name": "Refined",
         "rank": 2,
         "threshold": 115
       }, {
         "ancient_only": false,
         "cost": 175,
         "doubleslot": false,
-        "perk": "Refined",
+        "name": "Refined",
         "rank": 3,
         "threshold": 220
       }, {
         "ancient_only": true,
         "cost": 185,
         "doubleslot": false,
-        "perk": "Refined",
+        "name": "Refined",
         "rank": 4,
         "threshold": 260
       } ]
@@ -4711,14 +4711,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Reflexes",
+        "name": "Reflexes",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Reflexes",
+        "name": "Reflexes",
         "rank": 1,
         "threshold": 50
       } ]
@@ -4729,42 +4729,42 @@
         "ancient_only": true,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Relentless",
+        "name": "Relentless",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": true,
         "cost": 45,
         "doubleslot": false,
-        "perk": "Relentless",
+        "name": "Relentless",
         "rank": 1,
         "threshold": 60
       }, {
         "ancient_only": true,
         "cost": 75,
         "doubleslot": false,
-        "perk": "Relentless",
+        "name": "Relentless",
         "rank": 2,
         "threshold": 130
       }, {
         "ancient_only": true,
         "cost": 130,
         "doubleslot": false,
-        "perk": "Relentless",
+        "name": "Relentless",
         "rank": 3,
         "threshold": 200
       }, {
         "ancient_only": true,
         "cost": 170,
         "doubleslot": false,
-        "perk": "Relentless",
+        "name": "Relentless",
         "rank": 4,
         "threshold": 280
       }, {
         "ancient_only": true,
         "cost": 205,
         "doubleslot": false,
-        "perk": "Relentless",
+        "name": "Relentless",
         "rank": 5,
         "threshold": 380
       } ]
@@ -4775,28 +4775,28 @@
         "ancient_only": true,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Ruthless",
+        "name": "Ruthless",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": true,
         "cost": 45,
         "doubleslot": false,
-        "perk": "Ruthless",
+        "name": "Ruthless",
         "rank": 1,
         "threshold": 60
       }, {
         "ancient_only": true,
         "cost": 90,
         "doubleslot": false,
-        "perk": "Ruthless",
+        "name": "Ruthless",
         "rank": 2,
         "threshold": 130
       }, {
         "ancient_only": true,
         "cost": 180,
         "doubleslot": false,
-        "perk": "Ruthless",
+        "name": "Ruthless",
         "rank": 3,
         "threshold": 250
       } ]
@@ -4807,35 +4807,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Scavenging",
+        "name": "Scavenging",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 40,
         "doubleslot": false,
-        "perk": "Scavenging",
+        "name": "Scavenging",
         "rank": 1,
         "threshold": 55
       }, {
         "ancient_only": false,
         "cost": 90,
         "doubleslot": false,
-        "perk": "Scavenging",
+        "name": "Scavenging",
         "rank": 2,
         "threshold": 115
       }, {
         "ancient_only": false,
         "cost": 175,
         "doubleslot": false,
-        "perk": "Scavenging",
+        "name": "Scavenging",
         "rank": 3,
         "threshold": 220
       }, {
         "ancient_only": true,
         "cost": 185,
         "doubleslot": false,
-        "perk": "Scavenging",
+        "name": "Scavenging",
         "rank": 4,
         "threshold": 260
       } ]
@@ -4846,35 +4846,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Shield Bashing",
+        "name": "Shield Bashing",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Shield Bashing",
+        "name": "Shield Bashing",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 80,
         "doubleslot": false,
-        "perk": "Shield Bashing",
+        "name": "Shield Bashing",
         "rank": 2,
         "threshold": 100
       }, {
         "ancient_only": false,
         "cost": 150,
         "doubleslot": false,
-        "perk": "Shield Bashing",
+        "name": "Shield Bashing",
         "rank": 3,
         "threshold": 200
       }, {
         "ancient_only": true,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Shield Bashing",
+        "name": "Shield Bashing",
         "rank": 4,
         "threshold": 240
       } ]
@@ -4885,49 +4885,49 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Spendthrift",
+        "name": "Spendthrift",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 40,
         "doubleslot": false,
-        "perk": "Spendthrift",
+        "name": "Spendthrift",
         "rank": 1,
         "threshold": 55
       }, {
         "ancient_only": false,
         "cost": 75,
         "doubleslot": false,
-        "perk": "Spendthrift",
+        "name": "Spendthrift",
         "rank": 2,
         "threshold": 90
       }, {
         "ancient_only": false,
         "cost": 135,
         "doubleslot": false,
-        "perk": "Spendthrift",
+        "name": "Spendthrift",
         "rank": 3,
         "threshold": 150
       }, {
         "ancient_only": false,
         "cost": 170,
         "doubleslot": false,
-        "perk": "Spendthrift",
+        "name": "Spendthrift",
         "rank": 4,
         "threshold": 185
       }, {
         "ancient_only": false,
         "cost": 210,
         "doubleslot": false,
-        "perk": "Spendthrift",
+        "name": "Spendthrift",
         "rank": 5,
         "threshold": 220
       }, {
         "ancient_only": true,
         "cost": 220,
         "doubleslot": false,
-        "perk": "Spendthrift",
+        "name": "Spendthrift",
         "rank": 6,
         "threshold": 260
       } ]
@@ -4938,14 +4938,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Talking",
+        "name": "Talking",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Talking",
+        "name": "Talking",
         "rank": 1,
         "threshold": 50
       } ]
@@ -4956,14 +4956,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Taunting",
+        "name": "Taunting",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Taunting",
+        "name": "Taunting",
         "rank": 1,
         "threshold": 50
       } ]
@@ -4974,35 +4974,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Tinker",
+        "name": "Tinker",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 20,
         "doubleslot": false,
-        "perk": "Tinker",
+        "name": "Tinker",
         "rank": 1,
         "threshold": 40
       }, {
         "ancient_only": false,
         "cost": 30,
         "doubleslot": false,
-        "perk": "Tinker",
+        "name": "Tinker",
         "rank": 2,
         "threshold": 70
       }, {
         "ancient_only": false,
         "cost": 40,
         "doubleslot": false,
-        "perk": "Tinker",
+        "name": "Tinker",
         "rank": 3,
         "threshold": 150
       }, {
         "ancient_only": true,
         "cost": 50,
         "doubleslot": false,
-        "perk": "Tinker",
+        "name": "Tinker",
         "rank": 4,
         "threshold": 180
       } ]
@@ -5013,49 +5013,49 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Trophy-taker's",
+        "name": "Trophy-taker's",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Trophy-taker's",
+        "name": "Trophy-taker's",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 65,
         "doubleslot": false,
-        "perk": "Trophy-taker's",
+        "name": "Trophy-taker's",
         "rank": 2,
         "threshold": 80
       }, {
         "ancient_only": false,
         "cost": 120,
         "doubleslot": false,
-        "perk": "Trophy-taker's",
+        "name": "Trophy-taker's",
         "rank": 3,
         "threshold": 130
       }, {
         "ancient_only": false,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Trophy-taker's",
+        "name": "Trophy-taker's",
         "rank": 4,
         "threshold": 170
       }, {
         "ancient_only": false,
         "cost": 195,
         "doubleslot": false,
-        "perk": "Trophy-taker's",
+        "name": "Trophy-taker's",
         "rank": 5,
         "threshold": 210
       }, {
         "ancient_only": true,
         "cost": 205,
         "doubleslot": false,
-        "perk": "Trophy-taker's",
+        "name": "Trophy-taker's",
         "rank": 6,
         "threshold": 250
       } ]
@@ -5066,35 +5066,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Turtling",
+        "name": "Turtling",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Turtling",
+        "name": "Turtling",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 80,
         "doubleslot": false,
-        "perk": "Turtling",
+        "name": "Turtling",
         "rank": 2,
         "threshold": 100
       }, {
         "ancient_only": false,
         "cost": 150,
         "doubleslot": false,
-        "perk": "Turtling",
+        "name": "Turtling",
         "rank": 3,
         "threshold": 200
       }, {
         "ancient_only": true,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Turtling",
+        "name": "Turtling",
         "rank": 4,
         "threshold": 240
       } ]
@@ -5105,35 +5105,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Ultimatums",
+        "name": "Ultimatums",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Ultimatums",
+        "name": "Ultimatums",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 80,
         "doubleslot": false,
-        "perk": "Ultimatums",
+        "name": "Ultimatums",
         "rank": 2,
         "threshold": 100
       }, {
         "ancient_only": false,
         "cost": 150,
         "doubleslot": false,
-        "perk": "Ultimatums",
+        "name": "Ultimatums",
         "rank": 3,
         "threshold": 200
       }, {
         "ancient_only": true,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Ultimatums",
+        "name": "Ultimatums",
         "rank": 4,
         "threshold": 240
       } ]
@@ -5144,14 +5144,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Undead Bait",
+        "name": "Undead Bait",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Undead Bait",
+        "name": "Undead Bait",
         "rank": 1,
         "threshold": 45
       } ]
@@ -5162,14 +5162,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Undead Slayer",
+        "name": "Undead Slayer",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Undead Slayer",
+        "name": "Undead Slayer",
         "rank": 1,
         "threshold": 50
       } ]
@@ -5180,14 +5180,14 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Venomblood",
+        "name": "Venomblood",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Venomblood",
+        "name": "Venomblood",
         "rank": 1,
         "threshold": 50
       } ]
@@ -5198,35 +5198,35 @@
         "ancient_only": false,
         "cost": 0,
         "doubleslot": false,
-        "perk": "Wise",
+        "name": "Wise",
         "rank": 0,
         "threshold": 0
       }, {
         "ancient_only": false,
         "cost": 35,
         "doubleslot": false,
-        "perk": "Wise",
+        "name": "Wise",
         "rank": 1,
         "threshold": 50
       }, {
         "ancient_only": false,
         "cost": 80,
         "doubleslot": false,
-        "perk": "Wise",
+        "name": "Wise",
         "rank": 2,
         "threshold": 100
       }, {
         "ancient_only": false,
         "cost": 150,
         "doubleslot": false,
-        "perk": "Wise",
+        "name": "Wise",
         "rank": 3,
         "threshold": 200
       }, {
         "ancient_only": true,
         "cost": 160,
         "doubleslot": false,
-        "perk": "Wise",
+        "name": "Wise",
         "rank": 4,
         "threshold": 240
       } ]

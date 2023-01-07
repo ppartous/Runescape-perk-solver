@@ -53,12 +53,12 @@ impl Index<GizmoType> for CompPerksPerGizmoType {
 // ---------------------------------------------------------------------------------------------------------------------
 
 #[derive(Debug, Clone, Copy, Deserialize, PartialEq, Eq, Display)]
-#[display(fmt = "{{\n\tperk = {},\n\trank = {},\n\tdoubleslot = {},\n\tancient_only = {},\n\tcost = {},\n\tthreshold = {}\n}}", perk, rank, doubleslot, ancient_only, cost, threshold)]
+#[display(fmt = "{{\n\tname = {},\n\trank = {},\n\tdoubleslot = {},\n\tancient_only = {},\n\tcost = {},\n\tthreshold = {}\n}}", name, rank, doubleslot, ancient_only, cost, threshold)]
 pub struct PerkRankValues {
     pub ancient_only: bool,
     pub cost: u16,
     pub doubleslot: bool,
-    pub perk: PerkName,
+    pub name: PerkName,
     pub rank: u8,
     pub threshold: u16,
 }
@@ -69,7 +69,7 @@ impl Default for PerkRankValues {
             ancient_only: false,
             cost: 0,
             doubleslot: false,
-            perk: PerkName::Empty,
+            name: PerkName::Empty,
             rank: 0,
             threshold: 0
         }

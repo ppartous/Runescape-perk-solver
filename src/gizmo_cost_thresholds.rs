@@ -231,6 +231,7 @@ pub fn find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_rang
     cost_thresholds
 }
 
+#[allow(unused_variables, dead_code)]
 /// This function is used for fuzzy search where the wanted perk can be combined with any other perk
 /// and the order of the perks doesn't matter so our wanted perk can be in slot 1 or 2
 fn fuzzy_find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_range: u16, wanted_gizmo: &Gizmo) -> Vec<Gizmo> {
@@ -351,48 +352,18 @@ fn fuzzy_find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_ra
 mod tests {
     use super::*;
     use smallvec::smallvec;
-
-    impl PerkName {
-        const A: PerkName = PerkName::Absorbative;
-        const B: PerkName = PerkName::Aftershock;
-        const C: PerkName = PerkName::Antitheism;
-        const D: PerkName = PerkName::Biting;
-        const E: PerkName = PerkName::Blunted;
-        const F: PerkName = PerkName::Brassican;
-        const G: PerkName = PerkName::Breakdown;
-        const H: PerkName = PerkName::BriefRespite;
-        const I: PerkName = PerkName::Bulwark;
-        const J: PerkName = PerkName::Butterfingers;
-        const K: PerkName = PerkName::Caroming;
-    }
-
-    fn dbg_perk_name(name: &PerkName) -> &'static str {
-        match *name {
-            PerkName::A => "A",
-            PerkName::B => "B",
-            PerkName::C => "C",
-            PerkName::D => "D",
-            PerkName::E => "E",
-            PerkName::F => "F",
-            PerkName::G => "G",
-            PerkName::H => "H",
-            PerkName::I => "I",
-            PerkName::J => "J",
-            PerkName::K => "K",
-            PerkName::Empty => "Empty",
-            _ => ""
-        }
-    }
+    use crate::utils::{check, check_index};
 
     fn assert_gcth_eq(actual: &Vec<Gizmo>, expected: &Vec<Gizmo>) {
-        assert!(actual.len() == expected.len(), "Actual and expected have different sizes (actual: {}, expected: {})", actual.len(), expected.len());
+        PerkName::using_simplified_names();
+        check(actual.len(), expected.len(), "length");
 
         for (i, (acc, exp)) in actual.iter().zip(expected).enumerate() {
-            assert!(acc.cost == exp.cost, "Actual and expected have different 'cost' values at index {} (actual: {}, expected: {})", i, acc.cost, exp.cost);
-            assert!(acc.perks.0.perk == exp.perks.0.perk, "Actual and expected have different 'perks.0.perk' values at index {} (actual: {}, expected: {})", i, dbg_perk_name(&acc.perks.0.perk), dbg_perk_name(&exp.perks.0.perk));
-            assert!(acc.perks.1.perk == exp.perks.1.perk, "Actual and expected have different 'perks.1.perk' values at index {} (actual: {}, expected: {})", i, dbg_perk_name(&acc.perks.1.perk), dbg_perk_name(&exp.perks.1.perk));
-            assert!(acc.perks.0.rank == exp.perks.0.rank, "Actual and expected have different 'perks.0.rank' values at index {} (actual: {}, expected: {})", i, acc.perks.0.rank, exp.perks.0.rank);
-            assert!(acc.perks.1.rank == exp.perks.1.rank, "Actual and expected have different 'perks.1.rank' values at index {} (actual: {}, expected: {})", i, acc.perks.1.rank, exp.perks.1.rank);
+            check_index(acc.perks.0.name, exp.perks.0.name, i, "perks.0.name", actual, expected);
+            check_index(acc.perks.1.name, exp.perks.1.name, i, "perks.1.name", actual, expected);
+            check_index(acc.perks.0.rank, exp.perks.0.rank, i, "perks.0.rank", actual, expected);
+            check_index(acc.perks.1.rank, exp.perks.1.rank, i, "perks.1.rank", actual, expected);
+            check_index(acc.cost, exp.cost, i, "cost", actual, expected);
         }
     }
 
@@ -403,9 +374,9 @@ mod tests {
         fn all_rank_zero() {
             let combination = RankCombination {
                 ranks: smallvec![
-                    PerkRankValues { rank: 0, cost: 10, perk: PerkName::A, ..Default::default() },
-                    PerkRankValues { rank: 0, cost: 10, perk: PerkName::B, ..Default::default() },
-                    PerkRankValues { rank: 0, cost: 10, perk: PerkName::C, ..Default::default() },
+                    PerkRankValues { rank: 0, cost: 10, name: PerkName::A, ..Default::default() },
+                    PerkRankValues { rank: 0, cost: 10, name: PerkName::B, ..Default::default() },
+                    PerkRankValues { rank: 0, cost: 10, name: PerkName::C, ..Default::default() },
                 ],
                 probability: 0.0,
             };
@@ -420,19 +391,19 @@ mod tests {
         fn secondary_above_maxrange() {
             let combination = RankCombination {
                 ranks: smallvec![
-                    PerkRankValues { rank: 0, cost: 10, perk: PerkName::A, ..Default::default() },
-                    PerkRankValues { rank: 1, cost: 20, perk: PerkName::B, ..Default::default() },
-                    PerkRankValues { rank: 1, cost: 30, perk: PerkName::C, ..Default::default() },
-                    PerkRankValues { rank: 1, cost: 80, perk: PerkName::D, ..Default::default() },
+                    PerkRankValues { rank: 0, cost: 10, name: PerkName::A, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 20, name: PerkName::B, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 30, name: PerkName::C, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 80, name: PerkName::D, ..Default::default() },
                 ],
                 probability: 0.0,
             };
             let expected = vec![
                 Gizmo { cost: -1, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), cost: 50, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 80, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 50, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 80, ..Default::default() },
             ];
             let actual = find_gizmo_cost_thresholds(&combination, 100);
             assert_gcth_eq(&actual, &expected);
@@ -442,18 +413,18 @@ mod tests {
         fn primary_above_maxrange() {
             let combination = RankCombination {
                 ranks: smallvec![
-                    PerkRankValues { rank: 0, cost: 10, perk: PerkName::A, ..Default::default() },
-                    PerkRankValues { rank: 1, cost: 20, perk: PerkName::B, ..Default::default() },
-                    PerkRankValues { rank: 1, cost: 79, perk: PerkName::C, ..Default::default() },
-                    PerkRankValues { rank: 1, cost: 100, perk: PerkName::D, ..Default::default() },
+                    PerkRankValues { rank: 0, cost: 10, name: PerkName::A, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 20, name: PerkName::B, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 79, name: PerkName::C, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 100, name: PerkName::D, ..Default::default() },
                 ],
                 probability: 0.0,
             };
             let expected = vec![
                 Gizmo { cost: -1, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 79, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), cost: 99, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 79, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 99, ..Default::default() },
             ];
             let actual = find_gizmo_cost_thresholds(&combination, 100);
             assert_gcth_eq(&actual, &expected);
@@ -463,10 +434,10 @@ mod tests {
         fn all_above_maxrange() {
             let combination = RankCombination {
                 ranks: smallvec![
-                    PerkRankValues { rank: 0, cost: 10, perk: PerkName::A, ..Default::default() },
-                    PerkRankValues { rank: 1, cost: 20, perk: PerkName::B, ..Default::default() },
-                    PerkRankValues { rank: 1, cost: 30, perk: PerkName::C, ..Default::default() },
-                    PerkRankValues { rank: 1, cost: 60, perk: PerkName::D, ..Default::default() },
+                    PerkRankValues { rank: 0, cost: 10, name: PerkName::A, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 20, name: PerkName::B, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 30, name: PerkName::C, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 60, name: PerkName::D, ..Default::default() },
                 ],
                 probability: 0.0,
             };
@@ -481,22 +452,22 @@ mod tests {
         fn two_equal_costs() {
             let combination = RankCombination {
                 ranks: smallvec![
-                    PerkRankValues { rank: 1, cost: 10, perk: PerkName::A, ..Default::default() },
-                    PerkRankValues { rank: 1, cost: 20, perk: PerkName::B, ..Default::default() },
-                    PerkRankValues { rank: 1, cost: 20, perk: PerkName::C, ..Default::default() },
-                    PerkRankValues { rank: 1, cost: 60, perk: PerkName::D, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 10, name: PerkName::A, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 20, name: PerkName::B, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 20, name: PerkName::C, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 60, name: PerkName::D, ..Default::default() },
                 ],
                 probability: 0.0,
             };
             let expected = vec![
                 Gizmo { cost: -1, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::A, rank: 1 }, Perk { ..Default::default() }), cost: 10, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { perk: PerkName::A, rank: 1 }), cost: 30, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), cost: 40, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::A, rank: 1 }), cost: 70, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), cost: 80, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::A, rank: 1 }, Perk { ..Default::default() }), cost: 10, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::A, rank: 1 }), cost: 30, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 40, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::A, rank: 1 }), cost: 70, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 80, ..Default::default() },
             ];
             let actual = find_gizmo_cost_thresholds(&combination, 100);
             assert_gcth_eq(&actual, &expected);
@@ -506,23 +477,23 @@ mod tests {
         fn three_equal_costs_excluding_first() {
             let combination = RankCombination {
                 ranks: smallvec![
-                    PerkRankValues { rank: 1, cost: 10, perk: PerkName::A, ..Default::default() },
-                    PerkRankValues { rank: 1, cost: 20, perk: PerkName::B, ..Default::default() },
-                    PerkRankValues { rank: 1, cost: 20, perk: PerkName::C, ..Default::default() },
-                    PerkRankValues { rank: 1, cost: 20, perk: PerkName::D, ..Default::default() },
-                    PerkRankValues { rank: 1, cost: 60, perk: PerkName::E, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 10, name: PerkName::A, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 20, name: PerkName::B, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 20, name: PerkName::C, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 20, name: PerkName::D, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 60, name: PerkName::E, ..Default::default() },
                 ],
                 probability: 0.0,
             };
             let expected = vec![
                 Gizmo { cost: -1, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::A, rank: 1 }, Perk { ..Default::default() }), cost: 10, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::A, rank: 1 }), cost: 30, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), cost: 40, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::E, rank: 1 }, Perk { perk: PerkName::A, rank: 1 }), cost: 70, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::E, rank: 1 }, Perk { perk: PerkName::D, rank: 1 }), cost: 80, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::A, rank: 1 }, Perk { ..Default::default() }), cost: 10, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::A, rank: 1 }), cost: 30, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 40, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { name: PerkName::A, rank: 1 }), cost: 70, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { name: PerkName::D, rank: 1 }), cost: 80, ..Default::default() },
             ];
             let actual = find_gizmo_cost_thresholds(&combination, 100);
             assert_gcth_eq(&actual, &expected);
@@ -532,25 +503,25 @@ mod tests {
         fn perk_is_doubleslot() {
             let combination = RankCombination {
                 ranks: smallvec![
-                    PerkRankValues { rank: 1, cost: 10, perk: PerkName::A, ..Default::default() },
-                    PerkRankValues { rank: 1, cost: 20, perk: PerkName::B, ..Default::default() },
-                    PerkRankValues { rank: 1, cost: 35, perk: PerkName::C, doubleslot: true, ..Default::default() },
-                    PerkRankValues { rank: 1, cost: 60, perk: PerkName::D, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 10, name: PerkName::A, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 20, name: PerkName::B, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 35, name: PerkName::C, doubleslot: true, ..Default::default() },
+                    PerkRankValues { rank: 1, cost: 60, name: PerkName::D, ..Default::default() },
                 ],
                 probability: 0.0,
             };
             let expected = vec![
                 Gizmo { cost: -1, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::A, rank: 1 }, Perk { ..Default::default() }), cost: 10, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { perk: PerkName::A, rank: 1 }), cost: 30, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 35, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 45, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 55, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::A, rank: 1 }), cost: 70, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 95, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::A, rank: 1 }, Perk { ..Default::default() }), cost: 10, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { name: PerkName::A, rank: 1 }), cost: 30, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 35, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 45, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 55, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::A, rank: 1 }), cost: 70, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 95, ..Default::default() },
             ];
             let actual = find_gizmo_cost_thresholds(&combination, 100);
             assert_gcth_eq(&actual, &expected);
@@ -564,13 +535,13 @@ mod tests {
         fn all_rank_zero() {
             let combination = RankCombination {
                 ranks: smallvec![
-                    PerkRankValues { perk: PerkName::A, rank: 0, cost: 10, ..Default::default() },
-                    PerkRankValues { perk: PerkName::B, rank: 0, cost: 10, ..Default::default() },
-                    PerkRankValues { perk: PerkName::C, rank: 0, cost: 10, ..Default::default() },
+                    PerkRankValues { name: PerkName::A, rank: 0, cost: 10, ..Default::default() },
+                    PerkRankValues { name: PerkName::B, rank: 0, cost: 10, ..Default::default() },
+                    PerkRankValues { name: PerkName::C, rank: 0, cost: 10, ..Default::default() },
                 ],
                 probability: 0.0,
             };
-            let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::A, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+            let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::A, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
             let expected = vec![];
             let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
@@ -580,17 +551,17 @@ mod tests {
         fn single_wanted_primary_cutoff() {
             let combination = RankCombination {
                 ranks: smallvec![
-                    PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                    PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                    PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, ..Default::default() },
-                    PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                    PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                    PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                    PerkRankValues { name: PerkName::C, rank: 1, cost: 30, ..Default::default() },
+                    PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
                 ],
                 probability: 0.0,
             };
-            let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+            let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
             let expected = vec![
-                Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
             ];
             let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
@@ -602,14 +573,14 @@ mod tests {
             fn setup() -> (RankCombination, Gizmo) {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 0, cost: 10, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 0, cost: 10, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 30, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 (combination, wanted_gizmo)
             }
 
@@ -617,8 +588,8 @@ mod tests {
             fn max_range_100() {
                 let (combination, wanted_gizmo) = setup();
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -628,7 +599,7 @@ mod tests {
             fn max_range_70() {
                 let (combination, wanted_gizmo) = setup();
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 70, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -641,14 +612,14 @@ mod tests {
             fn setup() -> (RankCombination, Gizmo) {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 0, cost: 10, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 0, cost: 10, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 30, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 (combination, wanted_gizmo)
             }
 
@@ -656,8 +627,8 @@ mod tests {
             fn max_range_51() {
                 let (combination, wanted_gizmo) = setup();
                 let expected1 = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), cost: 50, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 50, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 51, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected1);
@@ -667,7 +638,7 @@ mod tests {
             fn max_range_50() {
                 let (combination, wanted_gizmo) = setup();
                 let expected2 = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 50, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected2);
@@ -678,14 +649,14 @@ mod tests {
         fn single_wanted_one_combo_possible() {
             let combination = RankCombination {
                 ranks: smallvec![
-                    PerkRankValues { perk: PerkName::A, rank: 0, cost: 10, ..Default::default() },
-                    PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                    PerkRankValues { name: PerkName::A, rank: 0, cost: 10, ..Default::default() },
+                    PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
                 ],
                 probability: 0.0,
             };
-            let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+            let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
             let expected = vec![
-                Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
             ];
             let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
@@ -697,11 +668,11 @@ mod tests {
             fn setup() -> RankCombination {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
-                        PerkRankValues { perk: PerkName::E, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::E, rank: 1, cost: 60, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
@@ -711,10 +682,10 @@ mod tests {
             #[test]
             fn possible_lower_duplicate() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { perk: PerkName::A, rank: 1 }), cost: 30, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::A, rank: 1 }), cost: 30, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -723,7 +694,7 @@ mod tests {
             #[test]
             fn impossible_lower_duplicate() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -732,10 +703,10 @@ mod tests {
             #[test]
             fn possible_high_duplicate() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::E, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::E, rank: 1 }, Perk { perk: PerkName::A, rank: 1 }), cost: 70, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { name: PerkName::A, rank: 1 }), cost: 70, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -744,7 +715,7 @@ mod tests {
             #[test]
             fn impossible_high_duplicate() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -757,11 +728,11 @@ mod tests {
             fn setup() -> RankCombination {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::E, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::E, rank: 1, cost: 60, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
@@ -771,10 +742,10 @@ mod tests {
             #[test]
             fn possible() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::A, rank: 1 }), cost: 30, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::A, rank: 1 }), cost: 30, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -783,7 +754,7 @@ mod tests {
             #[test]
             fn impossible_1() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -792,7 +763,7 @@ mod tests {
             #[test]
             fn impossible_2() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -805,11 +776,11 @@ mod tests {
             fn setup() -> RankCombination {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::E, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::E, rank: 1, cost: 60, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
@@ -819,10 +790,10 @@ mod tests {
             #[test]
             fn possible() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), cost: 40, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 40, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -831,7 +802,7 @@ mod tests {
             #[test]
             fn impossible_1() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
                 let expected = vec![];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -840,7 +811,7 @@ mod tests {
             #[test]
             fn impossible_2() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
                 let expected = vec![];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -851,16 +822,16 @@ mod tests {
         fn two_wanted_perks_three_equal_costs_next_is_not_more_than_double() {
             let combination = RankCombination {
                 ranks: smallvec![
-                    PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                    PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                    PerkRankValues { perk: PerkName::C, rank: 1, cost: 20, ..Default::default() },
-                    PerkRankValues { perk: PerkName::D, rank: 1, cost: 20, ..Default::default() },
-                    PerkRankValues { perk: PerkName::E, rank: 1, cost: 40, ..Default::default() },
+                    PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                    PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                    PerkRankValues { name: PerkName::C, rank: 1, cost: 20, ..Default::default() },
+                    PerkRankValues { name: PerkName::D, rank: 1, cost: 20, ..Default::default() },
+                    PerkRankValues { name: PerkName::E, rank: 1, cost: 40, ..Default::default() },
                 ],
                 probability: 0.0,
             };
 
-            let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), ..Default::default() };
+            let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), ..Default::default() };
             let expected = vec![];
             let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
@@ -870,17 +841,17 @@ mod tests {
         fn single_wanted_is_double_slot_not_first_inline() {
             let combination = RankCombination {
                 ranks: smallvec![
-                    PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                    PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                    PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, doubleslot: true, ..Default::default() },
-                    PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                    PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                    PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                    PerkRankValues { name: PerkName::C, rank: 1, cost: 30, doubleslot: true, ..Default::default() },
+                    PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
                 ],
                 probability: 0.0,
             };
-            let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+            let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
             let expected = vec![
-                Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
             ];
             let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
@@ -890,17 +861,17 @@ mod tests {
         fn single_wanted_is_double_slot_not_first_inline_secondary_is_double_slot() {
             let combination = RankCombination {
                 ranks: smallvec![
-                    PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, doubleslot: true, ..Default::default() },
-                    PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                    PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, doubleslot: true, ..Default::default() },
-                    PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                    PerkRankValues { name: PerkName::A, rank: 1, cost: 10, doubleslot: true, ..Default::default() },
+                    PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                    PerkRankValues { name: PerkName::C, rank: 1, cost: 30, doubleslot: true, ..Default::default() },
+                    PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
                 ],
                 probability: 0.0,
             };
-            let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+            let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
             let expected = vec![
-                Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
             ];
             let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
@@ -910,16 +881,16 @@ mod tests {
         fn single_wanted_is_double_slot_first_inline() {
             let combination = RankCombination {
                 ranks: smallvec![
-                    PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                    PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                    PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, ..Default::default() },
-                    PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, doubleslot: true, ..Default::default() },
+                    PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                    PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                    PerkRankValues { name: PerkName::C, rank: 1, cost: 30, ..Default::default() },
+                    PerkRankValues { name: PerkName::D, rank: 1, cost: 60, doubleslot: true, ..Default::default() },
                 ],
                 probability: 0.0,
             };
-            let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+            let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
             let expected = vec![
-                Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
             ];
             let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
@@ -929,17 +900,17 @@ mod tests {
         fn single_wanted_second_is_double_slot() {
             let combination = RankCombination {
                 ranks: smallvec![
-                    PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, doubleslot: true, ..Default::default() },
-                    PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                    PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, ..Default::default() },
-                    PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                    PerkRankValues { name: PerkName::A, rank: 1, cost: 10, doubleslot: true, ..Default::default() },
+                    PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                    PerkRankValues { name: PerkName::C, rank: 1, cost: 30, ..Default::default() },
+                    PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
                 ],
                 probability: 0.0,
             };
-            let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+            let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
             let expected = vec![
-                Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
             ];
             let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
@@ -952,17 +923,17 @@ mod tests {
             fn a_as_secondary_not_possible() {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 35, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 10, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 30, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 35, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 35, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 35, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -972,17 +943,17 @@ mod tests {
             fn a_as_secondary_possible() {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 45, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 30, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 45, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { perk: PerkName::A, rank: 1 }), cost: 40, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::A, rank: 1 }), cost: 40, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -996,18 +967,18 @@ mod tests {
             fn two_non_consecutive() {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 10, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 30, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 90, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 90, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1017,16 +988,16 @@ mod tests {
             fn three_consecutive() {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 10, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 30, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1036,21 +1007,21 @@ mod tests {
             fn two_consecutive_plus_one() {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::K, rank: 1, cost: 5, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
-                        PerkRankValues { perk: PerkName::E, rank: 1, cost: 100, ..Default::default() },
+                        PerkRankValues { name: PerkName::K, rank: 1, cost: 5, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 10, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 30, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::E, rank: 1, cost: 100, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 90, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 100, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 90, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 100, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 200, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1060,28 +1031,28 @@ mod tests {
             fn one_lower_than_wanted_is_not_doubleslot() {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 5, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 10, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 30, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::E, rank: 1, cost: 60, ..Default::default() },
-                        PerkRankValues { perk: PerkName::F, rank: 1, cost: 200, ..Default::default() },
-                        PerkRankValues { perk: PerkName::G, rank: 1, cost: 350, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::H, rank: 1, cost: 700, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::I, rank: 1, cost: 1400, ..Default::default() },
-                        PerkRankValues { perk: PerkName::J, rank: 1, cost: 2800, ..Default::default() },
-                        PerkRankValues { perk: PerkName::K, rank: 1, cost: 6000, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 5, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 10, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 30, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::E, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::F, rank: 1, cost: 200, ..Default::default() },
+                        PerkRankValues { name: PerkName::G, rank: 1, cost: 350, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::H, rank: 1, cost: 700, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::I, rank: 1, cost: 1400, ..Default::default() },
+                        PerkRankValues { name: PerkName::J, rank: 1, cost: 2800, ..Default::default() },
+                        PerkRankValues { name: PerkName::K, rank: 1, cost: 6000, doubleslot: true, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::J, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 2800, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::J, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), cost: 2820, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 2830, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::J, rank: 1 }, Perk { perk: PerkName::E, rank: 1 }), cost: 2860, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 3150, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::J, rank: 1 }, Perk { perk: PerkName::I, rank: 1 }), cost: 4200, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 2800, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 2820, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 2830, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { name: PerkName::E, rank: 1 }), cost: 2860, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 3150, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { name: PerkName::I, rank: 1 }), cost: 4200, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 10000, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1091,28 +1062,28 @@ mod tests {
             fn one_lower_than_wanted_is_doubleslot_and_wanted_is_not_last() {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 5, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 10, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 30, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::E, rank: 1, cost: 60, ..Default::default() },
-                        PerkRankValues { perk: PerkName::F, rank: 1, cost: 200, ..Default::default() },
-                        PerkRankValues { perk: PerkName::G, rank: 1, cost: 350, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::H, rank: 1, cost: 700, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::I, rank: 1, cost: 1400, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::J, rank: 1, cost: 2800, ..Default::default() },
-                        PerkRankValues { perk: PerkName::K, rank: 1, cost: 6000, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 5, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 10, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 30, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::E, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::F, rank: 1, cost: 200, ..Default::default() },
+                        PerkRankValues { name: PerkName::G, rank: 1, cost: 350, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::H, rank: 1, cost: 700, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::I, rank: 1, cost: 1400, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::J, rank: 1, cost: 2800, ..Default::default() },
+                        PerkRankValues { name: PerkName::K, rank: 1, cost: 6000, doubleslot: true, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::J, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 2800, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::J, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), cost: 2820, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 2830, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::J, rank: 1 }, Perk { perk: PerkName::E, rank: 1 }), cost: 2860, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 3150, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::K, rank: 1 }, Perk { ..Default::default() }), cost: 6000, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 2800, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 2820, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 2830, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { name: PerkName::E, rank: 1 }), cost: 2860, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 3150, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::K, rank: 1 }, Perk { ..Default::default() }), cost: 6000, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 10000, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1122,26 +1093,26 @@ mod tests {
             fn one_lower_than_wanted_is_doubleslot_and_wanted_is_last() {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 5, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 10, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 30, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::E, rank: 1, cost: 60, ..Default::default() },
-                        PerkRankValues { perk: PerkName::F, rank: 1, cost: 200, ..Default::default() },
-                        PerkRankValues { perk: PerkName::G, rank: 1, cost: 350, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::H, rank: 1, cost: 700, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::I, rank: 1, cost: 1400, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::J, rank: 1, cost: 2800, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 5, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 10, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 30, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::E, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::F, rank: 1, cost: 200, ..Default::default() },
+                        PerkRankValues { name: PerkName::G, rank: 1, cost: 350, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::H, rank: 1, cost: 700, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::I, rank: 1, cost: 1400, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::J, rank: 1, cost: 2800, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::J, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 2800, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::J, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), cost: 2820, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 2830, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::J, rank: 1 }, Perk { perk: PerkName::E, rank: 1 }), cost: 2860, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 3150, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 2800, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 2820, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 2830, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { name: PerkName::E, rank: 1 }), cost: 2860, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 3150, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 10000, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1152,18 +1123,18 @@ mod tests {
         fn double_wanted_primary_cutoff() {
             let combination = RankCombination {
                 ranks: smallvec![
-                    PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                    PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                    PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, ..Default::default() },
-                    PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                    PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                    PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                    PerkRankValues { name: PerkName::C, rank: 1, cost: 30, ..Default::default() },
+                    PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
                 ],
                 probability: 0.0,
             };
-            let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), ..Default::default() };
-            let wanted_gizmo_inv = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), ..Default::default() };
+            let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), ..Default::default() };
+            let wanted_gizmo_inv = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
             let expected = vec![
-                Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), cost: 50, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 50, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
             ];
             let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
@@ -1175,18 +1146,18 @@ mod tests {
         fn double_wanted_secondary_cutoff() {
             let combination = RankCombination {
                 ranks: smallvec![
-                    PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                    PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                    PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, ..Default::default() },
-                    PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                    PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                    PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                    PerkRankValues { name: PerkName::C, rank: 1, cost: 30, ..Default::default() },
+                    PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
                 ],
                 probability: 0.0,
             };
-            let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), ..Default::default() };
-            let wanted_gizmo_inv = Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { perk: PerkName::D, rank: 1 }), ..Default::default() };
+            let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
+            let wanted_gizmo_inv = Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { name: PerkName::D, rank: 1 }), ..Default::default() };
             let expected = vec![
-                Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
-                Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), cost: 90, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
+                Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 90, ..Default::default() },
             ];
             let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
@@ -1200,14 +1171,14 @@ mod tests {
             fn setup() -> (RankCombination, Gizmo) {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 30, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
                 (combination, wanted_gizmo)
             }
 
@@ -1215,8 +1186,8 @@ mod tests {
             fn max_range_larger_than_cost() {
                 let (combination, wanted_gizmo) = setup();
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), cost: 90, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 90, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 91, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1226,7 +1197,7 @@ mod tests {
             fn max_range_equal_to_cost() {
                 let (combination, wanted_gizmo) = setup();
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 90, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1239,14 +1210,14 @@ mod tests {
             fn setup() -> (RankCombination, Gizmo) {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 0, cost: 10, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 80, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 0, cost: 10, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 30, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 80, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
                 (combination, wanted_gizmo)
             }
 
@@ -1254,7 +1225,7 @@ mod tests {
             fn max_range_larger_than_cost() {
                 let (combination, wanted_gizmo) = setup();
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), cost: 100, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 100, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 101, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1275,14 +1246,14 @@ mod tests {
             fn setup() -> (RankCombination, Gizmo) {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 0, cost: 10, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 80, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 0, cost: 10, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 30, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 80, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
                 (combination, wanted_gizmo)
             }
 
@@ -1309,10 +1280,10 @@ mod tests {
             fn setup() -> RankCombination {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 9, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 50, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 9, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 30, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 50, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
@@ -1322,7 +1293,7 @@ mod tests {
             #[test]
             fn sum_equal_to_next_primary() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
                 let expected = vec![];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1331,10 +1302,10 @@ mod tests {
             #[test]
             fn sum_one_less_than_next_primary() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::A, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::A, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { perk: PerkName::A, rank: 1 }), cost: 29, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { name: PerkName::A, rank: 1 }), cost: 29, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1347,10 +1318,10 @@ mod tests {
             fn setup() -> RankCombination {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
@@ -1360,9 +1331,9 @@ mod tests {
             #[test]
             fn secondary_possible() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), cost: 80, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 80, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1371,7 +1342,7 @@ mod tests {
             #[test]
             fn secondary_not_possible() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
                 let expected = vec![];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1384,10 +1355,10 @@ mod tests {
             fn setup() -> RankCombination {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 60, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
@@ -1397,10 +1368,10 @@ mod tests {
             #[test]
             fn primary_possible() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), cost: 120, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 120, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 150, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1409,7 +1380,7 @@ mod tests {
             #[test]
             fn primary_not_possible() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
                 let expected = vec![];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 150, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1422,10 +1393,10 @@ mod tests {
             fn setup() -> RankCombination {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 60, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 60, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
@@ -1435,9 +1406,9 @@ mod tests {
             #[test]
             fn primary_and_secondary_possible() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), cost: 120, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 120, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 150, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1446,7 +1417,7 @@ mod tests {
             #[test]
             fn secondary_not_possible() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
                 let expected = vec![];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 150, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1455,7 +1426,7 @@ mod tests {
             #[test]
             fn primary_and_secondary_not_possible() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
                 let expected = vec![];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 150, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1470,13 +1441,13 @@ mod tests {
         fn all_rank_zero() {
             let combination = RankCombination {
                 ranks: smallvec![
-                    PerkRankValues { perk: PerkName::A, rank: 0, cost: 10, ..Default::default() },
-                    PerkRankValues { perk: PerkName::B, rank: 0, cost: 10, ..Default::default() },
-                    PerkRankValues { perk: PerkName::C, rank: 0, cost: 10, ..Default::default() },
+                    PerkRankValues { name: PerkName::A, rank: 0, cost: 10, ..Default::default() },
+                    PerkRankValues { name: PerkName::B, rank: 0, cost: 10, ..Default::default() },
+                    PerkRankValues { name: PerkName::C, rank: 0, cost: 10, ..Default::default() },
                 ],
                 probability: 0.0,
             };
-            let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+            let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
             let expected = vec![];
             let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
@@ -1488,14 +1459,14 @@ mod tests {
             fn setup() -> (RankCombination, Gizmo) {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 30, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 (combination, wanted_gizmo)
             }
 
@@ -1511,7 +1482,7 @@ mod tests {
             fn max_range_larger_than_cost() {
                 let (combination, wanted_gizmo) = setup();
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
                 ];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 31, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1524,14 +1495,14 @@ mod tests {
             fn setup() -> (RankCombination, Gizmo) {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 30, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 (combination, wanted_gizmo)
             }
 
@@ -1539,8 +1510,8 @@ mod tests {
             fn max_range_equal_to_cost() {
                 let (combination, wanted_gizmo) = setup();
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 90, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1550,9 +1521,9 @@ mod tests {
             fn max_range_larger_than_cost() {
                 let (combination, wanted_gizmo) = setup();
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), cost: 90, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 90, ..Default::default() },
                 ];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 91, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1565,10 +1536,10 @@ mod tests {
             fn setup() -> RankCombination {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 5, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 30, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 5, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 30, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
@@ -1578,9 +1549,9 @@ mod tests {
             #[test]
             fn wanted_p1() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1589,11 +1560,11 @@ mod tests {
             #[test]
             fn wanted_p2() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), cost: 90, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 90, ..Default::default() },
                 ];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1602,14 +1573,14 @@ mod tests {
             #[test]
             fn wanted_p3() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), cost: 50, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), cost: 90, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 50, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 90, ..Default::default() },
                 ];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1622,10 +1593,10 @@ mod tests {
             fn setup() -> RankCombination {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
@@ -1635,11 +1606,11 @@ mod tests {
             #[test]
             fn wanted_first_of_double() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), cost: 80, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 80, ..Default::default() },
                 ];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1648,10 +1619,10 @@ mod tests {
             #[test]
             fn wanted_second_of_double() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { perk: PerkName::B, rank: 1 }), cost: 40, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 40, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1664,10 +1635,10 @@ mod tests {
             fn setup() -> RankCombination {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 40, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 40, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
@@ -1677,11 +1648,11 @@ mod tests {
             #[test]
             fn wanted_first_of_double() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 40, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 40, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 60, ..Default::default() },
                 ];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1690,7 +1661,7 @@ mod tests {
             #[test]
             fn wanted_second_of_double() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1703,11 +1674,11 @@ mod tests {
             fn setup() -> RankCombination {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::E, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::E, rank: 1, cost: 60, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
@@ -1717,11 +1688,11 @@ mod tests {
             #[test]
             fn wanted_is_first_of_triple() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::E, rank: 1 }, Perk { perk: PerkName::D, rank: 1 }), cost: 80, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { name: PerkName::D, rank: 1 }), cost: 80, ..Default::default() },
                 ];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1730,10 +1701,10 @@ mod tests {
             #[test]
             fn wanted_is_second_of_triple() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { perk: PerkName::C, rank: 1 }), cost: 40, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 40, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1742,7 +1713,7 @@ mod tests {
             #[test]
             fn wanted_is_third_of_triple() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1755,11 +1726,11 @@ mod tests {
             fn setup() -> RankCombination {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::E, rank: 1, cost: 40, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::E, rank: 1, cost: 40, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
@@ -1769,11 +1740,11 @@ mod tests {
             #[test]
             fn wanted_is_first_of_triple() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 40, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::E, rank: 1 }, Perk { perk: PerkName::D, rank: 1 }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 40, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { name: PerkName::D, rank: 1 }), cost: 60, ..Default::default() },
                 ];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1782,7 +1753,7 @@ mod tests {
             #[test]
             fn wanted_is_second_of_triple() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1791,7 +1762,7 @@ mod tests {
             #[test]
             fn wanted_is_third_of_triple() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1804,11 +1775,11 @@ mod tests {
             fn setup() -> RankCombination {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 60, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, ..Default::default() },
-                        PerkRankValues { perk: PerkName::E, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 60, ..Default::default() },
+                        PerkRankValues { name: PerkName::E, rank: 1, cost: 60, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
@@ -1818,9 +1789,9 @@ mod tests {
             #[test]
             fn wanted_is_first_of_triple() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::E, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 200, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1829,9 +1800,9 @@ mod tests {
             #[test]
             fn wanted_is_second_of_triple() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::E, rank: 1 }, Perk { perk: PerkName::D, rank: 1 }), cost: 120, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { name: PerkName::D, rank: 1 }), cost: 120, ..Default::default() },
                 ];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 200, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1840,7 +1811,7 @@ mod tests {
             #[test]
             fn wanted_is_third_of_triple() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 200, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1853,10 +1824,10 @@ mod tests {
             fn setup() -> RankCombination {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { perk: PerkName::A, rank: 1, cost: 10, ..Default::default() },
-                        PerkRankValues { perk: PerkName::B, rank: 1, cost: 20, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::C, rank: 1, cost: 60, doubleslot: true, ..Default::default() },
-                        PerkRankValues { perk: PerkName::D, rank: 1, cost: 60, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::A, rank: 1, cost: 10, ..Default::default() },
+                        PerkRankValues { name: PerkName::B, rank: 1, cost: 20, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::C, rank: 1, cost: 60, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::D, rank: 1, cost: 60, doubleslot: true, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
@@ -1866,9 +1837,9 @@ mod tests {
             #[test]
             fn wanted_is_p1() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1877,7 +1848,7 @@ mod tests {
             #[test]
             fn wanted_is_p2() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
@@ -1886,14 +1857,14 @@ mod tests {
             #[test]
             fn wanted_is_p3() {
                 let combination = setup();
-                let wanted_gizmo = Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected1 = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
                 let expected2 = vec![
-                    Gizmo { perks: (Perk { perk: PerkName::B, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
-                    Gizmo { perks: (Perk { perk: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
                 let panic_handler = std::panic::take_hook();
