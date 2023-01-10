@@ -351,18 +351,25 @@ pub fn fuzzy_find_wanted_gizmo_cost_thresholds(combination: &RankCombination, ma
 mod tests {
     use super::*;
     use smallvec::smallvec;
-    use crate::utils::{check, check_index};
+    use crate::utils::{check_len_result, check_index_result};
 
-    fn assert_gcth_eq(actual: &Vec<Gizmo>, expected: &Vec<Gizmo>) {
+    fn assert_gcth_eq_result(actual: &Vec<Gizmo>, expected: &Vec<Gizmo>) -> Result<(), String> {
         PerkName::using_simplified_names();
-        check(actual.len(), expected.len(), "length");
+        check_len_result(actual, expected)?;
 
         for (i, (acc, exp)) in actual.iter().zip(expected).enumerate() {
-            check_index(acc.perks.0.name, exp.perks.0.name, i, "perks.0.name", actual, expected);
-            check_index(acc.perks.1.name, exp.perks.1.name, i, "perks.1.name", actual, expected);
-            check_index(acc.perks.0.rank, exp.perks.0.rank, i, "perks.0.rank", actual, expected);
-            check_index(acc.perks.1.rank, exp.perks.1.rank, i, "perks.1.rank", actual, expected);
-            check_index(acc.cost, exp.cost, i, "cost", actual, expected);
+            check_index_result(acc.perks.0.name, exp.perks.0.name, i, "perks.0.name", actual, expected)?;
+            check_index_result(acc.perks.1.name, exp.perks.1.name, i, "perks.1.name", actual, expected)?;
+            check_index_result(acc.perks.0.rank, exp.perks.0.rank, i, "perks.0.rank", actual, expected)?;
+            check_index_result(acc.perks.1.rank, exp.perks.1.rank, i, "perks.1.rank", actual, expected)?;
+            check_index_result(acc.cost, exp.cost, i, "cost", actual, expected)?;
+        }
+        Ok(())
+    }
+
+    fn assert_gcth_eq(actual: &Vec<Gizmo>, expected: &Vec<Gizmo>) {
+        if let Err(err) = assert_gcth_eq_result(actual, expected) {
+            panic!("{}", err);
         }
     }
 
@@ -1866,17 +1873,10 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
                 let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
-                let panic_handler = std::panic::take_hook();
-                std::panic::set_hook(Box::new(|_info|{}));
-                let result1 = std::panic::catch_unwind(|| {
-                    assert_gcth_eq(&actual, &expected1);
-                });
-                let result2 = std::panic::catch_unwind(|| {
-                    assert_gcth_eq(&actual, &expected2);
-                });
-                std::panic::set_hook(panic_handler);
+                let result1 = assert_gcth_eq_result(&actual, &expected1);
+                let result2 = assert_gcth_eq_result(&actual, &expected2);
                 if result1.is_err() && result2.is_err() {
-                    panic!();
+                    panic!("{}\n\n{}", result1.unwrap_err(),  result2.unwrap_err());
                 }
             }
         }

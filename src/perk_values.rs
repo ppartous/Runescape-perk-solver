@@ -293,28 +293,26 @@ mod tests {
     use super::*;
     use itertools::Itertools;
     use lazy_static::lazy_static;
-    use approx::abs_diff_eq;
-    use crate::load_data;
+    use crate::{load_data, utils::{check_len, check_index, check_index_relative}};
 
     fn assert_perk_values_eq(actual: &Vec<PerkValues>, expected: &Vec<PerkValues>) {
         PerkName::using_full_names();
-        assert!(actual.len() == expected.len(), "Actual and expected have different sizes (actual: {}, expected: {})", actual.len(), expected.len());
+        check_len(actual, expected);
 
-        for (acc, exp) in actual.iter().zip(expected) {
-            assert_eq!(acc.base, exp.base, "Actual and expected have different 'base' values (actual: {}, expected: {})", acc.base, exp.base);
-            assert_eq!(acc.name, exp.name, "Actual and expected have different 'name' values (actual: {}, expected: {})", acc.name, exp.name);
-            assert_eq!(acc.doubleslot, exp.doubleslot, "Actual and expected have different 'doubleslot' values (actual: {}, expected: {})", acc.doubleslot, exp.doubleslot);
-            assert_eq!(acc.i_first, exp.i_first, "Actual and expected have different 'i_first' values (actual: {}, expected: {})", acc.i_first, exp.i_first);
-            assert_eq!(acc.i_last, exp.i_last, "Actual and expected have different 'i_last' values (actual: {}, expected: {})", acc.i_last, exp.i_last);
+        for (i, (acc, exp)) in actual.iter().zip(expected).enumerate() {
+            check_index(acc.base, exp.base, i, "base", actual, expected);
+            check_index(acc.name, exp.name, i, "name", actual, expected);
+            check_index(acc.doubleslot, exp.doubleslot, i, "doubleslot", actual, expected);
+            check_index(acc.i_first, exp.i_first, i, "i_first", actual, expected);
+            check_index(acc.i_last, exp.i_last, i, "i_last", actual, expected);
 
-            for (i, (x, y))  in acc.rolls.iter().zip_eq(&exp.rolls).enumerate() {
-                assert_eq!(x, y, "Actual and expected have different 'rolls' values at index {} (actual: {}, expected: {})", i, x, y);
+            for (x, y)  in acc.rolls.iter().zip_eq(&exp.rolls) {
+                check_index(x, y, i, "rolls", actual, expected);
             }
 
-            for (i, (x, y))  in acc.ranks.iter().zip_eq(&exp.ranks).enumerate() {
-                assert_eq!(x.values, y.values, "Actual and expected have different 'ranks.values' values at index {} (actual: {}, expected: {})", i, x.values, y.values);
-                let res = abs_diff_eq!(x.probability, y.probability, epsilon = 8.0 * f64::EPSILON);
-                assert!(res, "Actual and expected have different 'ranks.probability' values at index {} (actual: {}, expected: {})", i, x.probability, y.probability);
+            for (x, y) in acc.ranks.iter().zip_eq(&exp.ranks) {
+                check_index(x.values, y.values, i, "ranks.values", actual, expected);
+                check_index_relative(x.probability, y.probability, 8.0, i, "ranks.probability", actual, expected);
             }
         }
     }
@@ -1091,7 +1089,7 @@ mod tests {
 
         fn assert_rank_combination_eq(actual: &Vec<RankCombination>, expected: &Vec<RankCombination>) {
             PerkName::using_full_names();
-            assert!(actual.len() == expected.len(), "Actual and expected have different sizes (actual: {}, expected: {})", actual.len(), expected.len());
+            check_len(actual, expected);
 
             for x in expected {
                 assert!(actual.contains(&x), "Actual doesn't contain {:#?}", x);

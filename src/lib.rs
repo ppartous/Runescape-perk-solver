@@ -103,10 +103,11 @@
 //! (`loop_index % 2` has the same effect) to make the comparison `< 0` and `< 1`.
 
 pub mod definitions;
-pub mod utils;
-pub mod dice;
-pub mod perk_values;
-pub mod gizmo_cost_thresholds;
+mod utils;
+mod dice;
+mod perk_values;
+mod gizmo_cost_thresholds;
+mod jagex_sort;
 use definitions::*;
 use gizmo_cost_thresholds::*;
 use perk_values::*;
@@ -138,6 +139,131 @@ pub fn perk_solver(args: &Args, data: &Data, wanted_gizmo: &Gizmo) {
     //         calc_wanted_gizmo_probabilities(&data, &args, &budgets, &mat_combination, &wanted_gizmo);
     //     }
     // }
+}
+
+/// Returns a vector of all possible gizmos and their probabilities
+pub fn calc_gizmo_probabilities(data: &Data, budget: &Budget, input_materials: &Vec<MaterialName>,
+    gizmo_type: GizmoType, is_ancient: bool) -> Vec<Gizmo>
+{
+    let mut perk_values = get_perk_values(data, input_materials, gizmo_type, is_ancient);
+    calc_perk_rank_probabilities(data, &mut perk_values, is_ancient);
+    let mut permutations = permutate_perk_ranks(&perk_values, None);
+
+    for x in permutations.iter_mut() {
+        jagex_sort::jagex_quicksort(x);
+    }
+
+    let mut gizmo_arr: Vec<Gizmo> = vec![];
+    for comb in permutations {
+        let cost_thresholds = find_gizmo_cost_thresholds(&comb, budget.range.max);
+        let cost_thresholds = calc_probability_from_thresholds(&cost_thresholds, &budget, comb.probability);
+
+        for gizmo in cost_thresholds {
+            if gizmo.probability == 0.0 {
+                continue;
+            }
+
+            if let Some(x) = gizmo_arr.iter_mut().find(|x| **x == gizmo) {
+                x.probability += gizmo.probability;
+            } else {
+                gizmo_arr.push(gizmo);
+            }
+        }
+    }
+
+    gizmo_arr.sort_by(|x, y| f64::partial_cmp(&y.probability, &x.probability).unwrap());
+    gizmo_arr
+}
+
+fn calc_wanted_gizmo_probabilities(data: &Data, args: &Args, budgets: &Vec<Budget>, input_materials: &Vec<MaterialName>,
+    wanted_gizmo: &Gizmo) -> Vec<ResultLine>
+{
+    let mut perk_values = get_perk_values(data, input_materials, args.gizmo_type, args.ancient);
+
+    if !can_generate_wanted_ranks(data, &perk_values, wanted_gizmo) {
+        return vec![];
+    }
+
+    calc_perk_rank_probabilities(data, &mut perk_values, args.ancient);
+    let mut permutations = permutate_perk_ranks(&perk_values, Some(&wanted_gizmo));
+
+    for x in permutations.iter_mut() {
+        jagex_sort::jagex_quicksort(x);
+    }
+
+    let mut p_wanted = vec![0.0; budgets.len()];
+    let p_empty: Vec<f64> = budgets.iter().map(|x| get_empty_gizmo_chance(x, &perk_values)).collect();
+    for combination in permutations {
+        let cost_thresholds = if args.fuzzy {
+            fuzzy_find_wanted_gizmo_cost_thresholds(&combination, budgets.last().unwrap().range.max, &wanted_gizmo)
+        } else {
+            find_wanted_gizmo_cost_thresholds(&combination, budgets.last().unwrap().range.max, &wanted_gizmo)
+        };
+
+        for (budget, pw) in budgets.iter().zip(&mut p_wanted) {
+            let cost_thresholds = calc_probability_from_thresholds(&cost_thresholds, budget, combination.probability);
+            *pw += cost_thresholds.iter().fold(0.0, |acc, x| {
+                if (args.fuzzy && x.contains(&wanted_gizmo)) || (!args.fuzzy && x.same(&wanted_gizmo)) {
+                    acc + x.probability
+                } else {
+                    acc
+                }
+            });
+        }
+    }
+
+    itertools::multizip((budgets, p_wanted, p_empty)).filter(|(_, pw, _)| *pw > 0.0).map(|(budget, pw, pe)| {
+        if pe == 1.0 {
+            ResultLine { level: budget.level, prob_attempt: 0.0, prob_gizmo: 0.0 }
+        } else {
+            ResultLine { level: budget.level, prob_attempt: pw, prob_gizmo: pw / (1.0 - pe) }
+        }
+    }).collect()
+}
+
+fn calc_probability_from_thresholds(cth_in: &Vec<Gizmo>, budget: &Budget, comb_probability: f64) -> Vec<Gizmo> {
+    let mut cth = Vec::with_capacity(cth_in.len());
+
+    for (curr, next) in cth_in.iter().map(|x| Some(x)).chain([None]).tuple_windows() {
+        let curr = curr.unwrap();
+        // A gizmo is generated when the budget roll is strictly greater than the gizmo cost.
+        // The budget arg of this function is a cumulative distribution of all possible budget roll values where the
+        // index corresponds to that particular budget roll.
+        // So if x is the cost of the current gizmo and y is the cost of the next one then the probability than the budget
+        // roll is strictly greater than x but smaller or equal to y is budget[y] - budget[x]
+        let mut curr_threshold = curr.cost;
+        let mut next_threshold = if let Some(next) = next { i16::min(next.cost, budget.range.max as i16) } else { budget.range.max as i16 };
+        let mut prob = 0.0;
+
+        // The prob is always 0 if both costs are equal to each other or if both are lower than your invention level
+        // because any budget roll under you invention level gets changed to a value equal to the invention level so the
+        // probability to roll a value lower than that is zero
+        if next_threshold > curr_threshold && next_threshold >= (budget.range.min as i16) {
+            if curr_threshold < (budget.range.min as i16) {
+                prob = budget.dist[next_threshold as usize];
+            } else {
+                // If we are in the upper half of the probability distribution, mirror around the center to prevent loss of accuracy
+                // because on the upper half the values are close to 1 but we are only interested in the difference of two values.
+                // The distribution is point symmetric around the halfway point
+                let midpoint = budget.range.max as i16 / 2;
+                if curr_threshold > midpoint {
+                    let tmp = next_threshold;
+                    next_threshold = budget.range.max as i16 - curr_threshold - 1;
+                    curr_threshold = budget.range.max as i16 - tmp - 1;
+                }
+
+                if curr_threshold == -1 {
+                    prob = budget.dist[next_threshold as usize];
+                } else {
+                    prob = budget.dist[next_threshold as usize] - budget.dist[curr_threshold as usize];
+                }
+            }
+        }
+
+        cth.push(Gizmo { probability: prob * comb_probability, ..*curr });
+    }
+
+    cth
 }
 
 fn get_materials(args: &Args, data: &Data, wanted_gizmo: &Gizmo) -> Vec<MaterialName> {
@@ -255,131 +381,6 @@ fn calc_combination_count(conflict_size: usize, no_conflict_size: usize, is_anci
     // }
 
     count
-}
-
-fn calc_wanted_gizmo_probabilities(data: &Data, args: &Args, budgets: &Vec<Budget>, input_materials: &Vec<MaterialName>,
-    wanted_gizmo: &Gizmo) -> Vec<ResultLine>
-{
-    let mut perk_values = get_perk_values(data, input_materials, args.gizmo_type, args.ancient);
-
-    if !can_generate_wanted_ranks(data, &perk_values, wanted_gizmo) {
-        return vec![];
-    }
-
-    calc_perk_rank_probabilities(data, &mut perk_values, args.ancient);
-    let mut permutations = permutate_perk_ranks(&perk_values, Some(&wanted_gizmo));
-
-    for x in permutations.iter_mut() {
-        utils::jagex_quicksort(x);
-    }
-
-    let mut p_wanted = vec![0.0; budgets.len()];
-    let p_empty: Vec<f64> = budgets.iter().map(|x| get_empty_gizmo_chance(x, &perk_values)).collect();
-    for combination in permutations {
-        let cost_thresholds = if args.fuzzy {
-            fuzzy_find_wanted_gizmo_cost_thresholds(&combination, budgets.last().unwrap().range.max, &wanted_gizmo)
-        } else {
-            find_wanted_gizmo_cost_thresholds(&combination, budgets.last().unwrap().range.max, &wanted_gizmo)
-        };
-
-        for (budget, pw) in budgets.iter().zip(&mut p_wanted) {
-            let cost_thresholds = calc_probability_from_thresholds(&cost_thresholds, budget, combination.probability);
-            *pw += cost_thresholds.iter().fold(0.0, |acc, x| {
-                if (args.fuzzy && x.contains(&wanted_gizmo)) || (!args.fuzzy && x.same(&wanted_gizmo)) {
-                    acc + x.probability
-                } else {
-                    acc
-                }
-            });
-        }
-    }
-
-    itertools::multizip((budgets, p_wanted, p_empty)).filter(|(_, pw, _)| *pw > 0.0).map(|(budget, pw, pe)| {
-        if pe == 1.0 {
-            ResultLine { level: budget.level, prob_attempt: 0.0, prob_gizmo: 0.0 }
-        } else {
-            ResultLine { level: budget.level, prob_attempt: pw, prob_gizmo: pw / (1.0 - pe) }
-        }
-    }).collect()
-}
-
-/// Returns a vector of all possible gizmos and their probabilities
-pub fn calc_gizmo_probabilities(data: &Data, budget: &Budget, input_materials: &Vec<MaterialName>,
-    gizmo_type: GizmoType, is_ancient: bool) -> Vec<Gizmo>
-{
-    let mut perk_values = get_perk_values(data, input_materials, gizmo_type, is_ancient);
-    calc_perk_rank_probabilities(data, &mut perk_values, is_ancient);
-    let mut permutations = permutate_perk_ranks(&perk_values, None);
-
-    for x in permutations.iter_mut() {
-        utils::jagex_quicksort(x);
-    }
-
-    let mut gizmo_arr: Vec<Gizmo> = vec![];
-    for comb in permutations {
-        let cost_thresholds = find_gizmo_cost_thresholds(&comb, budget.range.max);
-        let cost_thresholds = calc_probability_from_thresholds(&cost_thresholds, &budget, comb.probability);
-
-        for gizmo in cost_thresholds {
-            if gizmo.probability == 0.0 {
-                continue;
-            }
-
-            if let Some(x) = gizmo_arr.iter_mut().find(|x| **x == gizmo) {
-                x.probability += gizmo.probability;
-            } else {
-                gizmo_arr.push(gizmo);
-            }
-        }
-    }
-
-    gizmo_arr.sort_by(|x, y| f64::partial_cmp(&y.probability, &x.probability).unwrap());
-    gizmo_arr
-}
-
-fn calc_probability_from_thresholds(cth_in: &Vec<Gizmo>, budget: &Budget, comb_probability: f64) -> Vec<Gizmo> {
-    let mut cth = Vec::with_capacity(cth_in.len());
-
-    for (curr, next) in cth_in.iter().map(|x| Some(x)).chain([None]).tuple_windows() {
-        let curr = curr.unwrap();
-        // A gizmo is generated when the budget roll is strictly greater than the gizmo cost.
-        // The budget arg of this function is a cumulative distribution of all possible budget roll values where the
-        // index corresponds to that particular budget roll.
-        // So if x is the cost of the current gizmo and y is the cost of the next one then the probability than the budget
-        // roll is strictly greater than x but smaller or equal to y is budget[y] - budget[x]
-        let mut curr_threshold = curr.cost;
-        let mut next_threshold = if let Some(next) = next { i16::min(next.cost, budget.range.max as i16) } else { budget.range.max as i16 };
-        let mut prob = 0.0;
-
-        // The prob is always 0 if both costs are equal to each other or if both are lower than your invention level
-        // because any budget roll under you invention level gets changed to a value equal to the invention level so the
-        // probability to roll a value lower than that is zero
-        if next_threshold > curr_threshold && next_threshold >= (budget.range.min as i16) {
-            if curr_threshold < (budget.range.min as i16) {
-                prob = budget.dist[next_threshold as usize];
-            } else {
-                // If we are in the upper half of the probability distribution, mirror around the center to prevent loss of accuracy
-                // because on the upper half the values are close to 1 but we are only interested in the difference of two values.
-                // The distribution is point symmetric around the halfway point
-                let midpoint = budget.range.max as i16 / 2;
-                if curr_threshold > midpoint {
-                    let tmp = next_threshold;
-                    next_threshold = budget.range.max as i16 - curr_threshold - 1;
-                    curr_threshold = budget.range.max as i16 - tmp - 1;
-                }
-
-                if curr_threshold == -1 {
-                    prob = budget.dist[next_threshold as usize];
-                } else {
-                    prob = budget.dist[next_threshold as usize] - budget.dist[curr_threshold as usize];
-                }
-            }
-        }
-
-        cth.push(Gizmo { probability: prob * comb_probability, ..*curr });
-    }
-
-    cth
 }
 
 #[cfg(test)]
