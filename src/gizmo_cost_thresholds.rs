@@ -231,10 +231,9 @@ pub fn find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_rang
     cost_thresholds
 }
 
-#[allow(unused_variables, dead_code)]
 /// This function is used for fuzzy search where the wanted perk can be combined with any other perk
 /// and the order of the perks doesn't matter so our wanted perk can be in slot 1 or 2
-fn fuzzy_find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_range: u16, wanted_gizmo: &Gizmo) -> Vec<Gizmo> {
+pub fn fuzzy_find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_range: u16, wanted_gizmo: &Gizmo) -> Vec<Gizmo> {
     let mut cost_thresholds = Vec::new();
 
     /*

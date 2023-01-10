@@ -90,3 +90,20 @@ pub struct Args {
     pub exclude: Vec<String>,
     pub sort_type: SortType
 }
+
+impl Default for Args {
+    fn default() -> Self {
+        Args {
+            invention_level: vec![],
+            gizmo_type: GizmoType::Weapon,
+            ancient: false,
+            perk: String::new(),
+            rank: 0,
+            perk_two: None,
+            rank_two: 0,
+            fuzzy: false,
+            exclude: vec![],
+            sort_type: SortType::Price
+        }
+    }
+}

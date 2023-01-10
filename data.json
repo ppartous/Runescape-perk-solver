@@ -2666,6 +2666,17 @@
     }
   },
   "perks": {
+    "Empty": {
+      "doubleslot": false,
+      "ranks": [ {
+        "ancient_only": false,
+        "cost": 0,
+        "doubleslot": false,
+        "name": "Empty",
+        "rank": 0,
+        "threshold": 0
+      } ]
+    },
     "Absorbative": {
       "doubleslot": false,
       "ranks": [ {

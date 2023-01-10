@@ -87,3 +87,12 @@ pub struct SplitMaterials {
     pub conflict: Vec<MaterialName>,
     pub no_conflict: Vec<MaterialName>
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+#[derive(Debug)]
+pub struct ResultLine {
+    pub level: u16,
+    pub prob_gizmo: f64,
+    pub prob_attempt: f64,
+}

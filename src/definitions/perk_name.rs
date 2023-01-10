@@ -224,6 +224,7 @@ impl FromStr for PerkName {
 
     fn from_str(perk: &str) -> Result<Self, Self::Err> {
         match perk.to_lowercase().as_str() {
+            "empty" => Ok(PerkName::Empty),
             "absorbative" => Ok(PerkName::Absorbative),
             "aftershock" => Ok(PerkName::Aftershock),
             "antitheism" => Ok(PerkName::Antitheism),

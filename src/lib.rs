@@ -108,7 +108,7 @@ pub mod dice;
 pub mod perk_values;
 pub mod gizmo_cost_thresholds;
 use definitions::*;
-use gizmo_cost_thresholds::find_gizmo_cost_thresholds;
+use gizmo_cost_thresholds::*;
 use perk_values::*;
 use itertools::Itertools;
 use std::{cmp, fs};
@@ -122,7 +122,7 @@ pub fn load_data() -> Data {
 pub fn perk_solver(args: &Args, data: &Data, wanted_gizmo: &Gizmo) {
     let materials = get_materials(&args, &data, &wanted_gizmo);
     let materials = split_materials(&args, &data, &wanted_gizmo, materials);
-    let budgets = generate_budgets(&args);
+    let budgets = generate_budgets(&args.invention_level, args.ancient);
     let slot_count = if args.ancient { 9 } else { 5 };
 
     let total_combination_count = calc_combination_count(materials.conflict.len(), materials.no_conflict.len(), args.ancient);
@@ -202,16 +202,16 @@ fn split_materials(args: &Args, data: &Data, wanted_gizmo: &Gizmo, mats: Vec<Mat
 }
 
 /// Each budget is a cumulative probability distribution for the invention level related random rolls.
-fn generate_budgets(args: &Args) -> Vec<Budget> {
-    let (low, high) = if args.invention_level.len() == 1 {
-        (args.invention_level[0], args.invention_level[0])
+fn generate_budgets(invention_level: &Vec<u32>, ancient: bool) -> Vec<Budget> {
+    let (low, high) = if invention_level.len() == 1 {
+        (invention_level[0], invention_level[0])
     } else {
-        (args.invention_level[0], args.invention_level[1])
+        (invention_level[0], invention_level[1])
     };
     let mut budgets = Vec::new();
 
     for lvl in (low..=high).step_by(2) {
-        budgets.push(Budget::create(lvl as usize, args.ancient));
+        budgets.push(Budget::create(lvl as usize, ancient));
     }
 
     budgets
@@ -257,13 +257,50 @@ fn calc_combination_count(conflict_size: usize, no_conflict_size: usize, is_anci
     count
 }
 
-#[allow(unused_variables, dead_code)]
 fn calc_wanted_gizmo_probabilities(data: &Data, args: &Args, budgets: &Vec<Budget>, input_materials: &Vec<MaterialName>,
-    wanted_gizmo: &Gizmo)
+    wanted_gizmo: &Gizmo) -> Vec<ResultLine>
 {
-    let perk_values = get_perk_values(data, input_materials, args.gizmo_type, args.ancient);
+    let mut perk_values = get_perk_values(data, input_materials, args.gizmo_type, args.ancient);
 
-    todo!()
+    if !can_generate_wanted_ranks(data, &perk_values, wanted_gizmo) {
+        return vec![];
+    }
+
+    calc_perk_rank_probabilities(data, &mut perk_values, args.ancient);
+    let mut permutations = permutate_perk_ranks(&perk_values, Some(&wanted_gizmo));
+
+    for x in permutations.iter_mut() {
+        utils::jagex_quicksort(x);
+    }
+
+    let mut p_wanted = vec![0.0; budgets.len()];
+    let p_empty: Vec<f64> = budgets.iter().map(|x| get_empty_gizmo_chance(x, &perk_values)).collect();
+    for combination in permutations {
+        let cost_thresholds = if args.fuzzy {
+            fuzzy_find_wanted_gizmo_cost_thresholds(&combination, budgets.last().unwrap().range.max, &wanted_gizmo)
+        } else {
+            find_wanted_gizmo_cost_thresholds(&combination, budgets.last().unwrap().range.max, &wanted_gizmo)
+        };
+
+        for (budget, pw) in budgets.iter().zip(&mut p_wanted) {
+            let cost_thresholds = calc_probability_from_thresholds(&cost_thresholds, budget, combination.probability);
+            *pw += cost_thresholds.iter().fold(0.0, |acc, x| {
+                if (args.fuzzy && x.contains(&wanted_gizmo)) || (!args.fuzzy && x.same(&wanted_gizmo)) {
+                    acc + x.probability
+                } else {
+                    acc
+                }
+            });
+        }
+    }
+
+    itertools::multizip((budgets, p_wanted, p_empty)).filter(|(_, pw, _)| *pw > 0.0).map(|(budget, pw, pe)| {
+        if pe == 1.0 {
+            ResultLine { level: budget.level, prob_attempt: 0.0, prob_gizmo: 0.0 }
+        } else {
+            ResultLine { level: budget.level, prob_attempt: pw, prob_gizmo: pw / (1.0 - pe) }
+        }
+    }).collect()
 }
 
 /// Returns a vector of all possible gizmos and their probabilities
@@ -300,7 +337,6 @@ pub fn calc_gizmo_probabilities(data: &Data, budget: &Budget, input_materials: &
     gizmo_arr
 }
 
-#[allow(unused_variables, dead_code)]
 fn calc_probability_from_thresholds(cth_in: &Vec<Gizmo>, budget: &Budget, comb_probability: f64) -> Vec<Gizmo> {
     let mut cth = Vec::with_capacity(cth_in.len());
 
@@ -312,7 +348,7 @@ fn calc_probability_from_thresholds(cth_in: &Vec<Gizmo>, budget: &Budget, comb_p
         // So if x is the cost of the current gizmo and y is the cost of the next one then the probability than the budget
         // roll is strictly greater than x but smaller or equal to y is budget[y] - budget[x]
         let mut curr_threshold = curr.cost;
-        let mut next_threshold = if let Some(next) = next { next.cost } else { budget.range.max as i16 };
+        let mut next_threshold = if let Some(next) = next { i16::min(next.cost, budget.range.max as i16) } else { budget.range.max as i16 };
         let mut prob = 0.0;
 
         // The prob is always 0 if both costs are equal to each other or if both are lower than your invention level
@@ -349,15 +385,15 @@ fn calc_probability_from_thresholds(cth_in: &Vec<Gizmo>, budget: &Budget, comb_p
 #[cfg(test)]
 mod tests {
     use super::*;
+    use lazy_static::lazy_static;
+    use crate::utils::{check_index, check_index_relative, check_len};
+
+    lazy_static!{
+        static ref DATA: Data = load_data();
+    }
 
     mod calc_gizmo_probabilities_tests {
         use super::*;
-        use lazy_static::lazy_static;
-        use crate::utils::{check_index, check_index_relative, check_len};
-
-        lazy_static!{
-            static ref DATA: Data = load_data();
-        }
 
         fn assert_gizmo_vec_eq(actual: &Vec<Gizmo>, expected: &Vec<Gizmo>) {
             PerkName::using_full_names();
@@ -703,7 +739,7 @@ mod tests {
         #[test]
         fn normal_armour_120_1_historic_1_tensile_2_plated() {
             let is_ancient = false;
-            let gizmo_type = GizmoType::Weapon;
+            let gizmo_type = GizmoType::Armour;
             let budget = Budget::create(120, is_ancient);
             let input_materials = vec![
                 MaterialName::HistoricComponents,
@@ -712,19 +748,157 @@ mod tests {
                 MaterialName::PlatedParts,
             ];
             let expected = vec![
-                Gizmo { perks: (Perk { name: PerkName::Committed, rank: 1 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.31435089531680449060, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Committed, rank: 1 }, Perk { name: PerkName::Blunted, rank: 1 }), probability: 0.27124494232093665502, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Blunted, rank: 2 }, Perk { name: PerkName::Mysterious, rank: 1 }), probability: 0.10771128120043409193, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Blunted, rank: 2 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.10137532348276150074, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Blunted, rank: 1 }, Perk { name: PerkName::Mysterious, rank: 1 }), probability: 0.09294117081194172569, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Blunted, rank: 1 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.08747404311712163316, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Committed, rank: 1 }, Perk { name: PerkName::Mysterious, rank: 1 }), probability: 0.00770415610130228013, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Committed, rank: 1 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00725097044828449961, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Mysterious, rank: 1 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00512432401233408469, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Empty, rank: 0 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00482289318807913904, cost: 0 },
+                Gizmo { perks: (Perk { name: PerkName::Committed, rank: 1 }, Perk { name: PerkName::Mysterious, rank: 1 }), probability: 0.30937473912680502064, cost: 0 },
+                Gizmo { perks: (Perk { name: PerkName::Committed, rank: 1 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.29117622506052237563, cost: 0 },
+                Gizmo { perks: (Perk { name: PerkName::Mysterious, rank: 1 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.20577677602470972884, cost: 0 },
+                Gizmo { perks: (Perk { name: PerkName::Empty, rank: 0 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.19367225978796212549, cost: 0 },
             ];
             let actual = calc_gizmo_probabilities(&*DATA, &budget, &input_materials, gizmo_type, is_ancient);
             assert_gizmo_vec_eq(&actual, &expected);
+        }
+    }
+
+    mod calc_wanted_gizmo_probabilities_test {
+        use super::*;
+
+        fn assert_resultlines_eq(actual: &Vec<ResultLine>, expected: &Vec<ResultLine>) {
+            check_len(actual, expected);
+
+            for (i, (acc, exp)) in actual.iter().zip(expected).enumerate() {
+                check_index(acc.level, exp.level, i, "level", actual, expected);
+                check_index_relative(acc.prob_attempt, exp.prob_attempt, 2.0, i, "prob_attempt" , actual, expected);
+                check_index_relative(acc.prob_gizmo, exp.prob_gizmo, 2.0, i, "prob_gizmo" , actual, expected);
+            }
+        }
+
+        #[test]
+        fn ancient_armour_110_120_7_zamorak_2_sara() {
+            let args = Args {
+                ancient: true,
+                gizmo_type: GizmoType::Armour,
+                fuzzy: false,
+                ..Default::default()
+            };
+            let budgets = generate_budgets(&vec![110, 120], args.ancient);
+            let input_materials = vec![
+                MaterialName::ZamorakComponents,
+                MaterialName::ZamorakComponents,
+                MaterialName::ZamorakComponents,
+                MaterialName::ZamorakComponents,
+                MaterialName::ZamorakComponents,
+                MaterialName::ZamorakComponents,
+                MaterialName::ZamorakComponents,
+                MaterialName::SaradominComponents,
+                MaterialName::SaradominComponents,
+            ];
+            let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::Devoted, rank: 4 }, Perk { name: PerkName::Impatient, rank: 4 }), ..Default::default() };
+            let expected = vec![
+                ResultLine { level: 110, prob_gizmo: 0.00974262074653326794, prob_attempt: 0.00850963080954826069 },
+                ResultLine { level: 112, prob_gizmo: 0.01255816021290431274, prob_attempt: 0.01107308252145345825 },
+                ResultLine { level: 114, prob_gizmo: 0.01590000661605753610, prob_attempt: 0.01414257810865433666 },
+                ResultLine { level: 116, prob_gizmo: 0.01980789822146937149, prob_attempt: 0.01776096295684682566 },
+                ResultLine { level: 118, prob_gizmo: 0.02431630038465943874, prob_attempt: 0.02196620262677148952 },
+                ResultLine { level: 120, prob_gizmo: 0.02945385241280866484, prob_attempt: 0.02679068305588063956 },
+            ];
+            let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, &input_materials, &wanted_gizmo);
+            assert_resultlines_eq(&actual, &expected);
+        }
+
+        #[test]
+        fn ancient_armour_110_120_1_harnessed_1_dextrous_7_variable() {
+            let args = Args {
+                ancient: true,
+                gizmo_type: GizmoType::Armour,
+                fuzzy: false,
+                ..Default::default()
+            };
+            let budgets = generate_budgets(&vec![110, 120], args.ancient);
+            let input_materials = vec![
+                MaterialName::HarnessedComponents,
+                MaterialName::DextrousComponents,
+                MaterialName::VariableComponents,
+                MaterialName::VariableComponents,
+                MaterialName::VariableComponents,
+                MaterialName::VariableComponents,
+                MaterialName::VariableComponents,
+                MaterialName::VariableComponents,
+                MaterialName::VariableComponents,
+            ];
+            let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::TrophyTaker, rank: 5 }, Perk { name: PerkName::ClearHeaded, rank: 2 }), ..Default::default() };
+            let expected = vec![
+                ResultLine { level: 110, prob_gizmo: 0.01918158179611270664, prob_attempt: 0.01918158179611270664 },
+                ResultLine { level: 112, prob_gizmo: 0.02109631656835359720, prob_attempt: 0.02109631656835359720 },
+                ResultLine { level: 114, prob_gizmo: 0.02304803688981639856, prob_attempt: 0.02304803688981639856 },
+                ResultLine { level: 116, prob_gizmo: 0.02502587808462617899, prob_attempt: 0.02502587808462617899 },
+                ResultLine { level: 118, prob_gizmo: 0.02701942633140705374, prob_attempt: 0.02701942633140705374 },
+                ResultLine { level: 120, prob_gizmo: 0.02901884688250149988, prob_attempt: 0.02901884688250149988 },
+            ];
+            let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, &input_materials, &wanted_gizmo);
+            assert_resultlines_eq(&actual, &expected);
+        }
+
+        #[test]
+        fn ancient_armour_50_60_1_harnessed_1_dextrous_7_variable() {
+            let args = Args {
+                ancient: true,
+                gizmo_type: GizmoType::Armour,
+                fuzzy: false,
+                ..Default::default()
+            };
+            let budgets = generate_budgets(&vec![50, 60], args.ancient);
+            let input_materials = vec![
+                MaterialName::HarnessedComponents,
+                MaterialName::DextrousComponents,
+                MaterialName::VariableComponents,
+                MaterialName::VariableComponents,
+                MaterialName::VariableComponents,
+                MaterialName::VariableComponents,
+                MaterialName::VariableComponents,
+                MaterialName::VariableComponents,
+                MaterialName::VariableComponents,
+            ];
+            let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::TrophyTaker, rank: 5 }, Perk { name: PerkName::ClearHeaded, rank: 2 }), ..Default::default() };
+            let expected = vec![
+                ResultLine { level: 54, prob_gizmo: 0.00000000001215511520, prob_attempt: 0.00000000001215511520 },
+                ResultLine { level: 56, prob_gizmo: 0.00000000989853159803, prob_attempt: 0.00000000989853159803 },
+                ResultLine { level: 58, prob_gizmo: 0.00000017572813762414, prob_attempt: 0.00000017572813762414 },
+                ResultLine { level: 60, prob_gizmo: 0.00000112864757880545, prob_attempt: 0.00000112864757880545 },
+            ];
+            let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, &input_materials, &wanted_gizmo);
+            assert_resultlines_eq(&actual, &expected);
+        }
+
+        #[test]
+        fn ancient_armour_50_60_1_harnessed_1_dextrous_7_variable_fuzzy() {
+            let args = Args {
+                ancient: true,
+                gizmo_type: GizmoType::Armour,
+                fuzzy: true,
+                ..Default::default()
+            };
+            let budgets = generate_budgets(&vec![50, 60], args.ancient);
+            let input_materials = vec![
+                MaterialName::HarnessedComponents,
+                MaterialName::DextrousComponents,
+                MaterialName::VariableComponents,
+                MaterialName::VariableComponents,
+                MaterialName::VariableComponents,
+                MaterialName::VariableComponents,
+                MaterialName::VariableComponents,
+                MaterialName::VariableComponents,
+                MaterialName::VariableComponents,
+            ];
+            let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::ClearHeaded, rank: 2 }, Perk { ..Default::default() }), ..Default::default() };
+            let expected = vec![
+                ResultLine { level: 50, prob_gizmo: 0.46018419656933490236, prob_attempt: 0.46018419656933490236 },
+                ResultLine { level: 52, prob_gizmo: 0.44214030724407260564, prob_attempt: 0.44214030724407260564 },
+                ResultLine { level: 54, prob_gizmo: 0.42436718836156678281, prob_attempt: 0.42436718836156678281 },
+                ResultLine { level: 56, prob_gizmo: 0.40708661016742259120, prob_attempt: 0.40708661016742259120 },
+                ResultLine { level: 58, prob_gizmo: 0.39049529671634181094, prob_attempt: 0.39049529671634181094 },
+                ResultLine { level: 60, prob_gizmo: 0.37476699430103094235, prob_attempt: 0.37476699430103094235 },
+            ];
+            let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, &input_materials, &wanted_gizmo);
+            assert_resultlines_eq(&actual, &expected);
         }
     }
 }
