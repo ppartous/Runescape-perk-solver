@@ -20,6 +20,7 @@ pub mod budget;
 pub use budget::*;
 
 use smallvec::{SmallVec, smallvec};
+use std::rc::Rc;
 
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -95,4 +96,5 @@ pub struct ResultLine {
     pub level: u16,
     pub prob_gizmo: f64,
     pub prob_attempt: f64,
+    pub mat_combination: Rc<Vec<MaterialName>>
 }

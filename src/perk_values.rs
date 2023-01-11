@@ -235,13 +235,13 @@ pub fn permutate_perk_ranks(perk_list: &Vec<PerkValues>, wanted_gizmo: Option<&G
 /// Then move on to do the same with the next rank in the array.
 pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &Vec<PerkValues>) -> f64 {
     let mut p_empty = 1.0; // Total empty gizmo chance
-    let mut p_empty_per_perk = HashMap::new();
+    // let mut p_empty_per_perk = HashMap::with_capacity(perk_values_arr.len());
+    let mut p_empty_per_perk = vec![0.0; PerkName::NAME_COUNT];
     let mut ranks = Vec::new(); // vec of non zero ranks with a cost higher than the invention level
 
     // Chance to have a combination of perk ranks that can produce an empty gizmo (perks with a cost higher than
     // the invention level or of rank 0)
     let mut p_empty_combo = 1.0;
-
     for pv in perk_values_arr.iter() {
         let pv_ranks = &pv.ranks;
 
@@ -257,7 +257,9 @@ pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &Vec<PerkValues>
             ranks.push(rank);
         }
 
-        p_empty_per_perk.insert(pv.name, psum);
+
+        // p_empty_per_perk.insert(pv.name, psum);
+        p_empty_per_perk[pv.name as usize] = psum;
         p_empty_combo *= psum;
     }
 
@@ -271,14 +273,15 @@ pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &Vec<PerkValues>
 
     for rank in ranks {
         // Adjusted empty combo chance to a specific rank of a perk
-        let mut p_empty_rank = p_empty_combo * rank.probability / p_empty_per_perk[&rank.values.name];
+        let mut p_empty_rank = p_empty_combo * rank.probability / p_empty_per_perk[rank.values.name as usize];
         // Multiply with chance that our inventbudget is bellow the rank cost
         p_empty_rank *= budget.dist[u16::min(rank.values.cost, budget.range.max) as usize];
         p_empty += p_empty_rank;
         // Remove this rank from 'p_empty_combo'
-        p_empty_combo *= (p_empty_per_perk[&rank.values.name] - rank.probability) / p_empty_per_perk[&rank.values.name];
+        p_empty_combo *= (p_empty_per_perk[rank.values.name as usize] - rank.probability) / p_empty_per_perk[rank.values.name as usize];
         // Remove this rank from the combined empty combo chance of a certain perk
-        *p_empty_per_perk.get_mut(&rank.values.name).unwrap() -= rank.probability;
+        p_empty_per_perk[rank.values.name as usize] -= rank.probability;
+        // *p_empty_per_perk.get_mut(&rank.values.name).unwrap() -= rank.probability;
 
         if p_empty_combo == 0.0 {
             break;

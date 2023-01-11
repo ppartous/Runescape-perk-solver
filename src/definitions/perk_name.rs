@@ -97,6 +97,8 @@ impl PerkName {
     pub const J: PerkName = PerkName::Butterfingers;
     pub const K: PerkName = PerkName::Caroming;
 
+    pub const NAME_COUNT: usize = 77;
+
     pub fn using_simplified_names() {
         unsafe {
             *USE_SIMPLE_PRINT_STYLE.get_mut() = true;

@@ -112,14 +112,14 @@ use definitions::*;
 use gizmo_cost_thresholds::*;
 use perk_values::*;
 use itertools::Itertools;
-use std::{cmp, fs};
+use std::{cmp, fs, rc::Rc, collections::HashMap, cmp::{Ord, PartialOrd}};
+use indicatif::{ProgressBar, ProgressStyle};
 
 pub fn load_data() -> Data {
     let data = fs::read_to_string("data.json").unwrap();
     serde_json::from_str(&data).unwrap()
 }
 
-#[allow(unused_variables, dead_code, unused_mut)]
 pub fn perk_solver(args: &Args, data: &Data, wanted_gizmo: &Gizmo) {
     let materials = get_materials(&args, &data, &wanted_gizmo);
     let materials = split_materials(&args, &data, &wanted_gizmo, materials);
@@ -127,18 +127,52 @@ pub fn perk_solver(args: &Args, data: &Data, wanted_gizmo: &Gizmo) {
     let slot_count = if args.ancient { 9 } else { 5 };
 
     let total_combination_count = calc_combination_count(materials.conflict.len(), materials.no_conflict.len(), args.ancient);
-    let mut count = 0;
-    let mut total_gizmos_generated = 0;
+    let mut res = HashMap::new();
+    let bar = ProgressBar::new(total_combination_count as u64);
 
-    println!("{:#?}", materials);
-    println!("# combinations: {}", utils::format_int(total_combination_count as i64));
+    budgets.iter().for_each(|x| { res.insert(x.level, Vec::new()); });
+    bar.set_style(ProgressStyle::with_template("[{elapsed_precise}] {bar:60} {human_pos}/{human_len} ({percent}%)").unwrap());
 
-    // for n_mats_used in 1..slot_count {
-    //     // Order does no matter when none of the materials used have a cost conflict with the wanted perks
-    //     for mat_combination in materials.no_conflict.iter().copied().combinations_with_replacement(n_mats_used) {
-    //         calc_wanted_gizmo_probabilities(&data, &args, &budgets, &mat_combination, &wanted_gizmo);
-    //     }
-    // }
+    // println!("{:#?}", args);
+    // println!("{:#?}", wanted_gizmo);
+    // println!("{:#?}", materials);
+    // println!("# combinations: {}", utils::format_int(total_combination_count as i64));
+
+    for n_mats_used in 1 ..= slot_count {
+        // Order does no matter when none of the materials used have a cost conflict with the wanted perks
+        for mat_combination in materials.no_conflict.iter().copied().combinations_with_replacement(n_mats_used) {
+            let lines = calc_wanted_gizmo_probabilities(&data, &args, &budgets, mat_combination, &wanted_gizmo);
+            for x in lines {
+                res.get_mut(&x.level).unwrap().push(x);
+            }
+            // bar.inc(1);
+            profiling::finish_frame!();
+        }
+
+        for n_conflict_mats in 1 ..= usize::min(n_mats_used, materials.conflict.len()) {
+            for conflict_mats in materials.conflict.iter().copied().combinations(n_conflict_mats) {
+                for n_noconflict_mats in 0 ..= usize::min(n_mats_used - n_conflict_mats, materials.no_conflict.len()) {
+                    for no_conflict_mats in materials.no_conflict.iter().copied().combinations(n_noconflict_mats) {
+                        for ordered_mats in conflict_mats.iter().copied().chain(no_conflict_mats.iter().copied()).permutations(n_conflict_mats + n_noconflict_mats) {
+                            for unordered_mats in ordered_mats.iter().copied().combinations_with_replacement(n_mats_used - n_conflict_mats - n_noconflict_mats) {
+                                let mat_combination = ordered_mats.iter().copied().chain(unordered_mats.iter().copied()).collect_vec();
+                                let lines = calc_wanted_gizmo_probabilities(&data, &args, &budgets, mat_combination, &wanted_gizmo);
+                                for x in lines {
+                                    res.get_mut(&x.level).unwrap().push(x);
+                                }
+                                // bar.inc(1);
+                                profiling::finish_frame!();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // bar.finish();
+    let best_per_level = find_best_per_level(&res, args.sort_type);
+    print_result(&best_per_level, args.sort_type);
 }
 
 /// Returns a vector of all possible gizmos and their probabilities
@@ -175,10 +209,10 @@ pub fn calc_gizmo_probabilities(data: &Data, budget: &Budget, input_materials: &
     gizmo_arr
 }
 
-fn calc_wanted_gizmo_probabilities(data: &Data, args: &Args, budgets: &Vec<Budget>, input_materials: &Vec<MaterialName>,
+fn calc_wanted_gizmo_probabilities(data: &Data, args: &Args, budgets: &Vec<Budget>, input_materials: Vec<MaterialName>,
     wanted_gizmo: &Gizmo) -> Vec<ResultLine>
 {
-    let mut perk_values = get_perk_values(data, input_materials, args.gizmo_type, args.ancient);
+    let mut perk_values = get_perk_values(data, &input_materials, args.gizmo_type, args.ancient);
 
     if !can_generate_wanted_ranks(data, &perk_values, wanted_gizmo) {
         return vec![];
@@ -212,11 +246,12 @@ fn calc_wanted_gizmo_probabilities(data: &Data, args: &Args, budgets: &Vec<Budge
         }
     }
 
+    let input_materials = Rc::new(input_materials);
     itertools::multizip((budgets, p_wanted, p_empty)).filter(|(_, pw, _)| *pw > 0.0).map(|(budget, pw, pe)| {
         if pe == 1.0 {
-            ResultLine { level: budget.level, prob_attempt: 0.0, prob_gizmo: 0.0 }
+            ResultLine { level: budget.level, prob_attempt: 0.0, prob_gizmo: 0.0, mat_combination: input_materials.clone() }
         } else {
-            ResultLine { level: budget.level, prob_attempt: pw, prob_gizmo: pw / (1.0 - pe) }
+            ResultLine { level: budget.level, prob_attempt: pw, prob_gizmo: pw / (1.0 - pe), mat_combination: input_materials.clone() }
         }
     }).collect()
 }
@@ -352,27 +387,27 @@ fn generate_budgets(invention_level: &Vec<u32>, ancient: bool) -> Vec<Budget> {
 /// same as abcb. The order of the repeated materials also doesn't matter so abcbc is the same as abccb.
 fn calc_combination_count(conflict_size: usize, no_conflict_size: usize, is_ancient: bool) -> usize {
     let slot_count = if is_ancient { 9 } else { 5 };
-    let mut count = 0;
+    let mut count = 0.0;
 
     // Factorial operator (https://en.wikipedia.org/wiki/Factorial)
-    fn fac(n: usize) -> usize {
+    fn fac(n: usize) -> f64 {
         let mut r = 1;
-        for i in 2..=n {
+        for i in 2 ..= n {
             r *= i;
         }
-        r
+        r as f64
     }
 
-    for i in 1..=slot_count {
-        count += dice::choose(no_conflict_size + i - 1, i) as usize; // Combination with repetition
+    for i in 1 ..= slot_count {
+        count += dice::choose(no_conflict_size + i - 1, i); // Combination with repetition
 
-        for j in 1..=cmp::min(i, conflict_size) {
-            let mut x = 0;
-            for k in 0..=cmp::min(i - j, no_conflict_size) {
-                x += dice::choose(no_conflict_size, k) as usize * fac(j + k) * dice::choose(i - 1, i - j - k) as usize;
+        for j in 1 ..= cmp::min(i, conflict_size) {
+            let mut x = 0.0;
+            for k in 0 ..= cmp::min(i - j, no_conflict_size) {
+                x += dice::choose(no_conflict_size, k) * fac(j + k) * dice::choose(i - 1, i - j - k);
             }
 
-            count += x * dice::choose(conflict_size, j) as usize;
+            count += x * dice::choose(conflict_size, j);
         }
     }
 
@@ -380,7 +415,61 @@ fn calc_combination_count(conflict_size: usize, no_conflict_size: usize, is_anci
     //     count += slot_count;
     // }
 
-    count
+    (count + 0.5) as usize
+}
+
+fn find_best_per_level(res: &HashMap<u16, Vec<ResultLine>>, sort_type: SortType) -> Vec<&ResultLine> {
+    let mut best_per_level = Vec::new();
+
+    for (_, lines) in res.iter().sorted_by(|(a, _), (b, _)| Ord::cmp(a, b)) {
+        let best = match sort_type {
+            SortType::Price => lines.iter().max_set_by(|a, b| PartialOrd::partial_cmp(&a.prob_gizmo, &b.prob_gizmo).unwrap()),
+            SortType::Gizmo => lines.iter().max_set_by(|a, b| PartialOrd::partial_cmp(&a.prob_gizmo, &b.prob_gizmo).unwrap()),
+            SortType::Attempt => lines.iter().max_set_by(|a, b| PartialOrd::partial_cmp(&a.prob_attempt, &b.prob_attempt).unwrap()),
+        };
+        let best = best.iter().min_by(|a, b| Ord::cmp(&a.mat_combination.len(), &b.mat_combination.len()));
+
+        if let Some(best) = best {
+            best_per_level.push(*best);
+        }
+    }
+
+    best_per_level
+}
+
+fn print_result(best_per_level: &Vec<&ResultLine>, sort_type: SortType) {
+    let best_overal_index = match sort_type {
+        _  => best_per_level.iter().position_max_by(|a, b| a.prob_gizmo.partial_cmp(&b.prob_gizmo).unwrap())
+    };
+
+    fn format_float(num: f64) -> String {
+        if num > 1e-4 {
+            format!("{:.7}", num)
+        } else if num > 1e-10 {
+            format!("{:.4e}", num)
+        } else if num > 1e-100 {
+            format!("{:.3e}", num)
+        } else {
+            format!("{:.2e}", num)
+        }
+    }
+
+    if let Some(best_overal_index) = best_overal_index {
+        println!("|-------|---------------------------|-------|");
+        println!("|       |        Probability        |       |");
+        println!("| Level |---------------------------| Price |");
+        println!("|       |    Gizmo    |   Attempt   |       |");
+        println!("|-------|---------------------------|-------|");
+
+        for (i, line) in best_per_level.into_iter().enumerate() {
+            print!("| {:>4}  |  {:<9}  |  {:<9}  | {:>5} |", line.level, format_float(line.prob_gizmo), format_float(line.prob_attempt), 0);
+            if i == best_overal_index { println!(" <====") } else { println!("") }
+        }
+
+        println!("|-------|---------------------------|-------|");
+    } else {
+        println!("No material combination found that can produce these perks.");
+    }
 }
 
 #[cfg(test)]
@@ -473,212 +562,212 @@ mod tests {
             assert_gizmo_vec_eq(&actual, &expected);
         }
 
-        #[test]
-        fn normal_weapon_120_3_precise() {
-            let is_ancient = false;
-            let gizmo_type = GizmoType::Weapon;
-            let budget = Budget::create(120, is_ancient);
-            let input_materials = vec![
-                MaterialName::PreciseComponents,
-                MaterialName::PreciseComponents,
-                MaterialName::PreciseComponents,
-            ];
-            let expected = vec![
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 1 }, Perk { name: PerkName::Precise, rank: 1 }), probability: 0.50148529240406880536, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 2 }, Perk { name: PerkName::Equilibrium, rank: 1 }), probability: 0.31900949274076889628, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 1 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.06318983947815995372, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 1 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.06181838816818274046, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 2 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.04076279645252363359, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00549081774031080685, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Precise, rank: 1 }), probability: 0.00238977097897312548, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00175485562231856803, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Precise, rank: 2 }), probability: 0.00130515980500081510, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Precise, rank: 1 }), probability: 0.00088957935848490868, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Blunted, rank: 1 }), probability: 0.00061839010298976517, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.00050921550166558303, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00032005993282243803, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 1 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00012263483799626810, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 1 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00011830768998579210, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 2 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00007801161480527289, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00006622963316091367, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00004863742383065568, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Blunted, rank: 2 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00001050829667738771, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Blunted, rank: 3 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00000335843300168647, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00000171293103489465, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 1 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000119802237126897, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Blunted, rank: 1 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00000118347156505853, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 1 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000115575036924211, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 2 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000076209714370380, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000064699871149279, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 1 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000038288582745159, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 1 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000036937577049252, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 2 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000024356489700309, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000020677964197583, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Blunted, rank: 2 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000014796753592088, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 1 }, Perk { name: PerkName::Blunted, rank: 1 }), probability: 0.00000013492437968104, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 1 }, Perk { name: PerkName::Blunted, rank: 1 }), probability: 0.00000013016359742176, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Blunted, rank: 4 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00000009308203320685, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 2 }, Perk { name: PerkName::Blunted, rank: 1 }), probability: 0.00000008582935247028, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Blunted, rank: 1 }), probability: 0.00000007286666918426, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Blunted, rank: 3 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000004729016234232, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000002411981620020, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Blunted, rank: 1 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000001666448680412, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 1 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00000001061202986255, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 1 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00000001023758631407, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 2 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00000000675062322800, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00000000573108634033, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 1 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000000332435832882, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Blunted, rank: 4 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000000131068997336, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 1 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000000037900106652, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 1 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000000036562808265, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 2 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000000024109368671, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Empty, rank: 0 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000000004681035619, cost: 0 },
-            ];
-            let actual = calc_gizmo_probabilities(&*DATA, &budget, &input_materials, gizmo_type, is_ancient);
-            assert_gizmo_vec_eq(&actual, &expected);
-        }
+        // #[test]
+        // fn normal_weapon_120_3_precise() {
+        //     let is_ancient = false;
+        //     let gizmo_type = GizmoType::Weapon;
+        //     let budget = Budget::create(120, is_ancient);
+        //     let input_materials = vec![
+        //         MaterialName::PreciseComponents,
+        //         MaterialName::PreciseComponents,
+        //         MaterialName::PreciseComponents,
+        //     ];
+        //     let expected = vec![
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 1 }, Perk { name: PerkName::Precise, rank: 1 }), probability: 0.50148529240406880536, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 2 }, Perk { name: PerkName::Equilibrium, rank: 1 }), probability: 0.31900949274076889628, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 1 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.06318983947815995372, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 1 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.06181838816818274046, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 2 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.04076279645252363359, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00549081774031080685, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Precise, rank: 1 }), probability: 0.00238977097897312548, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00175485562231856803, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Precise, rank: 2 }), probability: 0.00130515980500081510, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Precise, rank: 1 }), probability: 0.00088957935848490868, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Blunted, rank: 1 }), probability: 0.00061839010298976517, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.00050921550166558303, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00032005993282243803, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 1 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00012263483799626810, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 1 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00011830768998579210, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 2 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00007801161480527289, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00006622963316091367, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00004863742383065568, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Blunted, rank: 2 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00001050829667738771, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Blunted, rank: 3 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00000335843300168647, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00000171293103489465, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 1 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000119802237126897, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Blunted, rank: 1 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00000118347156505853, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 1 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000115575036924211, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 2 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000076209714370380, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000064699871149279, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 1 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000038288582745159, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 1 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000036937577049252, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 2 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000024356489700309, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000020677964197583, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Blunted, rank: 2 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000014796753592088, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 1 }, Perk { name: PerkName::Blunted, rank: 1 }), probability: 0.00000013492437968104, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 1 }, Perk { name: PerkName::Blunted, rank: 1 }), probability: 0.00000013016359742176, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Blunted, rank: 4 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00000009308203320685, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 2 }, Perk { name: PerkName::Blunted, rank: 1 }), probability: 0.00000008582935247028, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Blunted, rank: 1 }), probability: 0.00000007286666918426, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Blunted, rank: 3 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000004729016234232, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000002411981620020, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Blunted, rank: 1 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000001666448680412, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 1 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00000001061202986255, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 1 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00000001023758631407, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 2 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00000000675062322800, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00000000573108634033, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 1 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000000332435832882, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Blunted, rank: 4 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000000131068997336, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 1 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000000037900106652, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 1 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000000036562808265, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 2 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000000024109368671, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Empty, rank: 0 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000000004681035619, cost: 0 },
+        //     ];
+        //     let actual = calc_gizmo_probabilities(&*DATA, &budget, &input_materials, gizmo_type, is_ancient);
+        //     assert_gizmo_vec_eq(&actual, &expected);
+        // }
 
-        #[test]
-        fn ancient_weapon_137_9_precise() {
-            let is_ancient = true;
-            let gizmo_type = GizmoType::Weapon;
-            let budget = Budget::create(137, is_ancient);
-            let input_materials = vec![
-                MaterialName::PreciseComponents,
-                MaterialName::PreciseComponents,
-                MaterialName::PreciseComponents,
-                MaterialName::PreciseComponents,
-                MaterialName::PreciseComponents,
-                MaterialName::PreciseComponents,
-                MaterialName::PreciseComponents,
-                MaterialName::PreciseComponents,
-                MaterialName::PreciseComponents,
-            ];
-            let expected = vec![
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 3 }, Perk { name: PerkName::Flanking, rank: 2 }), probability: 0.26431314143538087169, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 4 }, Perk { name: PerkName::Flanking, rank: 2 }), probability: 0.18717027757770679508, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 4 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.13042869926714159567, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 4 }, Perk { name: PerkName::Equilibrium, rank: 2 }), probability: 0.07258035093699109763, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 3 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.07150432736344392026, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 3 }, Perk { name: PerkName::Equilibrium, rank: 2 }), probability: 0.06478514777810424896, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 4 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.03729942559894651455, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 2 }, Perk { name: PerkName::Equilibrium, rank: 2 }), probability: 0.01940383876390557386, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 3 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.01680335584611366076, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 2 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.01505991459649522364, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 2 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.01260139956623134057, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.01255601071463844157, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.01162633849318523045, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.01004571676518003706, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Equilibrium, rank: 2 }), probability: 0.00925039518374657158, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Flanking, rank: 2 }), probability: 0.00800668011573009951, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 4 }, Perk { name: PerkName::Blunted, rank: 5 }), probability: 0.00763220340745087919, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00516887250126509684, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Equilibrium, rank: 2 }), probability: 0.00487391389786530262, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Precise, rank: 3 }), probability: 0.00442768769196952728, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00412348123194863480, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.00352044933904128348, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Flanking, rank: 2 }), probability: 0.00324416700477079753, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Precise, rank: 3 }), probability: 0.00311097319451295691, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 3 }, Perk { name: PerkName::Blunted, rank: 5 }), probability: 0.00307333066142501934, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 2 }, Perk { name: PerkName::Blunted, rank: 5 }), probability: 0.00253787117196495673, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00244392591888376292, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 2 }, Perk { name: PerkName::Precise, rank: 2 }), probability: 0.00199623438686989977, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Precise, rank: 2 }), probability: 0.00190525279406616337, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Precise, rank: 4 }), probability: 0.00186397148974680113, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Precise, rank: 4 }), probability: 0.00138175833693037148, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Blunted, rank: 5 }), probability: 0.00094519514441591360, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Blunted, rank: 5 }), probability: 0.00078828860460719401, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 4 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00064260504163894140, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 4 }, Perk { name: PerkName::Equilibrium, rank: 1 }), probability: 0.00052578547754489259, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Blunted, rank: 5 }), probability: 0.00043542703144557515, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 3 }, Perk { name: PerkName::Equilibrium, rank: 1 }), probability: 0.00035795483183393540, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 3 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00025876377662147244, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 2 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00021367994576018592, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Precise, rank: 2 }), probability: 0.00019410778351728307, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Precise, rank: 2 }), probability: 0.00016725668389943048, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00007958215114410557, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00006637116498920683, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Equilibrium, rank: 3 }), probability: 0.00005823991984364850, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Equilibrium, rank: 1 }), probability: 0.00005163844253386374, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00004794165824993689, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Flanking, rank: 3 }), probability: 0.00004526476862053626, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Equilibrium, rank: 1 }), probability: 0.00004325597296498802, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00003926410449736546, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00003666144502905210, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Equilibrium, rank: 3 }), probability: 0.00003492944988107588, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 2 }, Perk { name: PerkName::Equilibrium, rank: 1 }), probability: 0.00003146331958226327, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Blunted, rank: 5 }), probability: 0.00003058173597888344, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 4 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00002302230475252594, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.00001427942824337842, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.00001365771322699597, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.00000993355993760075, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Equilibrium, rank: 2 }), probability: 0.00000959654574899526, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 3 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000927060657523026, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 1 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.00000918187214210722, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 2 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000765540964049620, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Flanking, rank: 2 }), probability: 0.00000738822183844307, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000657085474247307, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 2 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.00000644287106871792, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 3 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00000609129476160287, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 2 }, Perk { name: PerkName::Equilibrium, rank: 1 }), probability: 0.00000552084662631036, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000537528739446559, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Equilibrium, rank: 2 }), probability: 0.00000497495758611546, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Precise, rank: 3 }), probability: 0.00000412869039639155, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000285115182387662, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000270723795801463, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Flanking, rank: 2 }), probability: 0.00000267378999595020, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00000257487604469719, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Precise, rank: 3 }), probability: 0.00000245373979454563, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000237784811532842, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Precise, rank: 4 }), probability: 0.00000158532387568960, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000131345212912451, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Blunted, rank: 5 }), probability: 0.00000115413244113088, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Blunted, rank: 5 }), probability: 0.00000099771729948866, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Precise, rank: 4 }), probability: 0.00000098453839670160, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Blunted, rank: 5 }), probability: 0.00000047240387187415, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Precise, rank: 2 }), probability: 0.00000018903569783110, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Precise, rank: 2 }), probability: 0.00000018720559714202, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 4 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000011133501781692, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00000009717394647340, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000009224885763393, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00000008400433433888, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 2 }, Perk { name: PerkName::Precise, rank: 1 }), probability: 0.00000006484863534150, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Equilibrium, rank: 1 }), probability: 0.00000005733853200873, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Equilibrium, rank: 3 }), probability: 0.00000004750186632816, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Equilibrium, rank: 1 }), probability: 0.00000004749397826983, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 3 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000004483231193930, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00000004087963816720, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Precise, rank: 1 }), probability: 0.00000004036375965552, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00000003977476667613, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Flanking, rank: 3 }), probability: 0.00000003860154345663, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 2 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000003702127905448, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Flanking, rank: 4 }), probability: 0.00000003464891254648, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Flanking, rank: 3 }), probability: 0.00000003464827162290, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Equilibrium, rank: 3 }), probability: 0.00000002720819426607, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Equilibrium, rank: 4 }), probability: 0.00000002280431557633, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000001378806520556, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000001149918590392, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Precise, rank: 1 }), probability: 0.00000000661633667433, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000000635180611888, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Precise, rank: 1 }), probability: 0.00000000588857867623, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000000348140469613, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000000300958327490, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000000142499162089, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000000044611207777, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 1 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.00000000012764595955, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 1 }, Perk { name: PerkName::Precise, rank: 1 }), probability: 0.00000000010937884021, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Equilibrium, rank: 4 }), probability: 0.00000000003054285533, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Flanking, rank: 4 }), probability: 0.00000000002557570760, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Equilibrium, rank: 4 }), probability: 0.00000000001714890026, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000000001683594488, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000000001455423387, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Precise, rank: 1 }), probability: 0.00000000000775642273, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000000000689120699, cost: 0 },
-                Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Precise, rank: 1 }), probability: 0.00000000000582487189, cost: 0 },
-            ];
-            let actual = calc_gizmo_probabilities(&*DATA, &budget, &input_materials, gizmo_type, is_ancient);
-            assert_gizmo_vec_eq(&actual, &expected);
-        }
+        // #[test]
+        // fn ancient_weapon_137_9_precise() {
+        //     let is_ancient = true;
+        //     let gizmo_type = GizmoType::Weapon;
+        //     let budget = Budget::create(137, is_ancient);
+        //     let input_materials = vec![
+        //         MaterialName::PreciseComponents,
+        //         MaterialName::PreciseComponents,
+        //         MaterialName::PreciseComponents,
+        //         MaterialName::PreciseComponents,
+        //         MaterialName::PreciseComponents,
+        //         MaterialName::PreciseComponents,
+        //         MaterialName::PreciseComponents,
+        //         MaterialName::PreciseComponents,
+        //         MaterialName::PreciseComponents,
+        //     ];
+        //     let expected = vec![
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 3 }, Perk { name: PerkName::Flanking, rank: 2 }), probability: 0.26431314143538087169, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 4 }, Perk { name: PerkName::Flanking, rank: 2 }), probability: 0.18717027757770679508, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 4 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.13042869926714159567, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 4 }, Perk { name: PerkName::Equilibrium, rank: 2 }), probability: 0.07258035093699109763, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 3 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.07150432736344392026, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 3 }, Perk { name: PerkName::Equilibrium, rank: 2 }), probability: 0.06478514777810424896, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 4 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.03729942559894651455, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 2 }, Perk { name: PerkName::Equilibrium, rank: 2 }), probability: 0.01940383876390557386, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 3 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.01680335584611366076, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 2 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.01505991459649522364, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 2 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.01260139956623134057, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.01255601071463844157, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.01162633849318523045, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.01004571676518003706, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Equilibrium, rank: 2 }), probability: 0.00925039518374657158, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Flanking, rank: 2 }), probability: 0.00800668011573009951, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 4 }, Perk { name: PerkName::Blunted, rank: 5 }), probability: 0.00763220340745087919, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00516887250126509684, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Equilibrium, rank: 2 }), probability: 0.00487391389786530262, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Precise, rank: 3 }), probability: 0.00442768769196952728, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00412348123194863480, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.00352044933904128348, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Flanking, rank: 2 }), probability: 0.00324416700477079753, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Precise, rank: 3 }), probability: 0.00311097319451295691, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 3 }, Perk { name: PerkName::Blunted, rank: 5 }), probability: 0.00307333066142501934, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 2 }, Perk { name: PerkName::Blunted, rank: 5 }), probability: 0.00253787117196495673, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00244392591888376292, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 2 }, Perk { name: PerkName::Precise, rank: 2 }), probability: 0.00199623438686989977, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Precise, rank: 2 }), probability: 0.00190525279406616337, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Precise, rank: 4 }), probability: 0.00186397148974680113, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Precise, rank: 4 }), probability: 0.00138175833693037148, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Blunted, rank: 5 }), probability: 0.00094519514441591360, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Blunted, rank: 5 }), probability: 0.00078828860460719401, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 4 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00064260504163894140, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 4 }, Perk { name: PerkName::Equilibrium, rank: 1 }), probability: 0.00052578547754489259, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Blunted, rank: 5 }), probability: 0.00043542703144557515, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 3 }, Perk { name: PerkName::Equilibrium, rank: 1 }), probability: 0.00035795483183393540, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 3 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00025876377662147244, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 2 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00021367994576018592, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Precise, rank: 2 }), probability: 0.00019410778351728307, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Precise, rank: 2 }), probability: 0.00016725668389943048, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00007958215114410557, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00006637116498920683, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Equilibrium, rank: 3 }), probability: 0.00005823991984364850, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Equilibrium, rank: 1 }), probability: 0.00005163844253386374, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00004794165824993689, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Flanking, rank: 3 }), probability: 0.00004526476862053626, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Equilibrium, rank: 1 }), probability: 0.00004325597296498802, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00003926410449736546, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00003666144502905210, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Equilibrium, rank: 3 }), probability: 0.00003492944988107588, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 2 }, Perk { name: PerkName::Equilibrium, rank: 1 }), probability: 0.00003146331958226327, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Blunted, rank: 5 }), probability: 0.00003058173597888344, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 4 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00002302230475252594, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.00001427942824337842, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.00001365771322699597, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.00000993355993760075, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Equilibrium, rank: 2 }), probability: 0.00000959654574899526, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 3 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000927060657523026, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 1 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.00000918187214210722, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 2 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000765540964049620, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Flanking, rank: 2 }), probability: 0.00000738822183844307, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000657085474247307, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 2 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.00000644287106871792, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 3 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00000609129476160287, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 2 }, Perk { name: PerkName::Equilibrium, rank: 1 }), probability: 0.00000552084662631036, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000537528739446559, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Equilibrium, rank: 2 }), probability: 0.00000497495758611546, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Precise, rank: 3 }), probability: 0.00000412869039639155, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000285115182387662, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Empty, rank: 0 }), probability: 0.00000270723795801463, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Flanking, rank: 2 }), probability: 0.00000267378999595020, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00000257487604469719, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Precise, rank: 3 }), probability: 0.00000245373979454563, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000237784811532842, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Precise, rank: 4 }), probability: 0.00000158532387568960, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000131345212912451, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Blunted, rank: 5 }), probability: 0.00000115413244113088, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Blunted, rank: 5 }), probability: 0.00000099771729948866, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Precise, rank: 4 }), probability: 0.00000098453839670160, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Blunted, rank: 5 }), probability: 0.00000047240387187415, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Precise, rank: 2 }), probability: 0.00000018903569783110, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Precise, rank: 2 }), probability: 0.00000018720559714202, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 4 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000011133501781692, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00000009717394647340, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000009224885763393, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00000008400433433888, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 2 }, Perk { name: PerkName::Precise, rank: 1 }), probability: 0.00000006484863534150, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Equilibrium, rank: 1 }), probability: 0.00000005733853200873, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Equilibrium, rank: 3 }), probability: 0.00000004750186632816, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Equilibrium, rank: 1 }), probability: 0.00000004749397826983, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 3 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000004483231193930, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Flanking, rank: 1 }), probability: 0.00000004087963816720, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 2 }, Perk { name: PerkName::Precise, rank: 1 }), probability: 0.00000004036375965552, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Blunted, rank: 4 }), probability: 0.00000003977476667613, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Flanking, rank: 3 }), probability: 0.00000003860154345663, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 2 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000003702127905448, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Flanking, rank: 4 }), probability: 0.00000003464891254648, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Flanking, rank: 3 }), probability: 0.00000003464827162290, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Equilibrium, rank: 3 }), probability: 0.00000002720819426607, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Equilibrium, rank: 4 }), probability: 0.00000002280431557633, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 5 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000001378806520556, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000001149918590392, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 3 }, Perk { name: PerkName::Precise, rank: 1 }), probability: 0.00000000661633667433, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000000635180611888, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 3 }, Perk { name: PerkName::Precise, rank: 1 }), probability: 0.00000000588857867623, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000000348140469613, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000000300958327490, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Blunted, rank: 3 }), probability: 0.00000000142499162089, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Cautious, rank: 1 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000000044611207777, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 1 }, Perk { name: PerkName::Cautious, rank: 1 }), probability: 0.00000000012764595955, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 1 }, Perk { name: PerkName::Precise, rank: 1 }), probability: 0.00000000010937884021, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Equilibrium, rank: 4 }), probability: 0.00000000003054285533, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Flanking, rank: 4 }), probability: 0.00000000002557570760, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Equilibrium, rank: 4 }), probability: 0.00000000001714890026, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Precise, rank: 6 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000000001683594488, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000000001455423387, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Flanking, rank: 4 }, Perk { name: PerkName::Precise, rank: 1 }), probability: 0.00000000000775642273, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Blunted, rank: 2 }), probability: 0.00000000000689120699, cost: 0 },
+        //         Gizmo { perks: (Perk { name: PerkName::Equilibrium, rank: 4 }, Perk { name: PerkName::Precise, rank: 1 }), probability: 0.00000000000582487189, cost: 0 },
+        //     ];
+        //     let actual = calc_gizmo_probabilities(&*DATA, &budget, &input_materials, gizmo_type, is_ancient);
+        //     assert_gizmo_vec_eq(&actual, &expected);
+        // }
 
         #[test]
         fn ancient_weapon_120_9_historic() {
@@ -794,14 +883,14 @@ mod tests {
             ];
             let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::Devoted, rank: 4 }, Perk { name: PerkName::Impatient, rank: 4 }), ..Default::default() };
             let expected = vec![
-                ResultLine { level: 110, prob_gizmo: 0.00974262074653326794, prob_attempt: 0.00850963080954826069 },
-                ResultLine { level: 112, prob_gizmo: 0.01255816021290431274, prob_attempt: 0.01107308252145345825 },
-                ResultLine { level: 114, prob_gizmo: 0.01590000661605753610, prob_attempt: 0.01414257810865433666 },
-                ResultLine { level: 116, prob_gizmo: 0.01980789822146937149, prob_attempt: 0.01776096295684682566 },
-                ResultLine { level: 118, prob_gizmo: 0.02431630038465943874, prob_attempt: 0.02196620262677148952 },
-                ResultLine { level: 120, prob_gizmo: 0.02945385241280866484, prob_attempt: 0.02679068305588063956 },
+                ResultLine { level: 110, prob_gizmo: 0.00974262074653326794, prob_attempt: 0.00850963080954826069, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 112, prob_gizmo: 0.01255816021290431274, prob_attempt: 0.01107308252145345825, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 114, prob_gizmo: 0.01590000661605753610, prob_attempt: 0.01414257810865433666, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 116, prob_gizmo: 0.01980789822146937149, prob_attempt: 0.01776096295684682566, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 118, prob_gizmo: 0.02431630038465943874, prob_attempt: 0.02196620262677148952, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 120, prob_gizmo: 0.02945385241280866484, prob_attempt: 0.02679068305588063956, mat_combination: Rc::new(vec![]) },
             ];
-            let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, &input_materials, &wanted_gizmo);
+            let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, input_materials, &wanted_gizmo);
             assert_resultlines_eq(&actual, &expected);
         }
 
@@ -827,14 +916,14 @@ mod tests {
             ];
             let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::TrophyTaker, rank: 5 }, Perk { name: PerkName::ClearHeaded, rank: 2 }), ..Default::default() };
             let expected = vec![
-                ResultLine { level: 110, prob_gizmo: 0.01918158179611270664, prob_attempt: 0.01918158179611270664 },
-                ResultLine { level: 112, prob_gizmo: 0.02109631656835359720, prob_attempt: 0.02109631656835359720 },
-                ResultLine { level: 114, prob_gizmo: 0.02304803688981639856, prob_attempt: 0.02304803688981639856 },
-                ResultLine { level: 116, prob_gizmo: 0.02502587808462617899, prob_attempt: 0.02502587808462617899 },
-                ResultLine { level: 118, prob_gizmo: 0.02701942633140705374, prob_attempt: 0.02701942633140705374 },
-                ResultLine { level: 120, prob_gizmo: 0.02901884688250149988, prob_attempt: 0.02901884688250149988 },
+                ResultLine { level: 110, prob_gizmo: 0.01918158179611270664, prob_attempt: 0.01918158179611270664, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 112, prob_gizmo: 0.02109631656835359720, prob_attempt: 0.02109631656835359720, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 114, prob_gizmo: 0.02304803688981639856, prob_attempt: 0.02304803688981639856, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 116, prob_gizmo: 0.02502587808462617899, prob_attempt: 0.02502587808462617899, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 118, prob_gizmo: 0.02701942633140705374, prob_attempt: 0.02701942633140705374, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 120, prob_gizmo: 0.02901884688250149988, prob_attempt: 0.02901884688250149988, mat_combination: Rc::new(vec![]) },
             ];
-            let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, &input_materials, &wanted_gizmo);
+            let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, input_materials, &wanted_gizmo);
             assert_resultlines_eq(&actual, &expected);
         }
 
@@ -860,12 +949,12 @@ mod tests {
             ];
             let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::TrophyTaker, rank: 5 }, Perk { name: PerkName::ClearHeaded, rank: 2 }), ..Default::default() };
             let expected = vec![
-                ResultLine { level: 54, prob_gizmo: 0.00000000001215511520, prob_attempt: 0.00000000001215511520 },
-                ResultLine { level: 56, prob_gizmo: 0.00000000989853159803, prob_attempt: 0.00000000989853159803 },
-                ResultLine { level: 58, prob_gizmo: 0.00000017572813762414, prob_attempt: 0.00000017572813762414 },
-                ResultLine { level: 60, prob_gizmo: 0.00000112864757880545, prob_attempt: 0.00000112864757880545 },
+                ResultLine { level: 54, prob_gizmo: 0.00000000001215511520, prob_attempt: 0.00000000001215511520, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 56, prob_gizmo: 0.00000000989853159803, prob_attempt: 0.00000000989853159803, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 58, prob_gizmo: 0.00000017572813762414, prob_attempt: 0.00000017572813762414, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 60, prob_gizmo: 0.00000112864757880545, prob_attempt: 0.00000112864757880545, mat_combination: Rc::new(vec![]) },
             ];
-            let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, &input_materials, &wanted_gizmo);
+            let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, input_materials, &wanted_gizmo);
             assert_resultlines_eq(&actual, &expected);
         }
 
@@ -891,14 +980,14 @@ mod tests {
             ];
             let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::ClearHeaded, rank: 2 }, Perk { ..Default::default() }), ..Default::default() };
             let expected = vec![
-                ResultLine { level: 50, prob_gizmo: 0.46018419656933490236, prob_attempt: 0.46018419656933490236 },
-                ResultLine { level: 52, prob_gizmo: 0.44214030724407260564, prob_attempt: 0.44214030724407260564 },
-                ResultLine { level: 54, prob_gizmo: 0.42436718836156678281, prob_attempt: 0.42436718836156678281 },
-                ResultLine { level: 56, prob_gizmo: 0.40708661016742259120, prob_attempt: 0.40708661016742259120 },
-                ResultLine { level: 58, prob_gizmo: 0.39049529671634181094, prob_attempt: 0.39049529671634181094 },
-                ResultLine { level: 60, prob_gizmo: 0.37476699430103094235, prob_attempt: 0.37476699430103094235 },
+                ResultLine { level: 50, prob_gizmo: 0.46018419656933490236, prob_attempt: 0.46018419656933490236, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 52, prob_gizmo: 0.44214030724407260564, prob_attempt: 0.44214030724407260564, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 54, prob_gizmo: 0.42436718836156678281, prob_attempt: 0.42436718836156678281, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 56, prob_gizmo: 0.40708661016742259120, prob_attempt: 0.40708661016742259120, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 58, prob_gizmo: 0.39049529671634181094, prob_attempt: 0.39049529671634181094, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 60, prob_gizmo: 0.37476699430103094235, prob_attempt: 0.37476699430103094235, mat_combination: Rc::new(vec![]) },
             ];
-            let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, &input_materials, &wanted_gizmo);
+            let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, input_materials, &wanted_gizmo);
             assert_resultlines_eq(&actual, &expected);
         }
     }

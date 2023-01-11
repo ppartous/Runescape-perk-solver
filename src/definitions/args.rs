@@ -48,7 +48,7 @@ pub enum Commands {
         exclude: Vec<String>,
 
         /// Sort the result on probability per consumed gizmo, probability per attempt, or on estimated price.
-        #[arg(value_enum, short, long, default_value_t = SortType::Gizmo)]
+        #[arg(value_enum, short, long, default_value_t = SortType::Price)]
         sort_type: SortType,
     },
     MaterialInput {

@@ -1,5 +1,5 @@
 mod utils;
-use perk_solver::{definitions::*, load_data, calc_gizmo_probabilities};
+use perk_solver::{definitions::*, load_data, calc_gizmo_probabilities, perk_solver};
 use std::str::FromStr;
 use clap::Parser;
 
@@ -23,11 +23,7 @@ fn main() {
             };
             let wanted_gizmo = process_wanted_gizmo(&args);
             validate_input(&args, &wanted_gizmo, &data);
-
-            println!("{:#?}", args);
-            println!("{:#?}", wanted_gizmo);
-
-            perk_solver::perk_solver(&args, &data, &wanted_gizmo);
+            perk_solver(&args, &data, &wanted_gizmo);
         },
         Commands::MaterialInput { mats } => {
             let mut materials = vec![];
