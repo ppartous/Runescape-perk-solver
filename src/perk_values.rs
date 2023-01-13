@@ -235,7 +235,6 @@ pub fn permutate_perk_ranks(perk_list: &Vec<PerkValues>, wanted_gizmo: Option<&G
 /// Then move on to do the same with the next rank in the array.
 pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &Vec<PerkValues>) -> f64 {
     let mut p_empty = 1.0; // Total empty gizmo chance
-    // let mut p_empty_per_perk = HashMap::with_capacity(perk_values_arr.len());
     let mut p_empty_per_perk = vec![0.0; PerkName::NAME_COUNT];
     let mut ranks = Vec::new(); // vec of non zero ranks with a cost higher than the invention level
 
@@ -257,8 +256,6 @@ pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &Vec<PerkValues>
             ranks.push(rank);
         }
 
-
-        // p_empty_per_perk.insert(pv.name, psum);
         p_empty_per_perk[pv.name as usize] = psum;
         p_empty_combo *= psum;
     }
@@ -281,7 +278,6 @@ pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &Vec<PerkValues>
         p_empty_combo *= (p_empty_per_perk[rank.values.name as usize] - rank.probability) / p_empty_per_perk[rank.values.name as usize];
         // Remove this rank from the combined empty combo chance of a certain perk
         p_empty_per_perk[rank.values.name as usize] -= rank.probability;
-        // *p_empty_per_perk.get_mut(&rank.values.name).unwrap() -= rank.probability;
 
         if p_empty_combo == 0.0 {
             break;

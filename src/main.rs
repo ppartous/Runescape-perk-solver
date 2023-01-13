@@ -8,22 +8,20 @@ fn main() {
     let data = load_data();
 
     match cli.command {
-        Commands::Gizmo { perk, rank, perk_two, rank_two, fuzzy, exclude, sort_type } => {
-            let args = Args {
-                perk,
-                rank,
-                perk_two,
-                rank_two,
-                fuzzy,
-                exclude,
-                sort_type,
-                invention_level: cli.invention_level,
-                ancient: cli.ancient,
-                gizmo_type: cli.gizmo_type
+        Commands::Gizmo {..} => {
+            let args = Args::create(&cli);
+            let wanted_gizmo = Gizmo {
+                perks: (
+                    Perk { name: args.perk, rank: args.rank },
+                    Perk { name: args.perk_two, rank: args.rank_two }
+                ),
+                ..Default::default()
             };
-            let wanted_gizmo = process_wanted_gizmo(&args);
+
             validate_input(&args, &wanted_gizmo, &data);
+            // optick::start_capture();
             perk_solver(&args, &data, &wanted_gizmo);
+            // optick::stop_capture("optick_capture");
         },
         Commands::MaterialInput { mats } => {
             let mut materials = vec![];
@@ -44,35 +42,6 @@ fn main() {
                     format!("{} {},", gizmo.perks.1.name, gizmo.perks.1.rank), zeros + 4, gizmo.probability);
             }
         }
-    }
-
-}
-
-fn process_wanted_gizmo(args: &Args) -> Gizmo {
-    let perk_one = PerkName::from_str(&args.perk).unwrap_or_else(|_| {
-        utils::print_error(format!("Perk '{}' does not exist.", &args.perk).as_str())
-    });
-
-    let perk_two = if let Some(perk) = &args.perk_two {
-        PerkName::from_str(&perk).unwrap_or_else(|_| {
-            utils::print_error(format!("Perk '{}' does not exist.", &perk).as_str())
-        })
-    } else {
-        PerkName::Empty
-    };
-
-    Gizmo {
-        perks: (
-            Perk {
-                name: perk_one,
-                rank: args.rank,
-            },
-            Perk {
-                name: perk_two,
-                rank: if let Some(_) = &args.perk_two { args.rank_two } else { 0 },
-            }
-        ),
-        ..Default::default()
     }
 }
 
@@ -96,17 +65,17 @@ fn validate_input(args: &Args, wanted_gizmo: &Gizmo, data: &Data) {
             data.perks[&wanted_gizmo.perks.1.name].ranks.len() - 1).as_str())
     }
 
-    match &args.invention_level.len() {
-        1 => {
-            match &args.invention_level[0] {
+    match args.invention_level {
+        InventionLevel::Single(x) => {
+            match x {
                 1..=137 => (),
                 _ => utils::print_error("Invention level must be between 1 and 137.")
             }
         },
-        _ => {
-            match &args.invention_level[0..=1] {
-                [x, y] if x > y => utils::print_error("First value of the invention level range must be lower or equal to the second value."),
-                [1..=137, 1..=137] => (),
+        InventionLevel::Range(x, y) => {
+            match (x, y) {
+                (x, y) if x > y => utils::print_error("First value of the invention level range must be lower or equal to the second value."),
+                (1..=137, 1..=137) => (),
                 _ => utils::print_error("Invention level must be between 1 and 137.")
             }
         }

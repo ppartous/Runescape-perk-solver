@@ -25,7 +25,8 @@ smallvec = "1.10.0"
 test-case = "2.2.2"
 
 [features]
-profile-with-optick = ["profiling/profile-with-optick"]
+# default = ["profile-with-optick"]
+# profile-with-optick = ["profiling/profile-with-optick"]
 
 [profile.release]
-debug = 1
+# debug = 1

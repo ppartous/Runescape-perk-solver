@@ -108,6 +108,7 @@ mod dice;
 mod perk_values;
 mod gizmo_cost_thresholds;
 mod jagex_sort;
+use colored::*;
 use definitions::*;
 use gizmo_cost_thresholds::*;
 use perk_values::*;
@@ -133,10 +134,8 @@ pub fn perk_solver(args: &Args, data: &Data, wanted_gizmo: &Gizmo) {
     budgets.iter().for_each(|x| { res.insert(x.level, Vec::new()); });
     bar.set_style(ProgressStyle::with_template("[{elapsed_precise}] {bar:60} {human_pos}/{human_len} ({percent}%)").unwrap());
 
-    // println!("{:#?}", args);
-    // println!("{:#?}", wanted_gizmo);
-    // println!("{:#?}", materials);
-    // println!("# combinations: {}", utils::format_int(total_combination_count as i64));
+    println!("{}\n", args);
+    println!("{}\n", materials);
 
     for n_mats_used in 1 ..= slot_count {
         // Order does no matter when none of the materials used have a cost conflict with the wanted perks
@@ -145,8 +144,7 @@ pub fn perk_solver(args: &Args, data: &Data, wanted_gizmo: &Gizmo) {
             for x in lines {
                 res.get_mut(&x.level).unwrap().push(x);
             }
-            // bar.inc(1);
-            profiling::finish_frame!();
+            bar.inc(1);
         }
 
         for n_conflict_mats in 1 ..= usize::min(n_mats_used, materials.conflict.len()) {
@@ -160,8 +158,7 @@ pub fn perk_solver(args: &Args, data: &Data, wanted_gizmo: &Gizmo) {
                                 for x in lines {
                                     res.get_mut(&x.level).unwrap().push(x);
                                 }
-                                // bar.inc(1);
-                                profiling::finish_frame!();
+                                bar.inc(1);
                             }
                         }
                     }
@@ -170,7 +167,9 @@ pub fn perk_solver(args: &Args, data: &Data, wanted_gizmo: &Gizmo) {
         }
     }
 
-    // bar.finish();
+    bar.finish();
+    println!("\n");
+
     let best_per_level = find_best_per_level(&res, args.sort_type);
     print_result(&best_per_level, args.sort_type);
 }
@@ -313,9 +312,9 @@ fn get_materials(args: &Args, data: &Data, wanted_gizmo: &Gizmo) -> Vec<Material
         }
     }
 
-    let possible_materials: Vec<_>= possible_materials.iter().unique().sorted().filter(|x| {
-        !args.exclude.iter().any(|y| { x.to_string().to_lowercase().contains(&y.to_lowercase()) })
-    }).copied().collect();
+    let possible_materials = possible_materials.iter().unique().sorted().filter(|x| {
+        !args.exclude.iter().contains(x)
+    }).copied().collect_vec();
 
     if possible_materials.len() == 0 {
         utils::print_error("No materials found that can produce this perk.")
@@ -363,11 +362,10 @@ fn split_materials(args: &Args, data: &Data, wanted_gizmo: &Gizmo, mats: Vec<Mat
 }
 
 /// Each budget is a cumulative probability distribution for the invention level related random rolls.
-fn generate_budgets(invention_level: &Vec<u32>, ancient: bool) -> Vec<Budget> {
-    let (low, high) = if invention_level.len() == 1 {
-        (invention_level[0], invention_level[0])
-    } else {
-        (invention_level[0], invention_level[1])
+fn generate_budgets(invention_level: &InventionLevel, ancient: bool) -> Vec<Budget> {
+    let (low, high) = match invention_level {
+        InventionLevel::Single(x) => (*x, *x),
+        InventionLevel::Range(x, y) =>  (*x, *y)
     };
     let mut budgets = Vec::new();
 
@@ -438,7 +436,7 @@ fn find_best_per_level(res: &HashMap<u16, Vec<ResultLine>>, sort_type: SortType)
 }
 
 fn print_result(best_per_level: &Vec<&ResultLine>, sort_type: SortType) {
-    let best_overal_index = match sort_type {
+    let best_wanted_index = match sort_type {
         _  => best_per_level.iter().position_max_by(|a, b| a.prob_gizmo.partial_cmp(&b.prob_gizmo).unwrap())
     };
 
@@ -454,16 +452,37 @@ fn print_result(best_per_level: &Vec<&ResultLine>, sort_type: SortType) {
         }
     }
 
-    if let Some(best_overal_index) = best_overal_index {
+    fn get_color(ratio: f64) -> (u8, u8, u8) {
+        if ratio > 0.98 {
+            (44, 186, 0)
+        } else if ratio > 0.95 {
+            (149, 229, 0)
+        } else if ratio > 0.90 {
+            (255, 244, 0)
+        } else if ratio > 0.50 {
+            (255, 167, 0)
+        } else {
+            (219, 108, 108)
+        }
+    }
+
+    if let Some(best_wanted_index) = best_wanted_index {
         println!("|-------|---------------------------|-------|");
         println!("|       |        Probability        |       |");
         println!("| Level |---------------------------| Price |");
         println!("|       |    Gizmo    |   Attempt   |       |");
         println!("|-------|---------------------------|-------|");
 
+        let best_gizmo = best_per_level.iter().max_by(|a, b| a.prob_gizmo.partial_cmp(&b.prob_gizmo).unwrap()).unwrap();
+        let best_attempt = best_per_level.iter().max_by(|a, b| a.prob_attempt.partial_cmp(&b.prob_attempt).unwrap()).unwrap();
+
         for (i, line) in best_per_level.into_iter().enumerate() {
-            print!("| {:>4}  |  {:<9}  |  {:<9}  | {:>5} |", line.level, format_float(line.prob_gizmo), format_float(line.prob_attempt), 0);
-            if i == best_overal_index { println!(" <====") } else { println!("") }
+            let (r1, g1, b1) = get_color(line.prob_gizmo / best_gizmo.prob_gizmo);
+            let (r2, g2, b2) = get_color(line.prob_attempt / best_attempt.prob_attempt);
+
+            print!("| {:>4}  |  {:<9}  |  {:<9}  | {:>5} |", line.level, format_float(line.prob_gizmo).truecolor(r1, g1, b1), format_float(line.prob_attempt).truecolor(r2, g2, b2), 0);
+
+            if i == best_wanted_index { println!(" <====") } else { println!("") }
         }
 
         println!("|-------|---------------------------|-------|");
@@ -869,7 +888,7 @@ mod tests {
                 fuzzy: false,
                 ..Default::default()
             };
-            let budgets = generate_budgets(&vec![110, 120], args.ancient);
+            let budgets = generate_budgets(&InventionLevel::Range(110, 120), args.ancient);
             let input_materials = vec![
                 MaterialName::ZamorakComponents,
                 MaterialName::ZamorakComponents,
@@ -902,7 +921,7 @@ mod tests {
                 fuzzy: false,
                 ..Default::default()
             };
-            let budgets = generate_budgets(&vec![110, 120], args.ancient);
+            let budgets = generate_budgets(&InventionLevel::Range(110, 120), args.ancient);
             let input_materials = vec![
                 MaterialName::HarnessedComponents,
                 MaterialName::DextrousComponents,
@@ -935,7 +954,7 @@ mod tests {
                 fuzzy: false,
                 ..Default::default()
             };
-            let budgets = generate_budgets(&vec![50, 60], args.ancient);
+            let budgets = generate_budgets(&InventionLevel::Range(50, 60), args.ancient);
             let input_materials = vec![
                 MaterialName::HarnessedComponents,
                 MaterialName::DextrousComponents,
@@ -966,7 +985,7 @@ mod tests {
                 fuzzy: true,
                 ..Default::default()
             };
-            let budgets = generate_budgets(&vec![50, 60], args.ancient);
+            let budgets = generate_budgets(&InventionLevel::Range(50, 60), args.ancient);
             let input_materials = vec![
                 MaterialName::HarnessedComponents,
                 MaterialName::DextrousComponents,

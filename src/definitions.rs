@@ -1,5 +1,6 @@
 pub mod args;
 pub use args::*;
+use colored::Colorize;
 
 pub mod perk_name;
 pub use perk_name::*;
@@ -87,6 +88,29 @@ impl PerkValues {
 pub struct SplitMaterials {
     pub conflict: Vec<MaterialName>,
     pub no_conflict: Vec<MaterialName>
+}
+
+impl std::fmt::Display for SplitMaterials {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "{}", "Materials".bright_green().underline())?;
+        write!(f, " - Conflict: ")?;
+        for (i, mat) in self.conflict.iter().enumerate() {
+            if i == 0 {
+                write!(f, "{}", mat.to_string().cyan())?;
+            } else {
+                write!(f, "\n             {}", mat.to_string().cyan())?;
+            }
+        }
+        write!(f, "\n - No conflict: ")?;
+        for (i, mat) in self.no_conflict.iter().enumerate() {
+            if i == 0 {
+                write!(f, "{}", mat.to_string().cyan())?;
+            } else {
+                write!(f, "\n                {}", mat.to_string().cyan())?;
+            }
+        }
+        Ok(())
+    }
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

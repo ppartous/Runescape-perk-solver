@@ -1,5 +1,6 @@
-use crate::{Perk, PerkRankValues};
+use crate::{Perk, PerkRankValues, PerkName};
 
+#[derive(Clone, Copy)]
 pub struct Gizmo {
     pub perks: (Perk, Perk),
     pub cost: i16,
@@ -75,6 +76,18 @@ impl std::fmt::Debug for Gizmo {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "Gizmo {{ perks: ({{ name: {}, rank: {} }}, {{ name: {}, rank: {} }}), cost: {}, probability: {} }}",
             self.perks.0.name, self.perks.0.rank, self.perks.1.name, self.perks.1.rank, self.cost, self.probability)
+    }
+}
+
+impl std::fmt::Display for Gizmo {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.perks.1.name == PerkName::Empty {
+            write!(f, "Gizmo {{ {{ name: {}, rank: {} }}, {{ Empty }} }}",
+                self.perks.0.name, self.perks.0.rank)
+        } else {
+            write!(f, "Gizmo {{ {{ name: {}, rank: {} }}, {{ name: {}, rank: {} }} }}",
+                self.perks.0.name, self.perks.0.rank, self.perks.1.name, self.perks.1.rank)
+        }
     }
 }
 

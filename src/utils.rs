@@ -9,6 +9,10 @@ pub fn print_error(err: &str) -> ! {
     process::exit(0)
 }
 
+pub fn print_warning(err: &str) {
+    eprintln!("{}{} {err}", "warning".yellow().bold(), ":".bold());
+}
+
 pub fn format_int(mut num: i64) -> String {
     let mut s = String::new();
     let is_negative = num.is_negative();
