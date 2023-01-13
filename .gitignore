@@ -2,3 +2,4 @@
 temp.lua
 test.cmd
 *.opt
+*.code-workspace
