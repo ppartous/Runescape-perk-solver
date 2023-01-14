@@ -19,9 +19,7 @@ fn main() {
             };
 
             validate_input(&args, &wanted_gizmo, &data);
-            // optick::start_capture();
             perk_solver(&args, &data, &wanted_gizmo);
-            // optick::stop_capture("optick_capture");
         },
         Commands::MaterialInput { mats } => {
             let mut materials = vec![];

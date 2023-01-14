@@ -2,8 +2,10 @@
 name = "perk_solver"
 version = "0.1.0"
 edition = "2021"
-authors = ["Pieter Partous"]
+authors = ["Pieter Partous <pieter.partous@outlook.com>"]
 description = "Finds optimal material combination for a given gizmo"
+repository = "https://github.com/CephHunter/Runescape-perk-solver"
+license = "GPL-3.0-or-later"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -18,6 +20,8 @@ lazy_static = "1.4.0"
 len-trait = "0.6.1"
 optick = "1.3.4"
 profiling = { version = "1.0.7", features = ["profile-with-optick"] }
+regex = "1.7.1"
+reqwest = { version = "0.11.13", features = ["blocking"] }
 serde = { version = "1.0.147", features = ["derive"] }
 serde_json = "1.0.87"
 serde_with = "2.0.1"

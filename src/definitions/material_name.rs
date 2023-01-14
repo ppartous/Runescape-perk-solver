@@ -1,5 +1,7 @@
 use serde_with::DeserializeFromStr;
 use std::{fmt, str::FromStr};
+use itertools::Itertools;
+use colored::*;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, DeserializeFromStr, Hash)]
 pub enum MaterialName {
@@ -358,5 +360,21 @@ impl MaterialName {
             MaterialName::ZarosComponents,
         ];
         x.into_iter()
+    }
+
+    pub fn vec_to_string(v: &Vec<MaterialName>) -> String {
+        let counts = v.iter().counts();
+        v.iter().unique().map(|x| {
+            let count = *counts.get(x).unwrap();
+            format!("{} × {}", count, x.to_string())
+        }).join(", ")
+    }
+
+    pub fn vec_to_string_colored(v: &Vec<MaterialName>) -> String {
+        let counts = v.iter().counts();
+        v.iter().unique().map(|x| {
+            let count = *counts.get(x).unwrap();
+            format!("{} × {}", count, x.to_string().cyan())
+        }).join(", ")
     }
 }

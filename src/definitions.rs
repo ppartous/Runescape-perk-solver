@@ -1,6 +1,5 @@
 pub mod args;
 pub use args::*;
-use colored::Colorize;
 
 pub mod perk_name;
 pub use perk_name::*;
@@ -22,6 +21,7 @@ pub use budget::*;
 
 use smallvec::{SmallVec, smallvec};
 use std::rc::Rc;
+use colored::Colorize;
 
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -120,5 +120,17 @@ pub struct ResultLine {
     pub level: u16,
     pub prob_gizmo: f64,
     pub prob_attempt: f64,
+    pub mat_combination: Rc<Vec<MaterialName>>
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+// Keep separate to reduce memory usage
+#[derive(Debug)]
+pub struct ResultLineWithPrice {
+    pub level: u16,
+    pub prob_gizmo: f64,
+    pub prob_attempt: f64,
+    pub price: f64,
     pub mat_combination: Rc<Vec<MaterialName>>
 }

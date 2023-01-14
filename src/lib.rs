@@ -108,7 +108,8 @@ mod dice;
 mod perk_values;
 mod gizmo_cost_thresholds;
 mod jagex_sort;
-use colored::*;
+mod component_prices;
+mod result;
 use definitions::*;
 use gizmo_cost_thresholds::*;
 use perk_values::*;
@@ -170,8 +171,9 @@ pub fn perk_solver(args: &Args, data: &Data, wanted_gizmo: &Gizmo) {
     bar.finish();
     println!("\n");
 
-    let best_per_level = find_best_per_level(&res, args.sort_type);
-    print_result(&best_per_level, args.sort_type);
+    let best_per_level = result::find_best_per_level(&res, &args);
+    result::print_result(&best_per_level, &args);
+    result::write_best_mats_to_file(&best_per_level);
 }
 
 /// Returns a vector of all possible gizmos and their probabilities
@@ -409,86 +411,7 @@ fn calc_combination_count(conflict_size: usize, no_conflict_size: usize, is_anci
         }
     }
 
-    // if no_conflict_size == 0 {
-    //     count += slot_count;
-    // }
-
     (count + 0.5) as usize
-}
-
-fn find_best_per_level(res: &HashMap<u16, Vec<ResultLine>>, sort_type: SortType) -> Vec<&ResultLine> {
-    let mut best_per_level = Vec::new();
-
-    for (_, lines) in res.iter().sorted_by(|(a, _), (b, _)| Ord::cmp(a, b)) {
-        let best = match sort_type {
-            SortType::Price => lines.iter().max_set_by(|a, b| PartialOrd::partial_cmp(&a.prob_gizmo, &b.prob_gizmo).unwrap()),
-            SortType::Gizmo => lines.iter().max_set_by(|a, b| PartialOrd::partial_cmp(&a.prob_gizmo, &b.prob_gizmo).unwrap()),
-            SortType::Attempt => lines.iter().max_set_by(|a, b| PartialOrd::partial_cmp(&a.prob_attempt, &b.prob_attempt).unwrap()),
-        };
-        let best = best.iter().min_by(|a, b| Ord::cmp(&a.mat_combination.len(), &b.mat_combination.len()));
-
-        if let Some(best) = best {
-            best_per_level.push(*best);
-        }
-    }
-
-    best_per_level
-}
-
-fn print_result(best_per_level: &Vec<&ResultLine>, sort_type: SortType) {
-    let best_wanted_index = match sort_type {
-        _  => best_per_level.iter().position_max_by(|a, b| a.prob_gizmo.partial_cmp(&b.prob_gizmo).unwrap())
-    };
-
-    fn format_float(num: f64) -> String {
-        if num > 1e-4 {
-            format!("{:.7}", num)
-        } else if num > 1e-10 {
-            format!("{:.4e}", num)
-        } else if num > 1e-100 {
-            format!("{:.3e}", num)
-        } else {
-            format!("{:.2e}", num)
-        }
-    }
-
-    fn get_color(ratio: f64) -> (u8, u8, u8) {
-        if ratio > 0.98 {
-            (44, 186, 0)
-        } else if ratio > 0.95 {
-            (149, 229, 0)
-        } else if ratio > 0.90 {
-            (255, 244, 0)
-        } else if ratio > 0.50 {
-            (255, 167, 0)
-        } else {
-            (219, 108, 108)
-        }
-    }
-
-    if let Some(best_wanted_index) = best_wanted_index {
-        println!("|-------|---------------------------|-------|");
-        println!("|       |        Probability        |       |");
-        println!("| Level |---------------------------| Price |");
-        println!("|       |    Gizmo    |   Attempt   |       |");
-        println!("|-------|---------------------------|-------|");
-
-        let best_gizmo = best_per_level.iter().max_by(|a, b| a.prob_gizmo.partial_cmp(&b.prob_gizmo).unwrap()).unwrap();
-        let best_attempt = best_per_level.iter().max_by(|a, b| a.prob_attempt.partial_cmp(&b.prob_attempt).unwrap()).unwrap();
-
-        for (i, line) in best_per_level.into_iter().enumerate() {
-            let (r1, g1, b1) = get_color(line.prob_gizmo / best_gizmo.prob_gizmo);
-            let (r2, g2, b2) = get_color(line.prob_attempt / best_attempt.prob_attempt);
-
-            print!("| {:>4}  |  {:<9}  |  {:<9}  | {:>5} |", line.level, format_float(line.prob_gizmo).truecolor(r1, g1, b1), format_float(line.prob_attempt).truecolor(r2, g2, b2), 0);
-
-            if i == best_wanted_index { println!(" <====") } else { println!("") }
-        }
-
-        println!("|-------|---------------------------|-------|");
-    } else {
-        println!("No material combination found that can produce these perks.");
-    }
 }
 
 #[cfg(test)]

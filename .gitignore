@@ -3,3 +3,5 @@ temp.lua
 test.cmd
 *.opt
 *.code-workspace
+out.csv
+prices.txt
