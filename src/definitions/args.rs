@@ -113,12 +113,12 @@ impl Args {
                 _ => InventionLevel::Range(cli.invention_level[0], cli.invention_level[1])
             };
 
-            let perk = PerkName::from_str(&perk).unwrap_or_else(|_| {
+            let perk = PerkName::from_str(perk).unwrap_or_else(|_| {
                 print_error(format!("Perk '{}' does not exist.", &perk).as_str())
             });
 
             let perk_two = if let Some(perk) = perk_two.as_ref() {
-                PerkName::from_str(&perk).unwrap_or_else(|_| {
+                PerkName::from_str(perk).unwrap_or_else(|_| {
                     print_error(format!("Perk '{}' does not exist.", &perk).as_str())
                 })
             } else {
@@ -131,7 +131,7 @@ impl Args {
                 let mat = MaterialName::iter().find(|mat| {
                     mat.to_string().to_lowercase().contains(x)
                 });
-                if mat == None { print_warning(format!("Ignoring exclude filter '{}' because it does not match with any material", x).as_str()) }
+                if mat.is_none() { print_warning(format!("Ignoring exclude filter '{}' because it does not match with any material", x).as_str()) }
                 mat
             }).collect_vec();
 
@@ -196,7 +196,7 @@ impl std::fmt::Display for Args {
             SortType::Price => "estimated price",
         };
         write!(f, " - Sort on {}", sort_type.cyan())?;
-        if self.exclude.len() > 0  {
+        if !self.exclude.is_empty()  {
             write!(f, "\n - Excluded materials: {}", self.exclude.iter().map(|x| x.to_string().cyan()).join(", "))?;
         }
         Ok(())

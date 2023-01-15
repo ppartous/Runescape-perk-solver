@@ -20,7 +20,7 @@ pub fn find_best_per_level(res: &HashMap<u16, Vec<ResultLine>>, args: &Args) -> 
                 prob_attempt: best.prob_attempt,
                 prob_gizmo: best.prob_gizmo,
                 mat_combination: best.mat_combination.clone(),
-                price: calc_gizmo_price(&best, args)
+                price: calc_gizmo_price(best, args)
             });
         }
     }
@@ -68,7 +68,7 @@ fn get_color(ratio: f64) -> (u8, u8, u8) {
     }
 }
 
-pub fn print_result(best_per_level: &Vec<ResultLineWithPrice>, args: &Args) {
+pub fn print_result(best_per_level: &[ResultLineWithPrice], args: &Args) {
     let best_wanted_index = match args.sort_type {
         SortType::Price => best_per_level.iter().position_min_by(|a, b| a.price.partial_cmp(&b.price).unwrap()),
         SortType::Gizmo => best_per_level.iter().position_max_by(|a, b| a.prob_gizmo.partial_cmp(&b.prob_gizmo).unwrap()),
@@ -87,7 +87,7 @@ pub fn print_result(best_per_level: &Vec<ResultLineWithPrice>, args: &Args) {
         let best_attempt = best_per_level.iter().map(|x| x.prob_attempt).reduce(f64::max).unwrap();
         let best_price = best_per_level.iter().map(|x| x.price).reduce(f64::min).unwrap();
 
-        for (i, line) in best_per_level.into_iter().enumerate() {
+        for (i, line) in best_per_level.iter().enumerate() {
             let (r1, g1, b1) = get_color(line.prob_gizmo / best_gizmo);
             let (r2, g2, b2) = get_color(line.prob_attempt / best_attempt);
             let (r3, g3, b3) = get_color(best_price / line.price);
@@ -97,7 +97,7 @@ pub fn print_result(best_per_level: &Vec<ResultLineWithPrice>, args: &Args) {
                 format_float(line.prob_attempt).truecolor(r2, g2, b2),
                 format_price(line.price).truecolor(r3, g3, b3));
 
-            if i == best_wanted_index { println!(" <====") } else { println!("") }
+            if i == best_wanted_index { println!(" <====") } else { println!() }
         }
 
         println!("|-------|---------------------------|-----------|\n");
@@ -107,7 +107,7 @@ pub fn print_result(best_per_level: &Vec<ResultLineWithPrice>, args: &Args) {
     }
 }
 
-pub fn write_best_mats_to_file(best_per_level: &Vec<ResultLineWithPrice>) {
+pub fn write_best_mats_to_file(best_per_level: &[ResultLineWithPrice]) {
     let str = best_per_level.iter().map(|x| {
         format!("{}, {}", x.level, MaterialName::vec_to_string(x.mat_combination.as_ref()))
     }).join("\n");

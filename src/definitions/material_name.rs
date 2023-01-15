@@ -265,10 +265,10 @@ impl FromStr for MaterialName {
         }
 
         let mut x = find(mat);
-        if let Err(_) = x {
+        if x.is_err() {
             x = find(format!("{} parts", mat).as_str());
         }
-        if let Err(_) = x {
+        if x.is_err() {
             x = find(format!("{} components", mat).as_str());
         }
         x
@@ -362,15 +362,15 @@ impl MaterialName {
         x.into_iter()
     }
 
-    pub fn vec_to_string(v: &Vec<MaterialName>) -> String {
+    pub fn vec_to_string(v: &[MaterialName]) -> String {
         let counts = v.iter().counts();
         v.iter().unique().map(|x| {
             let count = *counts.get(x).unwrap();
-            format!("{} × {}", count, x.to_string())
+            format!("{} × {}", count, x)
         }).join(", ")
     }
 
-    pub fn vec_to_string_colored(v: &Vec<MaterialName>) -> String {
+    pub fn vec_to_string_colored(v: &[MaterialName]) -> String {
         let counts = v.iter().counts();
         v.iter().unique().map(|x| {
             let count = *counts.get(x).unwrap();

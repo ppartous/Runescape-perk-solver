@@ -47,7 +47,7 @@ pub fn find_gizmo_cost_thresholds(combination: &RankCombination, max_range: u16)
 
 /// This function is used when the perks in the gizmo we are looking for are known
 /// and the order of the perks doesn't matter
-pub fn find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_range: u16, wanted_gizmo: &Gizmo) -> Vec<Gizmo> {
+pub fn find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_range: u16, wanted_gizmo: Gizmo) -> Vec<Gizmo> {
     let mut cost_thresholds = Vec::new();
     let mut first_non_zero_rank_index = 0;
     let mut perk_two_index = None;
@@ -190,7 +190,7 @@ pub fn find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_rang
             }
 
             break;
-        } else if perk_two_index == None {
+        } else if perk_two_index.is_none() {
             perk_two_index = Some(i);
         } else {
             let perk_two_index = perk_two_index.unwrap();
@@ -233,7 +233,7 @@ pub fn find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_rang
 
 /// This function is used for fuzzy search where the wanted perk can be combined with any other perk
 /// and the order of the perks doesn't matter so our wanted perk can be in slot 1 or 2
-pub fn fuzzy_find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_range: u16, wanted_gizmo: &Gizmo) -> Vec<Gizmo> {
+pub fn fuzzy_find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_range: u16, wanted_gizmo: Gizmo) -> Vec<Gizmo> {
     let mut cost_thresholds = Vec::new();
 
     /*
@@ -285,7 +285,7 @@ pub fn fuzzy_find_wanted_gizmo_cost_thresholds(combination: &RankCombination, ma
         }
 
         // Find borders for when wanted perk is in gizmo slot one
-        if !(prv_next != None && prv_next.unwrap().cost == prv.cost) {
+        if !(prv_next.is_some() && prv_next.unwrap().cost == prv.cost) {
             cost_thresholds.push(Gizmo::create(prv, None));
 
             if let Some(prv_next) = prv_next {
@@ -327,7 +327,7 @@ pub fn fuzzy_find_wanted_gizmo_cost_thresholds(combination: &RankCombination, ma
                 || next_threshold >= next_major_threshold // Ex: Range is from P2P4 to P2P3 but P2P3 cost more than P1 so range is actually P2P4 to P1
             {
                 // If j = P1 than the next threshold is maxRange instead of another perk
-                if prv_two_next != None && next_major_threshold < max_range {
+                if prv_two_next.is_some() && next_major_threshold < max_range {
                     cost_thresholds.push(Gizmo::create(prv_two_next.unwrap(), None));
                 } else {
                     break;
@@ -549,7 +549,7 @@ mod tests {
             };
             let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::A, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
             let expected = vec![];
-            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
         }
 
@@ -569,7 +569,7 @@ mod tests {
                 Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
                 Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
             ];
-            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
         }
 
@@ -597,7 +597,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -607,7 +607,7 @@ mod tests {
                 let expected = vec![
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 70, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 70, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -636,7 +636,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 50, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 51, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 51, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected1);
             }
 
@@ -646,7 +646,7 @@ mod tests {
                 let expected2 = vec![
                     Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 50, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 50, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected2);
             }
         }
@@ -664,7 +664,7 @@ mod tests {
             let expected = vec![
                 Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
             ];
-            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
         }
 
@@ -693,7 +693,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::A, rank: 1 }), cost: 30, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -702,7 +702,7 @@ mod tests {
                 let combination = setup();
                 let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -714,7 +714,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { name: PerkName::A, rank: 1 }), cost: 70, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -723,7 +723,7 @@ mod tests {
                 let combination = setup();
                 let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -753,7 +753,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::A, rank: 1 }), cost: 30, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -762,7 +762,7 @@ mod tests {
                 let combination = setup();
                 let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -771,7 +771,7 @@ mod tests {
                 let combination = setup();
                 let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -801,7 +801,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 40, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -810,7 +810,7 @@ mod tests {
                 let combination = setup();
                 let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
                 let expected = vec![];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -819,7 +819,7 @@ mod tests {
                 let combination = setup();
                 let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
                 let expected = vec![];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -839,7 +839,7 @@ mod tests {
 
             let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), ..Default::default() };
             let expected = vec![];
-            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
         }
 
@@ -859,7 +859,7 @@ mod tests {
                 Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
                 Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
             ];
-            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
         }
 
@@ -879,7 +879,7 @@ mod tests {
                 Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
                 Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
             ];
-            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
         }
 
@@ -898,7 +898,7 @@ mod tests {
             let expected = vec![
                 Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
             ];
-            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
         }
 
@@ -918,7 +918,7 @@ mod tests {
                 Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
             ];
-            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
         }
 
@@ -941,7 +941,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 35, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -961,7 +961,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::A, rank: 1 }), cost: 40, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -986,7 +986,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 90, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1005,7 +1005,7 @@ mod tests {
                 let expected = vec![
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1029,7 +1029,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 90, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 100, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 200, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 200, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1060,7 +1060,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 3150, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { name: PerkName::I, rank: 1 }), cost: 4200, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 10000, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 10000, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1091,7 +1091,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 3150, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::K, rank: 1 }, Perk { ..Default::default() }), cost: 6000, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 10000, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 10000, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1120,7 +1120,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { name: PerkName::E, rank: 1 }), cost: 2860, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 3150, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 10000, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 10000, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -1142,9 +1142,9 @@ mod tests {
                 Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 50, ..Default::default() },
                 Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
             ];
-            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
-            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo_inv);
+            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo_inv);
             assert_gcth_eq(&actual, &expected);
         }
 
@@ -1165,9 +1165,9 @@ mod tests {
                 Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
                 Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 90, ..Default::default() },
             ];
-            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
-            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo_inv);
+            let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo_inv);
             assert_gcth_eq(&actual, &expected);
         }
 
@@ -1195,7 +1195,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 90, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 91, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 91, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1205,7 +1205,7 @@ mod tests {
                 let expected = vec![
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 90, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 90, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -1233,7 +1233,7 @@ mod tests {
                 let expected = vec![
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 100, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 101, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 101, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1241,7 +1241,7 @@ mod tests {
             fn max_range_equal_to_cost() {
                 let (combination, wanted_gizmo) = setup();
                 let expected = vec![];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -1267,7 +1267,7 @@ mod tests {
             fn max_range_larger_than_primary_cost() {
                 let (combination, wanted_gizmo) = setup();
                 let expected = vec![];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 81, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 81, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1275,7 +1275,7 @@ mod tests {
             fn max_range_equal_to_primary_cost() {
                 let (combination, wanted_gizmo) = setup();
                 let expected = vec![];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 80, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 80, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -1301,7 +1301,7 @@ mod tests {
                 let combination = setup();
                 let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
                 let expected = vec![];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1313,7 +1313,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { name: PerkName::A, rank: 1 }), cost: 29, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -1341,7 +1341,7 @@ mod tests {
                 let expected = vec![
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 80, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1350,7 +1350,7 @@ mod tests {
                 let combination = setup();
                 let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
                 let expected = vec![];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -1379,7 +1379,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 120, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 150, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 150, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1388,7 +1388,7 @@ mod tests {
                 let combination = setup();
                 let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
                 let expected = vec![];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 150, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 150, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -1416,7 +1416,7 @@ mod tests {
                 let expected = vec![
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 120, ..Default::default() },
                 ];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 150, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 150, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1425,7 +1425,7 @@ mod tests {
                 let combination = setup();
                 let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
                 let expected = vec![];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 150, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 150, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1434,7 +1434,7 @@ mod tests {
                 let combination = setup();
                 let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
                 let expected = vec![];
-                let actual = find_wanted_gizmo_cost_thresholds(&combination, 150, &wanted_gizmo);
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 150, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -1455,7 +1455,7 @@ mod tests {
             };
             let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
             let expected = vec![];
-            let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+            let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
             assert_gcth_eq(&actual, &expected);
         }
 
@@ -1480,7 +1480,7 @@ mod tests {
             fn max_range_equal_to_cost() {
                 let (combination, wanted_gizmo) = setup();
                 let expected = vec![];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 30, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 30, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1490,7 +1490,7 @@ mod tests {
                 let expected = vec![
                     Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
                 ];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 31, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 31, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -1519,7 +1519,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 90, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 90, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1531,7 +1531,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 90, ..Default::default() },
                 ];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 91, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 91, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -1559,7 +1559,7 @@ mod tests {
                 let expected = vec![
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1572,7 +1572,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 90, ..Default::default() },
                 ];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1588,7 +1588,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 80, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 90, ..Default::default() },
                 ];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -1618,7 +1618,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 80, ..Default::default() },
                 ];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1630,7 +1630,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 40, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -1660,7 +1660,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 40, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 60, ..Default::default() },
                 ];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1669,7 +1669,7 @@ mod tests {
                 let combination = setup();
                 let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -1700,7 +1700,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { name: PerkName::D, rank: 1 }), cost: 80, ..Default::default() },
                 ];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1712,7 +1712,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::C, rank: 1 }), cost: 40, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1721,7 +1721,7 @@ mod tests {
                 let combination = setup();
                 let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -1752,7 +1752,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 40, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { name: PerkName::D, rank: 1 }), cost: 60, ..Default::default() },
                 ];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1761,7 +1761,7 @@ mod tests {
                 let combination = setup();
                 let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1770,7 +1770,7 @@ mod tests {
                 let combination = setup();
                 let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -1799,7 +1799,7 @@ mod tests {
                 let expected = vec![
                     Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 200, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 200, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1810,7 +1810,7 @@ mod tests {
                 let expected = vec![
                     Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { name: PerkName::D, rank: 1 }), cost: 120, ..Default::default() },
                 ];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 200, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 200, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1819,7 +1819,7 @@ mod tests {
                 let combination = setup();
                 let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 200, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 200, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
         }
@@ -1847,7 +1847,7 @@ mod tests {
                 let expected = vec![
                     Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1856,7 +1856,7 @@ mod tests {
                 let combination = setup();
                 let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), ..Default::default() };
                 let expected = vec![];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);
             }
 
@@ -1872,7 +1872,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { ..Default::default() }), cost: 20, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 60, ..Default::default() },
                 ];
-                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, &wanted_gizmo);
+                let actual = fuzzy_find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 let result1 = assert_gcth_eq_result(&actual, &expected1);
                 let result2 = assert_gcth_eq_result(&actual, &expected2);
                 if result1.is_err() && result2.is_err() {

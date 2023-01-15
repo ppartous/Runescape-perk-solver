@@ -1,5 +1,4 @@
 use itertools::Itertools;
-use reqwest;
 use serde_json::{self, Value};
 use crate::{utils::print_warning, definitions::*};
 use std::{collections::HashMap, str::FromStr, fs, sync::Mutex};
@@ -35,12 +34,12 @@ fn get_shell_price(args: &Args) -> f64 {
             GizmoType::Tool => 10.0 * PRICES.get(&MaterialName::HeadParts).unwrap() + 5.0 * PRICES.get(&MaterialName::CraftedParts).unwrap() + 2.0 * PRICES.get(&MaterialName::PreciseComponents).unwrap(),
         },
     };
-    *SHELL_PRICE.lock().unwrap() = Some(price);;
-    return price;
+    *SHELL_PRICE.lock().unwrap() = Some(price);
+    price
 }
 
 pub fn calc_gizmo_price(line: &ResultLine, args: &Args) -> f64 {
-    let shell_price = get_shell_price(&args);
+    let shell_price = get_shell_price(args);
 
     let price = shell_price + line.mat_combination.iter().fold(0.0, |acc, x| {
         acc + PRICES.get(x).unwrap()
@@ -60,24 +59,24 @@ fn get_component_prices() -> HashMap<MaterialName, f64> {
     } else {
         match lookup_on_wiki() {
             Ok(response) => text = extract_from_response(&response),
-            Err(_) => print_warning(format!("Failed to fetch prices").as_str())
+            Err(_) => print_warning("Failed to fetch prices")
         }
     }
 
     let mut prices = string_to_map(&text);
     for mat in MaterialName::iter() {
-        if !prices.contains_key(&mat) {
+        prices.entry(mat).or_insert_with(|| {
             print_warning(format!("Price missing for '{}'", mat).as_str());
-            prices.insert(mat, 0.0);
-        }
+            0.0
+        });
     }
 
-    text = prices.iter().map(|(name, value)| format!("{}: {},", name, value)).join("\n");
+    text = prices.iter().map(|(name, value)| format!("{}: {},", name, value)).sorted().join("\n");
     fs::write("prices.txt", text).unwrap_or_else(|err| {
         print_warning(format!("Failed to save prices.txt: {}", err).as_str());
     });
 
-    return prices;
+    prices
 }
 
 fn lookup_on_wiki() -> Result<String, reqwest::Error> {
@@ -93,13 +92,13 @@ fn lookup_on_wiki() -> Result<String, reqwest::Error> {
     Ok(body)
 }
 
-fn extract_from_response(response: &String) -> String {
-    let json: Value = serde_json::from_str(response.as_str()).unwrap_or_default();
+fn extract_from_response(response: &str) -> String {
+    let json: Value = serde_json::from_str(response).unwrap_or_default();
     let text= &json["parse"]["text"];
 
     if let Value::String(text) = text {
         let re = Regex::new(r"^.+?<p>((.|\n)+?)</p>").unwrap();
-        let content = re.captures(&text);
+        let content = re.captures(text);
 
         if let Some(content) = content {
             return content[1].to_string();
@@ -110,13 +109,13 @@ fn extract_from_response(response: &String) -> String {
         print_warning("Unexpected response from Runescape.wiki");
     }
 
-    return String::new()
+    String::new()
 }
 
-fn string_to_map(text: &String) -> HashMap<MaterialName, f64> {
+fn string_to_map(text: &str) -> HashMap<MaterialName, f64> {
     let mut prices = HashMap::new();
     let re = Regex::new(r"^([^:]+): ?([\d\.]+)").unwrap();
-    let lines = text.split("\n");
+    let lines = text.split('\n');
 
     for line in lines {
         if let Some(captures) = re.captures(line) {

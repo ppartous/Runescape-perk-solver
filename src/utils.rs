@@ -1,8 +1,6 @@
 #![allow(unused)]
 use std::process;
 use colored::*;
-use approx;
-use len_trait;
 
 pub fn print_error(err: &str) -> ! {
     eprintln!("{}{} {err}", "error".red().bold(), ":".bold());
@@ -23,7 +21,7 @@ pub fn format_int(mut num: i64) -> String {
             s.push(',');
         }
     }
-    if s.chars().last().unwrap() == ',' {
+    if s.ends_with(',') {
         s.pop();
     }
     if is_negative {

@@ -18,8 +18,8 @@ fn main() {
                 ..Default::default()
             };
 
-            validate_input(&args, &wanted_gizmo, &data);
-            perk_solver(&args, &data, &wanted_gizmo);
+            validate_input(&args, wanted_gizmo, &data);
+            perk_solver(&args, &data, wanted_gizmo);
         },
         Commands::MaterialInput { mats } => {
             let mut materials = vec![];
@@ -27,7 +27,7 @@ fn main() {
                 let mat = MaterialName::from_str(&mat_str);
                 match mat {
                     Ok(mat) => materials.push(mat),
-                    Err(err) => utils::print_error(format!("{} '{}'", err, mat_str).as_str())
+                    Err(err) => utils::print_error(format!("{err} '{mat_str}'").as_str())
                 }
             }
             let budget = Budget::create(cli.invention_level[0] as usize, cli.ancient);
@@ -43,7 +43,7 @@ fn main() {
     }
 }
 
-fn validate_input(args: &Args, wanted_gizmo: &Gizmo, data: &Data) {
+fn validate_input(args: &Args, wanted_gizmo: Gizmo, data: &Data) {
     if data.perks[&wanted_gizmo.perks.0.name].doubleslot && wanted_gizmo.perks.1.name != PerkName::Empty {
         utils::print_error(format!("Perk '{}' can't be combined with another perk as it uses both slots.", wanted_gizmo.perks.0.name).as_str())
     }
@@ -57,7 +57,7 @@ fn validate_input(args: &Args, wanted_gizmo: &Gizmo, data: &Data) {
             data.perks[&wanted_gizmo.perks.0.name].ranks.len() - 1).as_str())
     }
 
-    if &wanted_gizmo.perks.1.name != &PerkName::Empty && wanted_gizmo.perks.1.rank as usize >= data.perks[&wanted_gizmo.perks.1.name].ranks.len() {
+    if wanted_gizmo.perks.1.name != PerkName::Empty && wanted_gizmo.perks.1.rank as usize >= data.perks[&wanted_gizmo.perks.1.name].ranks.len() {
         utils::print_error(format!("Perk '{}' only goes up to rank {}.",
             &wanted_gizmo.perks.1.name,
             data.perks[&wanted_gizmo.perks.1.name].ranks.len() - 1).as_str())

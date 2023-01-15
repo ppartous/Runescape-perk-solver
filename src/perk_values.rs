@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, hash_map::Entry};
 use itertools::Itertools;
 use smallvec::{smallvec, SmallVec};
 use crate::{definitions::*, dice, utils};
@@ -27,11 +27,7 @@ pub fn get_perk_values(data: &Data, input_materials: &Vec<MaterialName>, gizmo_t
                 perk_base = (perk_base * 8) / 10;
             }
 
-            if possible_perks.contains_key(&perk_data.perk) {
-                let x = possible_perks.get_mut(&perk_data.perk).unwrap();
-                x.rolls.push(perk_roll as u8);
-                x.base += perk_base;
-            } else {
+            if let Entry::Vacant(e) = possible_perks.entry(perk_data.perk) {
                 // Only set some values as we need to check first if this material combination can even generate the rank that we need
                 let perk_values = PerkValues {
                     name: perk_data.perk,
@@ -40,8 +36,12 @@ pub fn get_perk_values(data: &Data, input_materials: &Vec<MaterialName>, gizmo_t
                     ..Default::default()
                 };
 
-                possible_perks.insert(perk_data.perk, perk_values);
+                e.insert(perk_values);
                 perk_values_order.push(perk_data.perk);
+            } else {
+                let x = possible_perks.get_mut(&perk_data.perk).unwrap();
+                x.rolls.push(perk_roll as u8);
+                x.base += perk_base;
             }
         }
     }
@@ -55,7 +55,7 @@ pub fn get_perk_values(data: &Data, input_materials: &Vec<MaterialName>, gizmo_t
     perk_values_arr
 }
 
-pub fn calc_perk_rank_probabilities(data: &Data, perk_values_arr: &mut Vec<PerkValues>, is_ancient_gizmo: bool) {
+pub fn calc_perk_rank_probabilities(data: &Data, perk_values_arr: &mut [PerkValues], is_ancient_gizmo: bool) {
     for perk_values in perk_values_arr.iter_mut() {
         let perk_data = &data.perks[&perk_values.name];
 
@@ -79,7 +79,7 @@ pub fn calc_perk_rank_probabilities(data: &Data, perk_values_arr: &mut Vec<PerkV
                 iter.next();
             }
 
-            if roll_dist.len() > 0 {
+            if !roll_dist.is_empty() {
                 roll_dist = utils::convolve(&roll_dist, &dice::get_distribution(*x as usize, count));
             } else {
                 roll_dist = dice::get_distribution(*x as usize, count);
@@ -92,7 +92,7 @@ pub fn calc_perk_rank_probabilities(data: &Data, perk_values_arr: &mut Vec<PerkV
 
             if i + 1 < perk_values.ranks.len() {
                 let next_container = unsafe{ perk_values.ranks.get_unchecked(i + 1) };
-                if !(next_container.values.ancient_only && !is_ancient_gizmo) {
+                if !next_container.values.ancient_only || is_ancient_gizmo {
                     // -1 because the range we need ends right before the threshold value of the next perk
                     next_threshold = next_threshold.min(next_container.values.threshold as i64 - perk_values.base as i64 - 1);
                 }
@@ -100,7 +100,7 @@ pub fn calc_perk_rank_probabilities(data: &Data, perk_values_arr: &mut Vec<PerkV
 
             let mut container = unsafe{ perk_values.ranks.get_unchecked_mut(i) };
             let range_start = i64::max(container.values.threshold as i64 - perk_values.base as i64, 0) as usize;
-            if !(container.values.ancient_only && !is_ancient_gizmo) && next_threshold >= 0 && (range_start as i64) <= next_threshold {
+            if (is_ancient_gizmo || !container.values.ancient_only) && (range_start as i64) <= next_threshold && next_threshold >= 0 {
                 container.probability = roll_dist[range_start..=next_threshold as usize].iter().sum();
             }
 
@@ -116,7 +116,7 @@ pub fn calc_perk_rank_probabilities(data: &Data, perk_values_arr: &mut Vec<PerkV
 }
 
 /// Quick check if it is even possible to generate the wanted perk rank. This won't catch all impossible material orders.
-pub fn can_generate_wanted_ranks(data: &Data, perk_values_arr: &Vec<PerkValues>, wanted_gizmo: &Gizmo) -> bool {
+pub fn can_generate_wanted_ranks(data: &Data, perk_values_arr: &Vec<PerkValues>, wanted_gizmo: Gizmo) -> bool {
     let wanted_rank1 = wanted_gizmo.perks.0.rank as usize;
     let wanted_rank2 = wanted_gizmo.perks.1.rank as usize;
 
@@ -145,11 +145,13 @@ pub fn can_generate_wanted_ranks(data: &Data, perk_values_arr: &Vec<PerkValues>,
         }
     }
 
-    if perk1_base == None || (wanted_gizmo.perks.1.name != PerkName::Empty && perk2_base == None) {
+    if perk1_base.is_none() || (wanted_gizmo.perks.1.name != PerkName::Empty && perk2_base.is_none()) {
         return false;
-    } else if !(perk1_base.unwrap() + perk1_max_roll.unwrap() >= perk1_threshold && perk1_base.unwrap() < perk1_next_threshold) {
+    }
+    if !(perk1_base.unwrap() + perk1_max_roll.unwrap() >= perk1_threshold && perk1_base.unwrap() < perk1_next_threshold) {
         return false;
-    } else if wanted_gizmo.perks.1.name != PerkName::Empty
+    }
+    if wanted_gizmo.perks.1.name != PerkName::Empty
     && !(perk2_base.unwrap() + perk2_max_roll.unwrap() >= perk2_threshold && perk2_base.unwrap() < perk2_next_threshold) {
         return false;
     }
@@ -157,7 +159,7 @@ pub fn can_generate_wanted_ranks(data: &Data, perk_values_arr: &Vec<PerkValues>,
     true
 }
 
-pub fn permutate_perk_ranks(perk_list: &Vec<PerkValues>, wanted_gizmo: Option<&Gizmo>) -> Vec<RankCombination> {
+pub fn permutate_perk_ranks(perk_list: &Vec<PerkValues>, wanted_gizmo: Option<Gizmo>) -> Vec<RankCombination> {
     let mut combinations = Vec::with_capacity(perk_list.len() * 7);
 
     for pv_combination in perk_list.iter().map(|x| {
@@ -233,7 +235,7 @@ pub fn permutate_perk_ranks(perk_list: &Vec<PerkValues>, wanted_gizmo: Option<&G
 /// and also remove it from the perk total chance: \
 /// `(pA0 + pA2) - pA2` = `pA0` \
 /// Then move on to do the same with the next rank in the array.
-pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &Vec<PerkValues>) -> f64 {
+pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &[PerkValues]) -> f64 {
     let mut p_empty = 1.0; // Total empty gizmo chance
     let mut p_empty_per_perk = vec![0.0; PerkName::NAME_COUNT];
     let mut ranks = Vec::new(); // vec of non zero ranks with a cost higher than the invention level
@@ -247,7 +249,7 @@ pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &Vec<PerkValues>
         p_empty *= pv_ranks[0].probability;
 
         let mut psum = pv_ranks[0].probability;
-        for rank in pv_ranks.iter().take(pv.i_last + 1).skip(pv.i_first).rev() {
+        for rank in pv_ranks.iter().copied().take(pv.i_last + 1).skip(pv.i_first).rev() {
             if rank.values.cost <= budget.range.min {
                 break;
             }
@@ -256,7 +258,9 @@ pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &Vec<PerkValues>
             ranks.push(rank);
         }
 
-        p_empty_per_perk[pv.name as usize] = psum;
+        unsafe {
+            *p_empty_per_perk.get_unchecked_mut(pv.name as usize) = psum;
+        }
         p_empty_combo *= psum;
     }
 
@@ -266,18 +270,20 @@ pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &Vec<PerkValues>
         return p_empty;
     }
 
-    ranks.sort_by(|x, y| x.values.cost.cmp(&y.values.cost));
+    ranks.sort_unstable_by(|x, y| x.values.cost.cmp(&y.values.cost));
 
     for rank in ranks {
-        // Adjusted empty combo chance to a specific rank of a perk
-        let mut p_empty_rank = p_empty_combo * rank.probability / p_empty_per_perk[rank.values.name as usize];
-        // Multiply with chance that our inventbudget is bellow the rank cost
-        p_empty_rank *= budget.dist[u16::min(rank.values.cost, budget.range.max) as usize];
-        p_empty += p_empty_rank;
-        // Remove this rank from 'p_empty_combo'
-        p_empty_combo *= (p_empty_per_perk[rank.values.name as usize] - rank.probability) / p_empty_per_perk[rank.values.name as usize];
-        // Remove this rank from the combined empty combo chance of a certain perk
-        p_empty_per_perk[rank.values.name as usize] -= rank.probability;
+        unsafe {
+            // Adjusted empty combo chance to a specific rank of a perk
+            let mut p_empty_rank = p_empty_combo * rank.probability / p_empty_per_perk.get_unchecked(rank.values.name as usize);
+            // Multiply with chance that our inventbudget is bellow the rank cost
+            p_empty_rank *= budget.dist.get_unchecked(u16::min(rank.values.cost, budget.range.max) as usize);
+            p_empty += p_empty_rank;
+            // Remove this rank from 'p_empty_combo'
+            p_empty_combo *= (p_empty_per_perk.get_unchecked(rank.values.name as usize) - rank.probability) / p_empty_per_perk.get_unchecked(rank.values.name as usize);
+            // Remove this rank from the combined empty combo chance of a certain perk
+            *p_empty_per_perk.get_unchecked_mut(rank.values.name as usize) -= rank.probability;
+        }
 
         if p_empty_combo == 0.0 {
             break;
@@ -935,7 +941,7 @@ mod tests {
                 ),
                 ..Default::default()
             };
-            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, &wanted_gizmo))
+            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, wanted_gizmo))
         }
 
         #[test]
@@ -951,7 +957,7 @@ mod tests {
                 ),
                 ..Default::default()
             };
-            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, &wanted_gizmo))
+            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, wanted_gizmo))
         }
 
         #[test]
@@ -967,7 +973,7 @@ mod tests {
                 ),
                 ..Default::default()
             };
-            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, &wanted_gizmo))
+            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, wanted_gizmo))
         }
 
         #[test]
@@ -983,7 +989,7 @@ mod tests {
                 ),
                 ..Default::default()
             };
-            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, &wanted_gizmo))
+            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, wanted_gizmo))
         }
 
         #[test]
@@ -999,7 +1005,7 @@ mod tests {
                 ),
                 ..Default::default()
             };
-            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, &wanted_gizmo))
+            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, wanted_gizmo))
         }
 
         #[test]
@@ -1015,7 +1021,7 @@ mod tests {
                 ),
                 ..Default::default()
             };
-            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, &wanted_gizmo))
+            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, wanted_gizmo))
         }
 
         #[test]
@@ -1031,7 +1037,7 @@ mod tests {
                 ),
                 ..Default::default()
             };
-            assert_eq!(true, can_generate_wanted_ranks(&*DATA, &perk_values_arr, &wanted_gizmo))
+            assert_eq!(true, can_generate_wanted_ranks(&*DATA, &perk_values_arr, wanted_gizmo))
         }
 
         #[test]
@@ -1047,7 +1053,7 @@ mod tests {
                 ),
                 ..Default::default()
             };
-            assert_eq!(true, can_generate_wanted_ranks(&*DATA, &perk_values_arr, &wanted_gizmo))
+            assert_eq!(true, can_generate_wanted_ranks(&*DATA, &perk_values_arr, wanted_gizmo))
         }
 
         #[test]
@@ -1063,7 +1069,7 @@ mod tests {
                 ),
                 ..Default::default()
             };
-            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, &wanted_gizmo))
+            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, wanted_gizmo))
         }
 
         #[test]
@@ -1079,7 +1085,7 @@ mod tests {
                 ),
                 ..Default::default()
             };
-            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, &wanted_gizmo))
+            assert_eq!(false, can_generate_wanted_ranks(&*DATA, &perk_values_arr, wanted_gizmo))
         }
     }
 
@@ -1254,7 +1260,7 @@ mod tests {
                     probability: 1.0/16.0
                 },
             ];
-            let actual = permutate_perk_ranks(&*PERK_LIST, Some(&wanted_gizmo));
+            let actual = permutate_perk_ranks(&*PERK_LIST, Some(wanted_gizmo));
             assert_rank_combination_eq(&actual, &expected);
         }
 
@@ -1285,7 +1291,7 @@ mod tests {
                     probability: 1.0/32.0
                 },
             ];
-            let actual = permutate_perk_ranks(&*PERK_LIST, Some(&wanted_gizmo));
+            let actual = permutate_perk_ranks(&*PERK_LIST, Some(wanted_gizmo));
             assert_rank_combination_eq(&actual, &expected);
         }
     }

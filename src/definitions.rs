@@ -25,7 +25,7 @@ use colored::Colorize;
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct PerkRankValuesProbabilityContainer {
     pub values: PerkRankValues,
     pub probability: f64,
@@ -65,20 +65,6 @@ impl Default for PerkValues {
             i_first: 0,
             i_last: 0
         }
-    }
-}
-
-impl PerkValues {
-    pub fn iter_ranks<'a>(self: &'a Self) -> impl Iterator<Item = &'a PerkRankValuesProbabilityContainer> {
-        let i_first = self.i_first as usize;
-        let i_last = self.i_last as usize;
-        self.ranks.iter().skip(i_first).take(i_last - i_first + 1)
-    }
-
-    pub fn iter_ranks_no_zero<'a>(self: &'a Self) -> impl Iterator<Item = &'a PerkRankValuesProbabilityContainer> {
-        let i_first = 1.max(self.i_first as usize);
-        let i_last = self.i_last as usize;
-        self.ranks.iter().skip(i_first).take(i_last - i_first + 1)
     }
 }
 
