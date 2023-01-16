@@ -1,5 +1,5 @@
 mod utils;
-use perk_solver::{definitions::*, load_data, calc_gizmo_probabilities, perk_solver};
+use perk_solver::{prelude::*, load_data, calc_gizmo_probabilities, perk_solver};
 use std::str::FromStr;
 use clap::Parser;
 

@@ -1,7 +1,7 @@
 use std::collections::{HashMap, hash_map::Entry};
 use itertools::Itertools;
 use smallvec::{smallvec, SmallVec};
-use crate::{definitions::*, dice, utils};
+use crate::{prelude::*, dice, utils};
 
 /// Calculate the base and roll values for each possible perk based on the input materials and their order.
 pub fn get_perk_values(data: &Data, input_materials: &Vec<MaterialName>, gizmo_type: GizmoType,

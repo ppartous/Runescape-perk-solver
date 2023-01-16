@@ -1,5 +1,5 @@
 use std::collections::VecDeque;
-use crate::definitions::*;
+use crate::prelude::*;
 use itertools::Itertools;
 
 pub fn find_gizmo_cost_thresholds(combination: &RankCombination, max_range: u16) -> Vec<Gizmo> {

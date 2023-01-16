@@ -102,7 +102,7 @@
 //! the comparison alternates with loop_index between `< 0` and `<= 0`, which we emulate by the bitwise AND
 //! (`loop_index % 2` has the same effect) to make the comparison `< 0` and `< 1`.
 
-pub mod definitions;
+pub mod prelude;
 mod utils;
 mod dice;
 mod perk_values;
@@ -110,16 +110,16 @@ mod gizmo_cost_thresholds;
 mod jagex_sort;
 mod component_prices;
 mod result;
-use definitions::*;
+use prelude::*;
 use gizmo_cost_thresholds::*;
 use perk_values::*;
 use itertools::Itertools;
-use std::{cmp, fs, rc::Rc, collections::HashMap, cmp::{Ord, PartialOrd}};
+use std::{cmp, rc::Rc, collections::HashMap, cmp::{Ord, PartialOrd}};
 use indicatif::{ProgressBar, ProgressStyle};
 
 pub fn load_data() -> Data {
-    let data = fs::read_to_string("data.json").unwrap();
-    serde_json::from_str(&data).unwrap()
+    let data = include_bytes!("../data.json");
+    serde_json::from_slice(data).unwrap()
 }
 
 pub fn perk_solver(args: &Args, data: &Data, wanted_gizmo: Gizmo) {
