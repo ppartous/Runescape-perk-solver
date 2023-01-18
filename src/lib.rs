@@ -114,33 +114,71 @@ use prelude::*;
 use gizmo_cost_thresholds::*;
 use perk_values::*;
 use itertools::Itertools;
-use std::{cmp, rc::Rc, collections::HashMap, cmp::{Ord, PartialOrd}};
+use std::{cmp, collections::HashMap, cmp::{Ord, PartialOrd}, sync::{Arc, atomic::{self, Ordering::Relaxed}}, time::Duration};
 use indicatif::{ProgressBar, ProgressStyle};
+use tokio::{sync::mpsc::channel, task, time};
+use threadpool::ThreadPool;
 
-pub fn perk_solver(args: &Args, data: &Data, wanted_gizmo: Gizmo) {
-    let materials = get_materials(args, data, wanted_gizmo);
-    let materials = split_materials(args, data, wanted_gizmo, materials);
-    let budgets = generate_budgets(&args.invention_level, args.ancient);
+#[tokio::main]
+pub async fn perk_solver(args: Args, data: Data, wanted_gizmo: Gizmo) {
+    let args = Arc::new(args);
+    let data = Arc::new(data);
+    let wanted_gizmo = wanted_gizmo;
+    let materials = get_materials(&args, &data, wanted_gizmo);
+    let materials = Arc::new(split_materials(&args, &data, wanted_gizmo, materials));
+    let budgets = Arc::new(generate_budgets(&args.invention_level, args.ancient));
     let slot_count = if args.ancient { 9 } else { 5 };
-
     let total_combination_count = calc_combination_count(materials.conflict.len(), materials.no_conflict.len(), args.ancient);
-    let mut res = HashMap::new();
-    let bar = ProgressBar::new(total_combination_count as u64);
-
-    budgets.iter().for_each(|x| { res.insert(x.level, Vec::new()); });
-    bar.set_style(ProgressStyle::with_template("[{elapsed_precise}] {bar:60} {human_pos}/{human_len} ({percent}%)").unwrap());
 
     println!("{}\n", args);
     println!("{}\n", materials);
 
-    for n_mats_used in 1 ..= slot_count {
-        // Order does no matter when none of the materials used have a cost conflict with the wanted perks
-        for mat_combination in materials.no_conflict.iter().copied().combinations_with_replacement(n_mats_used) {
-            let lines = calc_wanted_gizmo_probabilities(data, args, &budgets, mat_combination, wanted_gizmo);
-            for x in lines {
-                res.get_mut(&x.level).unwrap().push(x);
+    let pool = ThreadPool::new(num_cpus::get() * 2);
+    let mut res = HashMap::new();
+    budgets.iter().for_each(|x| { res.insert(x.level, Vec::new()); });
+    let (tx, mut rx) = channel::<Arc<Vec<ResultLine>>>(100);
+    let result_handler = std::thread::spawn(move || {
+        while let Some(lines) = rx.blocking_recv() {
+            for line in lines.iter().cloned() {
+                res.get_mut(&line.level).unwrap().push(line);
             }
-            bar.inc(1);
+        }
+        res
+    });
+
+    let bar_progress = Arc::new(atomic::AtomicU64::new(0));
+    let x = bar_progress.clone();
+    let bar_handler = task::spawn(async move {
+        let bar = ProgressBar::new(total_combination_count as u64);
+        bar.set_style(ProgressStyle::with_template("[{elapsed_precise}] {bar:60} {human_pos}/{human_len} ({percent}%)").unwrap());
+        let mut interval = time::interval(Duration::from_millis(100));
+
+        loop {
+            interval.tick().await;
+            bar.set_position(x.load(Relaxed));
+            if x.load(Relaxed) == total_combination_count as u64 {
+                bar.finish();
+                break;
+            }
+        }
+    });
+
+    for n_mats_used in 1 ..= slot_count {
+        {
+            let tx = tx.clone();
+            let data = data.clone();
+            let args = args.clone();
+            let budgets = budgets.clone();
+            let bar_progress = bar_progress.clone();
+            let materials = materials.clone();
+            pool.execute(move || {
+                // Order does no matter when none of the materials used have a cost conflict with the wanted perks
+                for mat_combination in materials.no_conflict.iter().copied().combinations_with_replacement(n_mats_used) {
+                    let lines = calc_wanted_gizmo_probabilities(&data, &args, &budgets, mat_combination, wanted_gizmo);
+                    bar_progress.fetch_add(1, Relaxed);
+                    tx.blocking_send(Arc::new(lines)).ok();
+                }
+            });
         }
 
         for n_conflict_mats in 1 ..= usize::min(n_mats_used, materials.conflict.len()) {
@@ -148,14 +186,19 @@ pub fn perk_solver(args: &Args, data: &Data, wanted_gizmo: Gizmo) {
                 for n_noconflict_mats in 0 ..= usize::min(n_mats_used - n_conflict_mats, materials.no_conflict.len()) {
                     for no_conflict_mats in materials.no_conflict.iter().copied().combinations(n_noconflict_mats) {
                         for ordered_mats in conflict_mats.iter().copied().chain(no_conflict_mats.iter().copied()).permutations(n_conflict_mats + n_noconflict_mats) {
-                            for unordered_mats in ordered_mats.iter().copied().combinations_with_replacement(n_mats_used - n_conflict_mats - n_noconflict_mats) {
-                                let mat_combination = ordered_mats.iter().copied().chain(unordered_mats.iter().copied()).collect_vec();
-                                let lines = calc_wanted_gizmo_probabilities(data, args, &budgets, mat_combination, wanted_gizmo);
-                                for x in lines {
-                                    res.get_mut(&x.level).unwrap().push(x);
+                            let tx = tx.clone();
+                            let data = data.clone();
+                            let args = args.clone();
+                            let budgets = budgets.clone();
+                            let bar_progress = bar_progress.clone();
+                            pool.execute(move || {
+                                for unordered_mats in ordered_mats.iter().copied().combinations_with_replacement(n_mats_used - n_conflict_mats - n_noconflict_mats) {
+                                    let mat_combination = ordered_mats.iter().copied().chain(unordered_mats.iter().copied()).collect_vec();
+                                    let lines = calc_wanted_gizmo_probabilities(&data, &args, &budgets, mat_combination, wanted_gizmo);
+                                    bar_progress.fetch_add(1, Relaxed);
+                                    tx.blocking_send(Arc::new(lines)).ok();
                                 }
-                                bar.inc(1);
-                            }
+                            });
                         }
                     }
                 }
@@ -163,11 +206,16 @@ pub fn perk_solver(args: &Args, data: &Data, wanted_gizmo: Gizmo) {
         }
     }
 
-    bar.finish();
+    pool.join();
+    drop(tx);
+    let res = result_handler.join().unwrap();
+
+    bar_progress.store(total_combination_count as u64, Relaxed);
+    bar_handler.await.ok();
     println!("\n");
 
-    let best_per_level = result::find_best_per_level(&res, args);
-    result::print_result(&best_per_level, args);
+    let best_per_level = result::find_best_per_level(&res, &args);
+    result::print_result(&best_per_level, &args);
     result::write_best_mats_to_file(&best_per_level);
 }
 
@@ -242,7 +290,7 @@ fn calc_wanted_gizmo_probabilities(data: &Data, args: &Args, budgets: &Vec<Budge
         }
     }
 
-    let input_materials = Rc::new(input_materials);
+    let input_materials = Arc::new(input_materials);
     itertools::multizip((budgets, p_wanted, p_empty)).filter(|(_, pw, _)| *pw > 0.0).map(|(budget, pw, pe)| {
         if pe == 1.0 {
             ResultLine { level: budget.level, prob_attempt: 0.0, prob_gizmo: 0.0, mat_combination: input_materials.clone() }
@@ -820,12 +868,12 @@ mod tests {
             ];
             let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::Devoted, rank: 4 }, Perk { name: PerkName::Impatient, rank: 4 }), ..Default::default() };
             let expected = vec![
-                ResultLine { level: 110, prob_gizmo: 0.00974262074653326794, prob_attempt: 0.00850963080954826069, mat_combination: Rc::new(vec![]) },
-                ResultLine { level: 112, prob_gizmo: 0.01255816021290431274, prob_attempt: 0.01107308252145345825, mat_combination: Rc::new(vec![]) },
-                ResultLine { level: 114, prob_gizmo: 0.01590000661605753610, prob_attempt: 0.01414257810865433666, mat_combination: Rc::new(vec![]) },
-                ResultLine { level: 116, prob_gizmo: 0.01980789822146937149, prob_attempt: 0.01776096295684682566, mat_combination: Rc::new(vec![]) },
-                ResultLine { level: 118, prob_gizmo: 0.02431630038465943874, prob_attempt: 0.02196620262677148952, mat_combination: Rc::new(vec![]) },
-                ResultLine { level: 120, prob_gizmo: 0.02945385241280866484, prob_attempt: 0.02679068305588063956, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 110, prob_gizmo: 0.00974262074653326794, prob_attempt: 0.00850963080954826069, mat_combination: Arc::new(vec![]) },
+                ResultLine { level: 112, prob_gizmo: 0.01255816021290431274, prob_attempt: 0.01107308252145345825, mat_combination: Arc::new(vec![]) },
+                ResultLine { level: 114, prob_gizmo: 0.01590000661605753610, prob_attempt: 0.01414257810865433666, mat_combination: Arc::new(vec![]) },
+                ResultLine { level: 116, prob_gizmo: 0.01980789822146937149, prob_attempt: 0.01776096295684682566, mat_combination: Arc::new(vec![]) },
+                ResultLine { level: 118, prob_gizmo: 0.02431630038465943874, prob_attempt: 0.02196620262677148952, mat_combination: Arc::new(vec![]) },
+                ResultLine { level: 120, prob_gizmo: 0.02945385241280866484, prob_attempt: 0.02679068305588063956, mat_combination: Arc::new(vec![]) },
             ];
             let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, input_materials, wanted_gizmo);
             assert_resultlines_eq(&actual, &expected);
@@ -853,12 +901,12 @@ mod tests {
             ];
             let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::TrophyTaker, rank: 5 }, Perk { name: PerkName::ClearHeaded, rank: 2 }), ..Default::default() };
             let expected = vec![
-                ResultLine { level: 110, prob_gizmo: 0.01918158179611270664, prob_attempt: 0.01918158179611270664, mat_combination: Rc::new(vec![]) },
-                ResultLine { level: 112, prob_gizmo: 0.02109631656835359720, prob_attempt: 0.02109631656835359720, mat_combination: Rc::new(vec![]) },
-                ResultLine { level: 114, prob_gizmo: 0.02304803688981639856, prob_attempt: 0.02304803688981639856, mat_combination: Rc::new(vec![]) },
-                ResultLine { level: 116, prob_gizmo: 0.02502587808462617899, prob_attempt: 0.02502587808462617899, mat_combination: Rc::new(vec![]) },
-                ResultLine { level: 118, prob_gizmo: 0.02701942633140705374, prob_attempt: 0.02701942633140705374, mat_combination: Rc::new(vec![]) },
-                ResultLine { level: 120, prob_gizmo: 0.02901884688250149988, prob_attempt: 0.02901884688250149988, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 110, prob_gizmo: 0.01918158179611270664, prob_attempt: 0.01918158179611270664, mat_combination: Arc::new(vec![]) },
+                ResultLine { level: 112, prob_gizmo: 0.02109631656835359720, prob_attempt: 0.02109631656835359720, mat_combination: Arc::new(vec![]) },
+                ResultLine { level: 114, prob_gizmo: 0.02304803688981639856, prob_attempt: 0.02304803688981639856, mat_combination: Arc::new(vec![]) },
+                ResultLine { level: 116, prob_gizmo: 0.02502587808462617899, prob_attempt: 0.02502587808462617899, mat_combination: Arc::new(vec![]) },
+                ResultLine { level: 118, prob_gizmo: 0.02701942633140705374, prob_attempt: 0.02701942633140705374, mat_combination: Arc::new(vec![]) },
+                ResultLine { level: 120, prob_gizmo: 0.02901884688250149988, prob_attempt: 0.02901884688250149988, mat_combination: Arc::new(vec![]) },
             ];
             let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, input_materials, wanted_gizmo);
             assert_resultlines_eq(&actual, &expected);
@@ -886,10 +934,10 @@ mod tests {
             ];
             let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::TrophyTaker, rank: 5 }, Perk { name: PerkName::ClearHeaded, rank: 2 }), ..Default::default() };
             let expected = vec![
-                ResultLine { level: 54, prob_gizmo: 0.00000000001215511520, prob_attempt: 0.00000000001215511520, mat_combination: Rc::new(vec![]) },
-                ResultLine { level: 56, prob_gizmo: 0.00000000989853159803, prob_attempt: 0.00000000989853159803, mat_combination: Rc::new(vec![]) },
-                ResultLine { level: 58, prob_gizmo: 0.00000017572813762414, prob_attempt: 0.00000017572813762414, mat_combination: Rc::new(vec![]) },
-                ResultLine { level: 60, prob_gizmo: 0.00000112864757880545, prob_attempt: 0.00000112864757880545, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 54, prob_gizmo: 0.00000000001215511520, prob_attempt: 0.00000000001215511520, mat_combination: Arc::new(vec![]) },
+                ResultLine { level: 56, prob_gizmo: 0.00000000989853159803, prob_attempt: 0.00000000989853159803, mat_combination: Arc::new(vec![]) },
+                ResultLine { level: 58, prob_gizmo: 0.00000017572813762414, prob_attempt: 0.00000017572813762414, mat_combination: Arc::new(vec![]) },
+                ResultLine { level: 60, prob_gizmo: 0.00000112864757880545, prob_attempt: 0.00000112864757880545, mat_combination: Arc::new(vec![]) },
             ];
             let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, input_materials, wanted_gizmo);
             assert_resultlines_eq(&actual, &expected);
@@ -917,12 +965,12 @@ mod tests {
             ];
             let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::ClearHeaded, rank: 2 }, Perk { ..Default::default() }), ..Default::default() };
             let expected = vec![
-                ResultLine { level: 50, prob_gizmo: 0.46018419656933490236, prob_attempt: 0.46018419656933490236, mat_combination: Rc::new(vec![]) },
-                ResultLine { level: 52, prob_gizmo: 0.44214030724407260564, prob_attempt: 0.44214030724407260564, mat_combination: Rc::new(vec![]) },
-                ResultLine { level: 54, prob_gizmo: 0.42436718836156678281, prob_attempt: 0.42436718836156678281, mat_combination: Rc::new(vec![]) },
-                ResultLine { level: 56, prob_gizmo: 0.40708661016742259120, prob_attempt: 0.40708661016742259120, mat_combination: Rc::new(vec![]) },
-                ResultLine { level: 58, prob_gizmo: 0.39049529671634181094, prob_attempt: 0.39049529671634181094, mat_combination: Rc::new(vec![]) },
-                ResultLine { level: 60, prob_gizmo: 0.37476699430103094235, prob_attempt: 0.37476699430103094235, mat_combination: Rc::new(vec![]) },
+                ResultLine { level: 50, prob_gizmo: 0.46018419656933490236, prob_attempt: 0.46018419656933490236, mat_combination: Arc::new(vec![]) },
+                ResultLine { level: 52, prob_gizmo: 0.44214030724407260564, prob_attempt: 0.44214030724407260564, mat_combination: Arc::new(vec![]) },
+                ResultLine { level: 54, prob_gizmo: 0.42436718836156678281, prob_attempt: 0.42436718836156678281, mat_combination: Arc::new(vec![]) },
+                ResultLine { level: 56, prob_gizmo: 0.40708661016742259120, prob_attempt: 0.40708661016742259120, mat_combination: Arc::new(vec![]) },
+                ResultLine { level: 58, prob_gizmo: 0.39049529671634181094, prob_attempt: 0.39049529671634181094, mat_combination: Arc::new(vec![]) },
+                ResultLine { level: 60, prob_gizmo: 0.37476699430103094235, prob_attempt: 0.37476699430103094235, mat_combination: Arc::new(vec![]) },
             ];
             let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, input_materials, wanted_gizmo);
             assert_resultlines_eq(&actual, &expected);

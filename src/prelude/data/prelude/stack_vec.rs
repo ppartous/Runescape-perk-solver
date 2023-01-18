@@ -19,12 +19,16 @@ where
             len: slice.len(),
             ranks: [T::default(); N]
         };
-        x.ranks[0..slice.len()].clone_from_slice(&slice);
+        x.ranks[0..slice.len()].clone_from_slice(slice);
         x
     }
 
     pub const fn len(&self) -> usize {
         self.len
+    }
+
+    pub const fn is_empty(&self) -> bool {
+        self.len == 0
     }
 
     pub fn iter(&self) -> std::slice::Iter<'_, T> {

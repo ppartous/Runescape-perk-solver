@@ -20,7 +20,7 @@ pub mod budget;
 pub use budget::*;
 
 use smallvec::{SmallVec, smallvec};
-use std::rc::Rc;
+use std::sync::Arc;
 use colored::Colorize;
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -101,12 +101,12 @@ impl std::fmt::Display for SplitMaterials {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ResultLine {
     pub level: u16,
     pub prob_gizmo: f64,
     pub prob_attempt: f64,
-    pub mat_combination: Rc<Vec<MaterialName>>
+    pub mat_combination: Arc<Vec<MaterialName>>
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -118,5 +118,5 @@ pub struct ResultLineWithPrice {
     pub prob_gizmo: f64,
     pub prob_attempt: f64,
     pub price: f64,
-    pub mat_combination: Rc<Vec<MaterialName>>
+    pub mat_combination: Arc<Vec<MaterialName>>
 }

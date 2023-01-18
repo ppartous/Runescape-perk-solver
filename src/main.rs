@@ -4,6 +4,7 @@ use std::str::FromStr;
 use clap::Parser;
 
 fn main() {
+    let timer = howlong::HighResolutionTimer::new();
     let cli = Cli::parse();
     let data = Data::load();
 
@@ -19,7 +20,7 @@ fn main() {
             };
 
             validate_input(&args, wanted_gizmo, &data);
-            perk_solver(&args, &data, wanted_gizmo);
+            perk_solver(args, data, wanted_gizmo);
         },
         Commands::MaterialInput { mats } => {
             let mut materials = vec![];
@@ -41,6 +42,7 @@ fn main() {
             }
         }
     }
+    println!("{:?}", timer.elapsed());
 }
 
 fn validate_input(args: &Args, wanted_gizmo: Gizmo, data: &Data) {

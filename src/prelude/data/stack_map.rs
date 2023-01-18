@@ -19,7 +19,11 @@ where
     usize: From<K>
 {
     pub fn new() -> Self {
-        StackMap { data: [V::default(); N], keys: [K::default(); N], phantom: PhantomData }
+        StackMap {
+            data: [V::default(); N],
+            keys: [K::default(); N],
+            phantom: PhantomData
+        }
     }
 
     pub fn insert(&mut self, key: K, value: V) {
@@ -28,7 +32,7 @@ where
         self.data[index] = value;
     }
 
-    pub fn get<'a>(&'a self, key: K) -> &'a V {
+    pub fn get(&self, key: K) -> & V {
         let index = usize::from(key);
         debug_assert!(index < N);
         unsafe {
@@ -51,6 +55,17 @@ where
 
     fn index(&self, index: K) -> &Self::Output {
         self.get(index)
+    }
+}
+
+impl<K, V, const N: usize> Default for StackMap<K, V, N>
+where
+    V: Default + Copy,
+    K: Default + Copy,
+    usize: From<K>
+{
+    fn default() -> Self {
+        Self::new()
     }
 }
 
