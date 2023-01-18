@@ -93,7 +93,7 @@ pub enum InventionLevel {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Args {
     pub invention_level: InventionLevel,
     pub gizmo_type: GizmoType,

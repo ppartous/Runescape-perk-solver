@@ -112,7 +112,7 @@ pub struct ResultLine {
 // ---------------------------------------------------------------------------------------------------------------------
 
 // Keep separate to reduce memory usage
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ResultLineWithPrice {
     pub level: u16,
     pub prob_gizmo: f64,

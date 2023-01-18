@@ -1,31 +1,43 @@
 use crate::{component_prices::*, utils::print_warning, prelude::*};
 use colored::*;
-use std::{collections::HashMap, fs};
+use std::{collections::HashMap, fs, sync::Mutex, sync::Arc};
 use itertools::Itertools;
+use threadpool::ThreadPool;
 
-pub fn find_best_per_level(res: &HashMap<u16, Vec<ResultLine>>, args: &Args) -> Vec<ResultLineWithPrice> {
-    let mut best_per_level = Vec::new();
+pub fn find_best_per_level(res: HashMap<u16, Vec<ResultLine>>, args: &Args) -> Vec<ResultLineWithPrice> {
+    let args = Arc::new(args.clone());
+    let best_per_level = Arc::new(Mutex::new(Vec::new()));
+    let pool = ThreadPool::new(num_cpus::get() * 2);
 
-    for (_, lines) in res.iter().sorted_by(|(a, _), (b, _)| Ord::cmp(a, b)) {
-        let best = match args.sort_type {
-            SortType::Price => lines.iter().min_set_by(|a, b| PartialOrd::partial_cmp(&calc_gizmo_price(a, args),&calc_gizmo_price(b, args)).unwrap()),
-            SortType::Gizmo => lines.iter().max_set_by(|a, b| PartialOrd::partial_cmp(&a.prob_gizmo, &b.prob_gizmo).unwrap()),
-            SortType::Attempt => lines.iter().max_set_by(|a, b| PartialOrd::partial_cmp(&a.prob_attempt, &b.prob_attempt).unwrap()),
-        };
-        let best = best.iter().min_by(|a, b| Ord::cmp(&a.mat_combination.len(), &b.mat_combination.len()));
+    for (_, lines) in res.into_iter().sorted_by(|(a, _), (b, _)| Ord::cmp(a, b)) {
+        let args = args.clone();
+        let best_per_level = best_per_level.clone();
+        pool.execute(move || {
+            let best = match args.sort_type {
+                SortType::Price => lines.iter().min_set_by(|a, b| PartialOrd::partial_cmp(&calc_gizmo_price(a, &args),&calc_gizmo_price(b, &args)).unwrap()),
+                SortType::Gizmo => lines.iter().max_set_by(|a, b| PartialOrd::partial_cmp(&a.prob_gizmo, &b.prob_gizmo).unwrap()),
+                SortType::Attempt => lines.iter().max_set_by(|a, b| PartialOrd::partial_cmp(&a.prob_attempt, &b.prob_attempt).unwrap()),
+            };
+            let best = best.iter().min_by(|a, b| Ord::cmp(&a.mat_combination.len(), &b.mat_combination.len()));
 
-        if let Some(best) = best {
-            best_per_level.push(ResultLineWithPrice {
-                level: best.level,
-                prob_attempt: best.prob_attempt,
-                prob_gizmo: best.prob_gizmo,
-                mat_combination: best.mat_combination.clone(),
-                price: calc_gizmo_price(best, args)
-            });
-        }
+            if let Some(best) = best {
+                if let Ok(best_per_level) = best_per_level.lock().as_mut() {
+                    best_per_level.push(ResultLineWithPrice {
+                        level: best.level,
+                        prob_attempt: best.prob_attempt,
+                        prob_gizmo: best.prob_gizmo,
+                        mat_combination: best.mat_combination.clone(),
+                        price: calc_gizmo_price(best, &args)
+                    });
+                }
+            }
+        });
     }
 
-    best_per_level
+    pool.join();
+
+    let x = best_per_level.lock().unwrap();
+    x.iter().cloned().sorted_by(|x, y| Ord::cmp(&x.level, &y.level)).collect_vec()
 }
 
 fn format_float(num: f64) -> String {

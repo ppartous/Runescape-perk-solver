@@ -208,13 +208,13 @@ pub async fn perk_solver(args: Args, data: Data, wanted_gizmo: Gizmo) {
 
     pool.join();
     drop(tx);
-    let res = result_handler.join().unwrap();
 
     bar_progress.store(total_combination_count as u64, Relaxed);
     bar_handler.await.ok();
     println!("\n");
 
-    let best_per_level = result::find_best_per_level(&res, &args);
+    let res = result_handler.join().unwrap();
+    let best_per_level = result::find_best_per_level(res, &args);
     result::print_result(&best_per_level, &args);
     result::write_best_mats_to_file(&best_per_level);
 }

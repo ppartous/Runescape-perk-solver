@@ -3,7 +3,7 @@ use serde_json::{self, Value};
 use crate::{utils::print_warning, prelude::*};
 use std::{collections::HashMap, str::FromStr, fs, sync::Mutex};
 use regex::Regex;
-use lazy_static::lazy_static;
+use once_cell::sync::OnceCell;
 
 static APP_USER_AGENT: &str = concat!(
     env!("CARGO_PKG_NAME"),
@@ -13,36 +13,41 @@ static APP_USER_AGENT: &str = concat!(
     env!("CARGO_PKG_REPOSITORY")
 );
 
-lazy_static!{
-    static ref PRICES: HashMap<MaterialName, f64> = get_component_prices();
-    static ref SHELL_PRICE: Mutex<Option<f64>> = Mutex::new(None);
-}
+static SHELL_PRICE: OnceCell<f64> = OnceCell::new();
+static PRICES: OnceCell<HashMap<MaterialName, f64>> = OnceCell::new();
+static UPDATE_PRICE_MUTEX: Mutex<u8> = Mutex::new(0);
 
 fn get_shell_price(args: &Args) -> f64 {
-    if let Some(price) = *SHELL_PRICE.lock().unwrap() {
-        return price;
+    if let Some(price) = SHELL_PRICE.get() {
+        return *price;
     }
-    let price = match args.ancient {
-        true => match args.gizmo_type {
-            GizmoType::Armour => 20.0 * PRICES.get(&MaterialName::DeflectingParts).unwrap() + 20.0 * PRICES.get(&MaterialName::HistoricComponents).unwrap() + 2.0 * PRICES.get(&MaterialName::ClassicComponents).unwrap() + 2.0 * PRICES.get(&MaterialName::ProtectiveComponents).unwrap(),
-            GizmoType::Weapon => 20.0 * PRICES.get(&MaterialName::BladeParts).unwrap() + 20.0 * PRICES.get(&MaterialName::HistoricComponents).unwrap() + 2.0 * PRICES.get(&MaterialName::ClassicComponents).unwrap() + 2.0 * PRICES.get(&MaterialName::StrongComponents).unwrap(),
-            GizmoType::Tool => 20.0 * PRICES.get(&MaterialName::HeadParts).unwrap() + 20.0 * PRICES.get(&MaterialName::HistoricComponents).unwrap() + 2.0 * PRICES.get(&MaterialName::ClassicComponents).unwrap() + 2.0 * PRICES.get(&MaterialName::PreciseComponents).unwrap(),
-        },
-        false => match args.gizmo_type {
-            GizmoType::Armour => 10.0 * PRICES.get(&MaterialName::DeflectingParts).unwrap() + 5.0 * PRICES.get(&MaterialName::CraftedParts).unwrap() + 2.0 * PRICES.get(&MaterialName::ProtectiveComponents).unwrap(),
-            GizmoType::Weapon => 10.0 * PRICES.get(&MaterialName::BladeParts).unwrap() + 5.0 * PRICES.get(&MaterialName::CraftedParts).unwrap() + 2.0 * PRICES.get(&MaterialName::StrongComponents).unwrap(),
-            GizmoType::Tool => 10.0 * PRICES.get(&MaterialName::HeadParts).unwrap() + 5.0 * PRICES.get(&MaterialName::CraftedParts).unwrap() + 2.0 * PRICES.get(&MaterialName::PreciseComponents).unwrap(),
-        },
-    };
-    *SHELL_PRICE.lock().unwrap() = Some(price);
-    price
+    if let Ok(_) = UPDATE_PRICE_MUTEX.try_lock() {
+        let prices = get_component_prices();
+        let price = match args.ancient {
+            true => match args.gizmo_type {
+                GizmoType::Armour => 20.0 * prices.get(&MaterialName::DeflectingParts).unwrap() + 20.0 * prices.get(&MaterialName::HistoricComponents).unwrap() + 2.0 * prices.get(&MaterialName::ClassicComponents).unwrap() + 2.0 * prices.get(&MaterialName::ProtectiveComponents).unwrap(),
+                GizmoType::Weapon => 20.0 * prices.get(&MaterialName::BladeParts).unwrap() + 20.0 * prices.get(&MaterialName::HistoricComponents).unwrap() + 2.0 * prices.get(&MaterialName::ClassicComponents).unwrap() + 2.0 * prices.get(&MaterialName::StrongComponents).unwrap(),
+                GizmoType::Tool => 20.0 * prices.get(&MaterialName::HeadParts).unwrap() + 20.0 * prices.get(&MaterialName::HistoricComponents).unwrap() + 2.0 * prices.get(&MaterialName::ClassicComponents).unwrap() + 2.0 * prices.get(&MaterialName::PreciseComponents).unwrap(),
+            },
+            false => match args.gizmo_type {
+                GizmoType::Armour => 10.0 * prices.get(&MaterialName::DeflectingParts).unwrap() + 5.0 * prices.get(&MaterialName::CraftedParts).unwrap() + 2.0 * prices.get(&MaterialName::ProtectiveComponents).unwrap(),
+                GizmoType::Weapon => 10.0 * prices.get(&MaterialName::BladeParts).unwrap() + 5.0 * prices.get(&MaterialName::CraftedParts).unwrap() + 2.0 * prices.get(&MaterialName::StrongComponents).unwrap(),
+                GizmoType::Tool => 10.0 * prices.get(&MaterialName::HeadParts).unwrap() + 5.0 * prices.get(&MaterialName::CraftedParts).unwrap() + 2.0 * prices.get(&MaterialName::PreciseComponents).unwrap(),
+            },
+        };
+        PRICES.set(prices).ok();
+        SHELL_PRICE.set(price).ok();
+        price
+    } else {
+        *SHELL_PRICE.wait()
+    }
 }
 
 pub fn calc_gizmo_price(line: &ResultLine, args: &Args) -> f64 {
     let shell_price = get_shell_price(args);
-
+    let prices = PRICES.get().unwrap();
     let price = shell_price + line.mat_combination.iter().fold(0.0, |acc, x| {
-        acc + PRICES.get(x).unwrap()
+        acc + prices.get(x).unwrap()
     });
 
     price / line.prob_gizmo
