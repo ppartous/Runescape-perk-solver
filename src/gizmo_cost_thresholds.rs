@@ -207,11 +207,11 @@ pub fn find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_rang
 
             cost_thresholds.push(Gizmo::create(&perk_one, Some(&perk_two)));
 
-            if
-                i < combination.ranks.len() - 1 // perk_one is lower than P1 so there is always a higher threshold
-                || perk_two_index < combination.ranks.len() - 2 // perk_two is lower than P2 so there is always a higher threshold
-            {
-                if perk_two_index == i - 1 {
+            if perk_two_index < combination.ranks.len() - 2 { // perk_two is lower than P2 so there is always a higher threshold
+                if
+                    (i < combination.ranks.len() - 1) // perk_one is lower than P1
+                    && ((perk_two_index == i - 1) || (perk_one.cost + combination.ranks[perk_two_index + 1].cost >= next_major_threshold))
+                {
                     perk_one = combination.ranks[i + 1];
                     perk_two = PerkRankValues { ..Default::default() };
                 } else {
@@ -1290,6 +1290,7 @@ mod tests {
                         PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
                         PerkRankValues { name: PerkName::C, rank: 1, cost: 30, ..Default::default() },
                         PerkRankValues { name: PerkName::D, rank: 1, cost: 50, ..Default::default() },
+                        PerkRankValues { name: PerkName::E, rank: 1, cost: 75, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
@@ -1312,6 +1313,18 @@ mod tests {
                 let expected = vec![
                     Gizmo { perks: (Perk { name: PerkName::B, rank: 1 }, Perk { name: PerkName::A, rank: 1 }), cost: 29, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::C, rank: 1 }, Perk { ..Default::default() }), cost: 30, ..Default::default() },
+                ];
+                let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
+                assert_gcth_eq(&actual, &expected);
+            }
+
+            #[test]
+            fn sum_next_minor_larger_than_next_major() {
+                let combination = setup();
+                let wanted_gizmo = Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), ..Default::default() };
+                let expected = vec![
+                    Gizmo { perks: (Perk { name: PerkName::D, rank: 1 }, Perk { name: PerkName::B, rank: 1 }), cost: 70, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::E, rank: 1 }, Perk { ..Default::default() }), cost: 75, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 100, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);

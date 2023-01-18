@@ -37,7 +37,7 @@ fn main() {
             for gizmo in gizmos {
                 let prob_str = format!("{}", gizmo.probability);
                 let zeros = prob_str.find(['1', '2', '3', '4', '5', '6', '7', '8', '9']).unwrap_or(2) - 2;
-                println!("{:<15} {:<15}: {:.*}", format!("{} {},", gizmo.perks.0.name, gizmo.perks.0.rank),
+                println!("{:<20} {:<20}: {:.*}", format!("{} {},", gizmo.perks.0.name, gizmo.perks.0.rank),
                     format!("{} {},", gizmo.perks.1.name, gizmo.perks.1.rank), zeros + 4, gizmo.probability);
             }
         }
