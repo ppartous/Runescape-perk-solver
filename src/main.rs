@@ -1,11 +1,11 @@
 mod utils;
-use perk_solver::{prelude::*, load_data, calc_gizmo_probabilities, perk_solver};
+use perk_solver::{prelude::*, calc_gizmo_probabilities, perk_solver};
 use std::str::FromStr;
 use clap::Parser;
 
 fn main() {
     let cli = Cli::parse();
-    let data = load_data();
+    let data = Data::load();
 
     match cli.command {
         Commands::Gizmo {..} => {
@@ -44,23 +44,23 @@ fn main() {
 }
 
 fn validate_input(args: &Args, wanted_gizmo: Gizmo, data: &Data) {
-    if data.perks[&wanted_gizmo.perks.0.name].doubleslot && wanted_gizmo.perks.1.name != PerkName::Empty {
+    if data.perks[wanted_gizmo.perks.0.name].doubleslot && wanted_gizmo.perks.1.name != PerkName::Empty {
         utils::print_error(format!("Perk '{}' can't be combined with another perk as it uses both slots.", wanted_gizmo.perks.0.name).as_str())
     }
-    if data.perks[&wanted_gizmo.perks.1.name].doubleslot {
+    if data.perks[wanted_gizmo.perks.1.name].doubleslot {
         utils::print_error(format!("Perk '{}' can't be combined with another perk as it uses both slots.", wanted_gizmo.perks.1.name).as_str())
     }
 
-    if wanted_gizmo.perks.0.rank as usize >= data.perks[&wanted_gizmo.perks.0.name].ranks.len() {
+    if wanted_gizmo.perks.0.rank as usize >= data.perks[wanted_gizmo.perks.0.name].ranks.len() {
         utils::print_error(format!("Perk '{}' only goes up to rank {}.",
             &wanted_gizmo.perks.0.name,
-            data.perks[&wanted_gizmo.perks.0.name].ranks.len() - 1).as_str())
+            data.perks[wanted_gizmo.perks.0.name].ranks.len() - 1).as_str())
     }
 
-    if wanted_gizmo.perks.1.name != PerkName::Empty && wanted_gizmo.perks.1.rank as usize >= data.perks[&wanted_gizmo.perks.1.name].ranks.len() {
+    if wanted_gizmo.perks.1.name != PerkName::Empty && wanted_gizmo.perks.1.rank as usize >= data.perks[wanted_gizmo.perks.1.name].ranks.len() {
         utils::print_error(format!("Perk '{}' only goes up to rank {}.",
             &wanted_gizmo.perks.1.name,
-            data.perks[&wanted_gizmo.perks.1.name].ranks.len() - 1).as_str())
+            data.perks[wanted_gizmo.perks.1.name].ranks.len() - 1).as_str())
     }
 
     match args.invention_level {

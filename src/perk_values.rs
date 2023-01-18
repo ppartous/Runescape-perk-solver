@@ -11,8 +11,8 @@ pub fn get_perk_values(data: &Data, input_materials: &Vec<MaterialName>, gizmo_t
     let mut possible_perks: HashMap<PerkName, PerkValues> = HashMap::new();
 
     for mat in input_materials {
-        let mat_data = &data.comps[mat][gizmo_type];
-        let is_ancient_mat = data.comps[mat].ancient_only;
+        let mat_data = &data.comps[*mat][gizmo_type];
+        let is_ancient_mat = data.comps[*mat].ancient_only;
 
         if is_ancient_mat && !is_ancient_gizmo {
             continue;
@@ -57,7 +57,7 @@ pub fn get_perk_values(data: &Data, input_materials: &Vec<MaterialName>, gizmo_t
 
 pub fn calc_perk_rank_probabilities(data: &Data, perk_values_arr: &mut [PerkValues], is_ancient_gizmo: bool) {
     for perk_values in perk_values_arr.iter_mut() {
-        let perk_data = &data.perks[&perk_values.name];
+        let perk_data = &data.perks[perk_values.name];
 
         for x in perk_data.ranks.iter() {
             perk_values.ranks.push(PerkRankValuesProbabilityContainer { values: *x, probability: 0.0 });
@@ -120,8 +120,8 @@ pub fn can_generate_wanted_ranks(data: &Data, perk_values_arr: &Vec<PerkValues>,
     let wanted_rank1 = wanted_gizmo.perks.0.rank as usize;
     let wanted_rank2 = wanted_gizmo.perks.1.rank as usize;
 
-    let perk1_ranks = &data.perks[&wanted_gizmo.perks.0.name].ranks;
-    let perk2_ranks = &data.perks[&wanted_gizmo.perks.1.name].ranks;
+    let perk1_ranks = &data.perks[wanted_gizmo.perks.0.name].ranks;
+    let perk2_ranks = &data.perks[wanted_gizmo.perks.1.name].ranks;
 
     let perk1_threshold = perk1_ranks[wanted_rank1].threshold as usize;
     let perk1_next_threshold = if wanted_rank1 + 1 < perk1_ranks.len() { perk1_ranks[wanted_rank1 + 1].threshold as usize } else { usize::MAX };
@@ -298,7 +298,7 @@ mod tests {
     use super::*;
     use itertools::Itertools;
     use lazy_static::lazy_static;
-    use crate::{load_data, utils::{check_len, check_index, check_index_relative}};
+    use crate::utils::{check_len, check_index, check_index_relative};
 
     fn assert_perk_values_eq(actual: &Vec<PerkValues>, expected: &Vec<PerkValues>) {
         PerkName::using_full_names();
@@ -326,7 +326,7 @@ mod tests {
         use super::*;
 
         lazy_static!{
-            static ref DATA: Data = load_data();
+            static ref DATA: Data = Data::load();
         }
 
         #[test]
@@ -527,41 +527,43 @@ mod tests {
     }
 
     mod calc_perk_rank_probabilities_tests {
-        use std::collections::HashMap;
+        use crate::{stack_map::StackMap, stack_vec::StackVec};
         use super::*;
 
         lazy_static!{
             static ref DATA: Data = Data {
-                comps: HashMap::new(),
-                perks: HashMap::from([
-                    (PerkName::Precise, PerkRanksData {
+                comps: StackMap::new(),
+                perks: {
+                    let mut map = StackMap::new();
+                    map.insert(PerkName::Precise, PerkRanksData {
                         doubleslot: true,
-                        ranks: vec![
+                        ranks: StackVec::new(&[
                             PerkRankValues { name: PerkName::Precise, doubleslot: true, rank: 0, threshold: 0, ancient_only: false, ..Default::default() },
                             PerkRankValues { name: PerkName::Precise, doubleslot: true, rank: 1, threshold: 10, ancient_only: false, ..Default::default() },
                             PerkRankValues { name: PerkName::Precise, doubleslot: true, rank: 2, threshold: 100, ancient_only: false, ..Default::default() },
                             PerkRankValues { name: PerkName::Precise, doubleslot: true, rank: 3, threshold: 150, ancient_only: true, ..Default::default() },
-                        ]
-                    }),
-                    (PerkName::Biting, PerkRanksData {
+                        ])
+                    });
+                    map.insert(PerkName::Biting, PerkRanksData {
                         doubleslot: false,
-                        ranks: vec![
+                        ranks: StackVec::new(&[
                             PerkRankValues { name: PerkName::Biting, doubleslot: false, rank: 0, threshold: 0, ancient_only: false, ..Default::default() },
                             PerkRankValues { name: PerkName::Biting, doubleslot: false, rank: 1, threshold: 50, ancient_only: false, ..Default::default() },
                             PerkRankValues { name: PerkName::Biting, doubleslot: false, rank: 2, threshold: 80, ancient_only: false, ..Default::default() },
                             PerkRankValues { name: PerkName::Biting, doubleslot: false, rank: 3, threshold: 200, ancient_only: true, ..Default::default() },
                             PerkRankValues { name: PerkName::Biting, doubleslot: false, rank: 4, threshold: 250, ancient_only: true, ..Default::default() },
-                        ]
-                    }),
-                    (PerkName::Equilibrium, PerkRanksData {
+                        ])
+                    });
+                    map.insert(PerkName::Equilibrium, PerkRanksData {
                         doubleslot: false,
-                        ranks: vec![
+                        ranks: StackVec::new(&[
                             PerkRankValues { name: PerkName::Equilibrium, doubleslot: false, rank: 0, threshold: 0, ancient_only: false, ..Default::default() },
                             PerkRankValues { name: PerkName::Equilibrium, doubleslot: false, rank: 1, threshold: 49, ancient_only: false, ..Default::default() },
                             PerkRankValues { name: PerkName::Equilibrium, doubleslot: false, rank: 2, threshold: 80, ancient_only: false, ..Default::default() },
-                        ]
-                    }),
-                ])
+                        ])
+                    });
+                    map
+                }
             };
         }
 
@@ -579,10 +581,10 @@ mod tests {
                     i_last: 2,
                     rolls: smallvec![32, 32, 64],
                     ranks: smallvec![
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[0], probability: 0.0 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[1], probability: 0.87188720703125 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[2], probability: 0.12811279296875 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[3], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[0], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[1], probability: 0.87188720703125 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[2], probability: 0.12811279296875 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[3], probability: 0.0 },
                     ]
                 }
             ];
@@ -604,10 +606,10 @@ mod tests {
                     i_last: 3,
                     rolls: smallvec![128, 128],
                     ranks: smallvec![
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[0], probability: 0.0 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[1], probability: 0.24993896484375 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[2], probability: 0.34295654296875 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[3], probability: 0.4071044921875 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[0], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[1], probability: 0.24993896484375 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[2], probability: 0.34295654296875 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[3], probability: 0.4071044921875 },
                     ]
                 }
             ];
@@ -630,10 +632,10 @@ mod tests {
                     i_last: 2,
                     rolls: smallvec![32, 32, 64],
                     ranks: smallvec![
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[0], probability: 0.0 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[1], probability: 0.87188720703125 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[2], probability: 0.12811279296875 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[3], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[0], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[1], probability: 0.87188720703125 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[2], probability: 0.12811279296875 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[3], probability: 0.0 },
                     ]
                 },
                 PerkValues {
@@ -644,11 +646,11 @@ mod tests {
                     i_last: 2,
                     rolls: smallvec![32, 32, 64],
                     ranks: smallvec![
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[0], probability: 0.0 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[1], probability: 0.07568359375 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[2], probability: 0.92431640625 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[3], probability: 0.0 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[4], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[0], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[1], probability: 0.07568359375 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[2], probability: 0.92431640625 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[3], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[4], probability: 0.0 },
                     ]
                 }
             ];
@@ -671,10 +673,10 @@ mod tests {
                     i_last: 3,
                     rolls: smallvec![64, 128, 128],
                     ranks: smallvec![
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[0], probability: 0.0 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[1], probability: 0.11663818359375 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[2], probability: 0.25565338134765625 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[3], probability: 0.62770843505859375 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[0], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[1], probability: 0.11663818359375 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[2], probability: 0.25565338134765625 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[3], probability: 0.62770843505859375 },
                     ]
                 },
                 PerkValues {
@@ -685,11 +687,11 @@ mod tests {
                     i_last: 4,
                     rolls: smallvec![32, 128, 128],
                     ranks: smallvec![
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[0], probability: 0.0 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[1], probability: 0.00946044921875 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[2], probability: 0.541595458984375 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[3], probability: 0.292510986328125 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[4], probability: 0.15643310546875 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[0], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[1], probability: 0.00946044921875 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[2], probability: 0.541595458984375 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[3], probability: 0.292510986328125 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[4], probability: 0.15643310546875 },
                     ]
                 }
             ];
@@ -711,10 +713,10 @@ mod tests {
                     i_last: 1,
                     rolls: smallvec![16, 16, 32],
                     ranks: smallvec![
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[0], probability: 0.0042724609375 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[1], probability: 0.9957275390625 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[2], probability: 0.0 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[3], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[0], probability: 0.0042724609375 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[1], probability: 0.9957275390625 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[2], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[3], probability: 0.0 },
                     ]
                 }
             ];
@@ -736,11 +738,11 @@ mod tests {
                     i_last: 3,
                     rolls: smallvec![32, 64, 64, 64],
                     ranks: smallvec![
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[0], probability: 0.02297878265380859375 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[1], probability: 0.12725317478179931641 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[2], probability: 0.84693670272827148438 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[3], probability: 0.00283133983612060547 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[4], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[0], probability: 0.02297878265380859375 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[1], probability: 0.12725317478179931641 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[2], probability: 0.84693670272827148438 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[3], probability: 0.00283133983612060547 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[4], probability: 0.0 },
                     ]
                 }
             ];
@@ -763,10 +765,10 @@ mod tests {
                     i_last: 2,
                     rolls: smallvec![16, 16, 32, 32, 64],
                     ranks: smallvec![
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[0], probability: 0.00000751018524169921875 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[1], probability: 0.74765408039093017578125 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[2], probability: 0.252338409423828125 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[3], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[0], probability: 0.00000751018524169921875 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[1], probability: 0.74765408039093017578125 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[2], probability: 0.252338409423828125 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[3], probability: 0.0 },
                     ]
                 },
                 PerkValues {
@@ -777,11 +779,11 @@ mod tests {
                     i_last: 2,
                     rolls: smallvec![16, 16, 32, 32, 64],
                     ranks: smallvec![
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[0], probability: 0.084997653961181640625 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[1], probability: 0.369161128997802734375 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[2], probability: 0.545841217041015625 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[3], probability: 0.0 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[4], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[0], probability: 0.084997653961181640625 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[1], probability: 0.369161128997802734375 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[2], probability: 0.545841217041015625 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[3], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[4], probability: 0.0 },
                     ]
                 }
             ];
@@ -804,10 +806,10 @@ mod tests {
                     i_last: 2,
                     rolls: smallvec![16, 32, 64],
                     ranks: smallvec![
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[0], probability: 0.001068115234375 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[1], probability: 0.978179931640625 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[2], probability: 0.020751953125 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Precise].ranks[3], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[0], probability: 0.001068115234375 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[1], probability: 0.978179931640625 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[2], probability: 0.020751953125 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[3], probability: 0.0 },
                     ]
                 },
                 PerkValues {
@@ -818,11 +820,11 @@ mod tests {
                     i_last: 3,
                     rolls: smallvec![32, 64, 64, 64],
                     ranks: smallvec![
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[0], probability: 0.02297878265380859375 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[1], probability: 0.12725317478179931641 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[2], probability: 0.84693670272827148438 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[3], probability: 0.00283133983612060547 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[4], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[0], probability: 0.02297878265380859375 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[1], probability: 0.12725317478179931641 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[2], probability: 0.84693670272827148438 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[3], probability: 0.00283133983612060547 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[4], probability: 0.0 },
                     ]
                 }
             ];
@@ -844,11 +846,11 @@ mod tests {
                     i_last: 4,
                     rolls: smallvec![250],
                     ranks: smallvec![
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[0], probability: 0.0 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[1], probability: 0.0 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[2], probability: 0.4 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[3], probability: 0.2 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Biting].ranks[4], probability: 0.4 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[0], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[1], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[2], probability: 0.4 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[3], probability: 0.2 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[4], probability: 0.4 },
                     ]
                 }
             ];
@@ -870,9 +872,9 @@ mod tests {
                     i_last: 1,
                     rolls: smallvec![40],
                     ranks: smallvec![
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Equilibrium].ranks[0], probability: 0.975 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Equilibrium].ranks[1], probability: 0.025 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[&PerkName::Equilibrium].ranks[2], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Equilibrium].ranks[0], probability: 0.975 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Equilibrium].ranks[1], probability: 0.025 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Equilibrium].ranks[2], probability: 0.0 },
                     ]
                 }
             ];
@@ -883,48 +885,50 @@ mod tests {
 
     mod can_generate_wanted_ranks_test {
         use super::*;
-        use std::collections::HashMap;
+        use crate::{stack_map::StackMap, stack_vec::StackVec};
 
         lazy_static!{
             static ref DATA: Data = Data {
-                comps: HashMap::new(),
-                perks: HashMap::from([
-                    (PerkName::Empty, PerkRanksData {
+                comps: StackMap::new(),
+                perks: {
+                    let mut map = StackMap::new();
+                    map.insert(PerkName::Empty, PerkRanksData {
                         doubleslot: false,
-                        ranks: vec![
+                        ranks: StackVec::new(&[
                             PerkRankValues { rank: 0, threshold: 0, ..Default::default() },
-                        ]
-                    }),
-                    (PerkName::Precise, PerkRanksData {
+                        ])
+                    });
+                    map.insert(PerkName::Precise, PerkRanksData {
                         doubleslot: false,
-                        ranks: vec![
+                        ranks: StackVec::new(&[
                             PerkRankValues { rank: 0, threshold: 0, ..Default::default() },
                             PerkRankValues { rank: 1, threshold: 10, ..Default::default() },
                             PerkRankValues { rank: 2, threshold: 100, ..Default::default() },
                             PerkRankValues { rank: 3, threshold: 150, ..Default::default() },
-                        ]
-                    }),
-                    (PerkName::Biting, PerkRanksData {
+                        ])
+                    });
+                    map.insert(PerkName::Biting, PerkRanksData {
                         doubleslot: false,
-                        ranks: vec![
+                        ranks: StackVec::new(&[
                             PerkRankValues { rank: 0, threshold: 0, ..Default::default() },
                             PerkRankValues { rank: 1, threshold: 50, ..Default::default() },
                             PerkRankValues { rank: 2, threshold: 80, ..Default::default() },
                             PerkRankValues { rank: 3, threshold: 200, ..Default::default() },
                             PerkRankValues { rank: 4, threshold: 250, ..Default::default() },
-                        ]
-                    }),
-                    (PerkName::Equilibrium, PerkRanksData {
+                        ])
+                    });
+                    map.insert(PerkName::Equilibrium, PerkRanksData {
                         doubleslot: false,
-                        ranks: vec![
+                        ranks: StackVec::new(&[
                             PerkRankValues { rank: 0, threshold: 0, ..Default::default() },
                             PerkRankValues { rank: 1, threshold: 50, ..Default::default() },
                             PerkRankValues { rank: 2, threshold: 80, ..Default::default() },
                             PerkRankValues { rank: 3, threshold: 200, ..Default::default() },
                             PerkRankValues { rank: 4, threshold: 250, ..Default::default() },
-                        ]
-                    }),
-                ])
+                        ])
+                    });
+                    map
+                }
             };
         }
 

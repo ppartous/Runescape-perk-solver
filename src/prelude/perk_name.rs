@@ -1,7 +1,6 @@
-use serde_with::DeserializeFromStr;
 use std::{fmt, str::FromStr, sync::atomic::AtomicBool};
 
-#[derive(PartialEq, Eq, Clone, Copy, PartialOrd, Ord, DeserializeFromStr, Hash)]
+#[derive(PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash)]
 pub enum PerkName {
     Empty,
     Absorbative,
@@ -307,5 +306,17 @@ impl FromStr for PerkName {
             "wise" => Ok(PerkName::Wise),
             _ => Err("Unknown perk")
         }
+    }
+}
+
+impl From<PerkName> for usize {
+    fn from(value: PerkName) -> Self {
+        value as usize
+    }
+}
+
+impl std::default::Default for PerkName {
+    fn default() -> Self {
+        PerkName::Empty
     }
 }

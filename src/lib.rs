@@ -117,11 +117,6 @@ use itertools::Itertools;
 use std::{cmp, rc::Rc, collections::HashMap, cmp::{Ord, PartialOrd}};
 use indicatif::{ProgressBar, ProgressStyle};
 
-pub fn load_data() -> Data {
-    let data = include_bytes!("../data.json");
-    serde_json::from_slice(data).unwrap()
-}
-
 pub fn perk_solver(args: &Args, data: &Data, wanted_gizmo: Gizmo) {
     let materials = get_materials(args, data, wanted_gizmo);
     let materials = split_materials(args, data, wanted_gizmo, materials);
@@ -334,18 +329,18 @@ fn split_materials(args: &Args, data: &Data, wanted_gizmo: Gizmo, mats: Vec<Mate
     let mut conflict = Vec::new();
     let mut no_conflict = Vec::new();
 
-    let cost_p1 = data.perks[&wanted_gizmo.perks.0.name].ranks[wanted_gizmo.perks.0.rank as usize].cost;
+    let cost_p1 = data.perks[wanted_gizmo.perks.0.name].ranks[wanted_gizmo.perks.0.rank as usize].cost;
     let cost_p2 = if wanted_gizmo.perks.1.name != PerkName::Empty {
-        data.perks[&wanted_gizmo.perks.1.name].ranks[wanted_gizmo.perks.1.rank as usize].cost
+        data.perks[wanted_gizmo.perks.1.name].ranks[wanted_gizmo.perks.1.rank as usize].cost
     } else {
         0
     };
 
     for mat in mats {
         let mut is_conflict = false;
-        'comp: for comp_values in data.comps[&mat][args.gizmo_type].iter() {
+        'comp: for comp_values in data.comps[mat][args.gizmo_type].iter() {
             if comp_values.perk != wanted_gizmo.perks.0.name && comp_values.perk != wanted_gizmo.perks.1.name {
-                for perk_rank in data.perks[&comp_values.perk].ranks.iter() {
+                for perk_rank in data.perks[comp_values.perk].ranks.iter() {
                     if perk_rank.rank > 0 && (perk_rank.cost == cost_p1 || perk_rank.cost == cost_p2) {
                         conflict.push(mat);
                         is_conflict = true;
@@ -421,7 +416,7 @@ mod tests {
     use crate::utils::{check_index, check_index_relative, check_len};
 
     lazy_static!{
-        static ref DATA: Data = load_data();
+        static ref DATA: Data = Data::load();
     }
 
     mod calc_gizmo_probabilities_tests {
