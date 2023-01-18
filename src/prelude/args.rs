@@ -29,6 +29,7 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
+    /// Find the optimal material combination of a given gizmo
     Gizmo {
         /// Perk to look for
         perk: String,
@@ -56,7 +57,9 @@ pub enum Commands {
         #[arg(value_enum, short, long, default_value_t = SortType::Price)]
         sort_type: SortType,
     },
+    /// Show the gizmo probabilities for a given material combination
     MaterialInput {
+        /// Comma separated list of materials. Shorter names are accepted (e.g. 'precise' instead of 'Precise components')
         #[arg(required(true), use_value_delimiter = true, value_delimiter = ',')]
         mats: Vec<String>
     }
