@@ -1,43 +1,67 @@
 use crate::{component_prices::*, utils::print_warning, prelude::*};
 use colored::*;
-use std::{collections::HashMap, fs, sync::Mutex, sync::Arc};
+use std::{collections::HashMap, fs, sync::Arc};
 use itertools::Itertools;
-use threadpool::ThreadPool;
+use tokio::sync::mpsc::Receiver;
+use std::thread::JoinHandle;
 
-pub fn find_best_per_level(res: HashMap<u16, Vec<ResultLine>>, args: &Args) -> Vec<ResultLineWithPrice> {
-    let args = Arc::new(args.clone());
-    let best_per_level = Arc::new(Mutex::new(Vec::new()));
-    let pool = ThreadPool::new(num_cpus::get() * 2);
+pub fn result_handler(args: Arc<Args>, mut rx: Receiver<Arc<Vec<ResultLine>>>) -> JoinHandle<Vec<ResultLineWithPrice>> {
+    let handler = std::thread::spawn(move || {
+        let mut best_per_level = HashMap::new();
+        match args.invention_level {
+            InventionLevel::Single(x) => { best_per_level.insert(x, ResultLineWithPrice { ..Default::default() }); },
+            InventionLevel::Range(x, y) => for lvl in (x..=y).step_by(2) {
+                best_per_level.insert(lvl, ResultLineWithPrice { ..Default::default() });
+            }
+        }
 
-    for (_, lines) in res.into_iter().sorted_by(|(a, _), (b, _)| Ord::cmp(a, b)) {
-        let args = args.clone();
-        let best_per_level = best_per_level.clone();
-        pool.execute(move || {
-            let best = match args.sort_type {
-                SortType::Price => lines.iter().min_set_by(|a, b| PartialOrd::partial_cmp(&calc_gizmo_price(a, &args),&calc_gizmo_price(b, &args)).unwrap()),
-                SortType::Gizmo => lines.iter().max_set_by(|a, b| PartialOrd::partial_cmp(&a.prob_gizmo, &b.prob_gizmo).unwrap()),
-                SortType::Attempt => lines.iter().max_set_by(|a, b| PartialOrd::partial_cmp(&a.prob_attempt, &b.prob_attempt).unwrap()),
-            };
-            let best = best.iter().min_by(|a, b| Ord::cmp(&a.mat_combination.len(), &b.mat_combination.len()));
+        while let Some(lines) = rx.blocking_recv() {
+            for line in lines.iter() {
+                let price = calc_gizmo_price(line, &args);
+                let prev_best = best_per_level.get(&line.level).unwrap();
 
-            if let Some(best) = best {
-                if let Ok(best_per_level) = best_per_level.lock().as_mut() {
-                    best_per_level.push(ResultLineWithPrice {
-                        level: best.level,
-                        prob_attempt: best.prob_attempt,
-                        prob_gizmo: best.prob_gizmo,
-                        mat_combination: best.mat_combination.clone(),
-                        price: calc_gizmo_price(best, &args)
-                    });
+                let is_best = match args.sort_type {
+                    SortType::Price => {
+                        if price == prev_best.price {
+                            line.mat_combination.len() < prev_best.mat_combination.len()
+                        } else {
+                            price < prev_best.price
+                        }
+                    },
+                    SortType::Gizmo => {
+                        if line.prob_gizmo == prev_best.prob_gizmo {
+                            line.mat_combination.len() < prev_best.mat_combination.len()
+                        } else {
+                            line.prob_gizmo > prev_best.prob_gizmo
+                        }
+                    },
+                    SortType::Attempt => {
+                        if line.prob_attempt == prev_best.prob_attempt {
+                            line.mat_combination.len() < prev_best.mat_combination.len()
+                        } else {
+                            line.prob_attempt > prev_best.prob_attempt
+                        }
+                    }
+                };
+
+                if is_best {
+                    let line = ResultLineWithPrice {
+                        level: line.level,
+                        prob_attempt: line.prob_attempt,
+                        prob_gizmo: line.prob_gizmo,
+                        mat_combination: line.mat_combination.clone(),
+                        price,
+                    };
+                    best_per_level.insert(line.level, line);
                 }
             }
-        });
-    }
+        }
 
-    pool.join();
+        best_per_level.into_values().sorted_by(|x, y| x.level.cmp(&y.level))
+            .filter(|x| x.prob_gizmo > 0.0).collect_vec()
+    });
 
-    let x = best_per_level.lock().unwrap();
-    x.iter().cloned().sorted_by(|x, y| Ord::cmp(&x.level, &y.level)).collect_vec()
+    handler
 }
 
 fn format_float(num: f64) -> String {
@@ -75,8 +99,10 @@ fn get_color(ratio: f64) -> (u8, u8, u8) {
         (255, 244, 0) // Yellow
     } else if ratio > 0.50 {
         (255, 167, 0) // Orange
-    } else {
+    } else if ratio > 0.10 {
         (219, 108, 108) // Red
+    } else {
+        (255, 0, 0) // Strong red
     }
 }
 

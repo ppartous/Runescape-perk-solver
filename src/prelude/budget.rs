@@ -2,7 +2,7 @@ use crate::dice;
 
 pub struct Budget {
     pub dist: Vec<f64>,
-    pub level: u16,
+    pub level: u8,
     pub range: Range
 }
 
@@ -14,7 +14,7 @@ impl Budget {
 
         Budget {
             dist,
-            level: lvl as u16,
+            level: lvl as u8,
             range: Range {
                 min: lvl as u16,
                 max: max as u16

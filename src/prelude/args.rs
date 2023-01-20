@@ -14,7 +14,7 @@ pub struct Cli {
 
     /// Invention level. Use two values separated by a comma to search in a range
     #[arg(short('l'), long("level"), required(true), use_value_delimiter = true, value_delimiter = ',')]
-    pub invention_level: Vec<u32>,
+    pub invention_level: Vec<u8>,
 
     /// Is ancient gizmo
     #[arg(short, long)]
@@ -87,8 +87,8 @@ pub enum SortType {
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum InventionLevel {
-    Single (u32),
-    Range (u32, u32)
+    Single (u8),
+    Range (u8, u8)
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

@@ -103,7 +103,7 @@ impl std::fmt::Display for SplitMaterials {
 
 #[derive(Debug, Clone)]
 pub struct ResultLine {
-    pub level: u16,
+    pub level: u8,
     pub prob_gizmo: f64,
     pub prob_attempt: f64,
     pub mat_combination: Arc<Vec<MaterialName>>
@@ -114,9 +114,21 @@ pub struct ResultLine {
 // Keep separate to reduce memory usage
 #[derive(Debug, Clone)]
 pub struct ResultLineWithPrice {
-    pub level: u16,
+    pub level: u8,
     pub prob_gizmo: f64,
     pub prob_attempt: f64,
     pub price: f64,
     pub mat_combination: Arc<Vec<MaterialName>>
+}
+
+impl Default for ResultLineWithPrice {
+    fn default() -> Self {
+        ResultLineWithPrice {
+            level: 0,
+            prob_gizmo: 0.0,
+            prob_attempt: 0.0,
+            price: f64::MAX,
+            mat_combination: Arc::new(vec![])
+        }
+    }
 }

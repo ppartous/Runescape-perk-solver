@@ -114,7 +114,7 @@ use prelude::*;
 use gizmo_cost_thresholds::*;
 use perk_values::*;
 use itertools::Itertools;
-use std::{cmp, collections::HashMap, cmp::{Ord, PartialOrd}, sync::{Arc, atomic::{self, Ordering::Relaxed}}, time::Duration};
+use std::{cmp, cmp::{Ord, PartialOrd}, sync::{Arc, atomic::{self, Ordering::Relaxed}}, time::Duration};
 use indicatif::{ProgressBar, ProgressStyle};
 use tokio::{sync::mpsc::channel, task, time};
 use threadpool::ThreadPool;
@@ -129,24 +129,14 @@ pub async fn perk_solver(args: Args, data: Data, wanted_gizmo: Gizmo) {
     let budgets = Arc::new(generate_budgets(&args.invention_level, args.ancient));
     let slot_count = if args.ancient { 9 } else { 5 };
     let total_combination_count = calc_combination_count(materials.conflict.len(), materials.no_conflict.len(), args.ancient);
+    let pool = ThreadPool::new(num_cpus::get() * 2);
+    let (result_tx, result_rx) = channel::<Arc<Vec<ResultLine>>>(100);
+    let bar_progress = Arc::new(atomic::AtomicU64::new(0));
+    let result_handler = result::result_handler(args.clone(), result_rx);
 
     println!("{}\n", args);
     println!("{}\n", materials);
 
-    let pool = ThreadPool::new(num_cpus::get() * 2);
-    let mut res = HashMap::new();
-    budgets.iter().for_each(|x| { res.insert(x.level, Vec::new()); });
-    let (tx, mut rx) = channel::<Arc<Vec<ResultLine>>>(100);
-    let result_handler = std::thread::spawn(move || {
-        while let Some(lines) = rx.blocking_recv() {
-            for line in lines.iter().cloned() {
-                res.get_mut(&line.level).unwrap().push(line);
-            }
-        }
-        res
-    });
-
-    let bar_progress = Arc::new(atomic::AtomicU64::new(0));
     let x = bar_progress.clone();
     let bar_handler = task::spawn(async move {
         let bar = ProgressBar::new(total_combination_count as u64);
@@ -165,7 +155,7 @@ pub async fn perk_solver(args: Args, data: Data, wanted_gizmo: Gizmo) {
 
     for n_mats_used in 1 ..= slot_count {
         {
-            let tx = tx.clone();
+            let tx = result_tx.clone();
             let data = data.clone();
             let args = args.clone();
             let budgets = budgets.clone();
@@ -186,7 +176,7 @@ pub async fn perk_solver(args: Args, data: Data, wanted_gizmo: Gizmo) {
                 for n_noconflict_mats in 0 ..= usize::min(n_mats_used - n_conflict_mats, materials.no_conflict.len()) {
                     for no_conflict_mats in materials.no_conflict.iter().copied().combinations(n_noconflict_mats) {
                         for ordered_mats in conflict_mats.iter().copied().chain(no_conflict_mats.iter().copied()).permutations(n_conflict_mats + n_noconflict_mats) {
-                            let tx = tx.clone();
+                            let tx = result_tx.clone();
                             let data = data.clone();
                             let args = args.clone();
                             let budgets = budgets.clone();
@@ -207,14 +197,13 @@ pub async fn perk_solver(args: Args, data: Data, wanted_gizmo: Gizmo) {
     }
 
     pool.join();
-    drop(tx);
+    drop(result_tx);
 
     bar_progress.store(total_combination_count as u64, Relaxed);
     bar_handler.await.ok();
     println!("\n");
 
-    let res = result_handler.join().unwrap();
-    let best_per_level = result::find_best_per_level(res, &args);
+    let best_per_level = result_handler.join().unwrap();
     result::print_result(&best_per_level, &args);
     result::write_best_mats_to_file(&best_per_level);
 }
