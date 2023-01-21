@@ -1,4 +1,4 @@
-use crate::{component_prices::*, utils::print_warning, prelude::*};
+use crate::{component_prices::calc_gizmo_price, utils::print_warning, prelude::*};
 use colored::*;
 use std::{collections::HashMap, fs, sync::Arc};
 use itertools::Itertools;
@@ -17,7 +17,7 @@ pub fn result_handler(args: Arc<Args>, mut rx: Receiver<Arc<Vec<ResultLine>>>) -
 
         while let Some(lines) = rx.blocking_recv() {
             for line in lines.iter() {
-                let price = calc_gizmo_price(line, &args);
+                let price = calc_gizmo_price(line);
                 let prev_best = best_per_level.get(&line.level).unwrap();
 
                 let is_best = match args.sort_type {

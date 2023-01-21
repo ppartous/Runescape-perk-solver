@@ -113,6 +113,7 @@ mod result;
 use prelude::*;
 use gizmo_cost_thresholds::*;
 use perk_values::*;
+use component_prices::load_component_prices;
 use itertools::Itertools;
 use std::{cmp, cmp::{Ord, PartialOrd}, sync::{Arc, atomic::{self, Ordering::Relaxed}}, time::Duration};
 use indicatif::{ProgressBar, ProgressStyle};
@@ -133,9 +134,12 @@ pub async fn perk_solver(args: Args, data: Data, wanted_gizmo: Gizmo) {
     let (result_tx, result_rx) = channel::<Arc<Vec<ResultLine>>>(100);
     let bar_progress = Arc::new(atomic::AtomicU64::new(0));
     let result_handler = result::result_handler(args.clone(), result_rx);
+    let mut interval = time::interval(Duration::from_millis(10));
 
     println!("{}\n", args);
     println!("{}\n", materials);
+
+    load_component_prices(&args);
 
     let x = bar_progress.clone();
     let bar_handler = task::spawn(async move {
@@ -181,6 +185,9 @@ pub async fn perk_solver(args: Args, data: Data, wanted_gizmo: Gizmo) {
                             let args = args.clone();
                             let budgets = budgets.clone();
                             let bar_progress = bar_progress.clone();
+                            while pool.queued_count() > 10000 {
+                                interval.tick().await;
+                            }
                             pool.execute(move || {
                                 for unordered_mats in ordered_mats.iter().copied().combinations_with_replacement(n_mats_used - n_conflict_mats - n_noconflict_mats) {
                                     let mat_combination = ordered_mats.iter().copied().chain(unordered_mats.iter().copied()).collect_vec();
@@ -292,15 +299,15 @@ fn calc_wanted_gizmo_probabilities(data: &Data, args: &Args, budgets: &Vec<Budge
 fn calc_probability_from_thresholds(cth_in: &Vec<Gizmo>, budget: &Budget, comb_probability: f64) -> Vec<Gizmo> {
     let mut cth = Vec::with_capacity(cth_in.len());
 
-    for (curr, next) in cth_in.iter().copied().map(Some).chain([None]).tuple_windows() {
-        let curr = curr.unwrap();
+    let mut it = cth_in.iter().copied().peekable();
+    while let Some(curr) = it.next() {
         // A gizmo is generated when the budget roll is strictly greater than the gizmo cost.
         // The budget arg of this function is a cumulative distribution of all possible budget roll values where the
         // index corresponds to that particular budget roll.
         // So if x is the cost of the current gizmo and y is the cost of the next one then the probability than the budget
         // roll is strictly greater than x but smaller or equal to y is budget[y] - budget[x]
         let mut curr_threshold = curr.cost;
-        let mut next_threshold = if let Some(next) = next { i16::min(next.cost, budget.range.max as i16) } else { budget.range.max as i16 };
+        let mut next_threshold = if let Some(next) = it.peek() { i16::min(next.cost, budget.range.max as i16) } else { budget.range.max as i16 };
         let mut prob = 0.0;
 
         // The prob is always 0 if both costs are equal to each other or if both are lower than your invention level

@@ -1,6 +1,7 @@
 /target
 temp.lua
 test.cmd
+test.sh
 *.opt
 *.code-workspace
 out.csv
