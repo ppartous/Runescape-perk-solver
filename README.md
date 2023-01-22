@@ -4,7 +4,7 @@ Use `./perk_solver --help` to display the help text. Or `./perk_solver.exe --hel
 
 ## Example
 ```sh
-$ ./perk_solver -t weapon -l 50,80 -a gizmo equilibrium 4 mobile -e 50,80 -a gizmo equilibrium 4 mobile -e connector,delicate,flexible
+$ ./perk_solver -t weapon -l 1,137 -a gizmo equilibrium 4 mobile -e connector,delicate,flexible
 ```
 ![](./images/Example_output.png)
 
