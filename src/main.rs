@@ -4,7 +4,7 @@ use std::str::FromStr;
 use clap::Parser;
 
 fn main() {
-    let timer = howlong::HighResolutionTimer::new();
+    // let timer = howlong::HighResolutionTimer::new();
     let cli = Cli::parse();
     let data = Data::load();
 
@@ -42,7 +42,7 @@ fn main() {
             }
         }
     }
-    println!("{:?}", timer.elapsed());
+    // println!("{:?}", timer.elapsed());
 }
 
 fn validate_input(args: &Args, wanted_gizmo: Gizmo, data: &Data) {
