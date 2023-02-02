@@ -3,8 +3,7 @@ pub mod stack_map;
 
 use std::str::FromStr;
 use crate::{PerkName, MaterialName};
-use stack_map::{StackMap, stack_map};
-use stack_vec::StackVec;
+pub use stack_map::*;
 pub use prelude::*;
 
 #[derive(Debug)]

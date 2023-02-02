@@ -1,14 +1,13 @@
-use std::collections::{HashMap, hash_map::Entry};
 use itertools::Itertools;
-use smallvec::{smallvec, SmallVec};
+use smallvec::SmallVec;
 use crate::{prelude::*, dice, utils};
 
 /// Calculate the base and roll values for each possible perk based on the input materials and their order.
 pub fn get_perk_values(data: &Data, input_materials: &Vec<MaterialName>, gizmo_type: GizmoType,
-    is_ancient_gizmo: bool) -> Vec<PerkValues> {
+    is_ancient_gizmo: bool) -> Vec<PartialPerkValues> {
 
-    let mut perk_values_order = Vec::new();
-    let mut possible_perks: HashMap<PerkName, PerkValues> = HashMap::new();
+    let mut perk_values = Vec::new();
+    let mut name_index_map = StackMap::<PerkName, Option<usize>, {PerkName::NAME_COUNT}>::new();
 
     for mat in input_materials {
         let mat_data = &data.comps[*mat][gizmo_type];
@@ -18,54 +17,52 @@ pub fn get_perk_values(data: &Data, input_materials: &Vec<MaterialName>, gizmo_t
             continue;
         }
 
-        for perk_data in mat_data {
-            let mut perk_roll = perk_data.roll;
-            let mut perk_base = perk_data.base;
+        for component_values in mat_data {
+            let mut perk_roll = component_values.roll as u64;
+            let mut perk_base = component_values.base as u64;
 
             if is_ancient_gizmo && !is_ancient_mat {
                 perk_roll = (perk_roll * 8) / 10;
                 perk_base = (perk_base * 8) / 10;
             }
 
-            if let Entry::Vacant(e) = possible_perks.entry(perk_data.perk) {
-                // Only set some values as we need to check first if this material combination can even generate the rank that we need
-                let perk_values = PerkValues {
-                    name: perk_data.perk,
-                    base: perk_base,
-                    rolls: smallvec![perk_roll as u8],
-                    ..Default::default()
-                };
-
-                e.insert(perk_values);
-                perk_values_order.push(perk_data.perk);
+            if let Some(index) = name_index_map.get(component_values.perk) {
+                let mut values: &mut PartialPerkValues = unsafe { perk_values.get_unchecked_mut(*index) };
+                values.base += perk_base as u16;
+                values.rolls.push(perk_roll as u8);
             } else {
-                let x = possible_perks.get_mut(&perk_data.perk).unwrap();
-                x.rolls.push(perk_roll as u8);
-                x.base += perk_base;
+                perk_values.push(PartialPerkValues {
+                    name: component_values.perk,
+                    base: perk_base as u16,
+                    rolls: StackVec::new(&[perk_roll as u8])
+                });
+                *name_index_map.get_mut(component_values.perk) = Some(perk_values.len() - 1);
             }
         }
     }
 
-    let mut perk_values_arr = Vec::with_capacity(possible_perks.len());
-    for name in perk_values_order {
-        let x = possible_perks.remove(&name).unwrap();
-        perk_values_arr.push(x);
-    }
-
-    perk_values_arr
+    perk_values
 }
 
-pub fn calc_perk_rank_probabilities(data: &Data, perk_values_arr: &mut [PerkValues], is_ancient_gizmo: bool) {
-    for perk_values in perk_values_arr.iter_mut() {
-        let perk_data = &data.perks[perk_values.name];
+pub fn calc_perk_rank_probabilities(data: &Data, partial_values_arr: &[PartialPerkValues], is_ancient_gizmo: bool) -> Vec<PerkValues> {
+    let mut perk_values_arr = Vec::with_capacity(partial_values_arr.len());
+
+    for partial_values in partial_values_arr.iter() {
+        let perk_data = &data.perks[partial_values.name];
+
+        let mut perk_values = PerkValues {
+            name: partial_values.name,
+            base: partial_values.base,
+            rolls: partial_values.rolls,
+            i_first: 0,
+            i_last: perk_data.ranks.len() - 1,
+            doubleslot: perk_data.doubleslot,
+            ..Default::default()
+        };
 
         for x in perk_data.ranks.iter() {
             perk_values.ranks.push(PerkRankValuesProbabilityContainer { values: *x, probability: 0.0 });
         }
-
-        perk_values.i_first = 0;
-        perk_values.i_last = perk_values.ranks.len() - 1;
-        perk_values.doubleslot = perk_data.doubleslot;
 
         perk_values.rolls.sort();
         let mut roll_dist = Vec::new();
@@ -112,11 +109,15 @@ pub fn calc_perk_rank_probabilities(data: &Data, perk_values_arr: &mut [PerkValu
                 }
             }
         }
+
+        perk_values_arr.push(perk_values);
     }
+
+    perk_values_arr
 }
 
 /// Quick check if it is even possible to generate the wanted perk rank. This won't catch all impossible material orders.
-pub fn can_generate_wanted_ranks(data: &Data, perk_values_arr: &Vec<PerkValues>, wanted_gizmo: Gizmo) -> bool {
+pub fn can_generate_wanted_ranks(data: &Data, perk_values_arr: &Vec<PartialPerkValues>, wanted_gizmo: Gizmo) -> bool {
     let wanted_rank1 = wanted_gizmo.perks.0.rank as usize;
     let wanted_rank2 = wanted_gizmo.perks.1.rank as usize;
 
@@ -300,6 +301,20 @@ mod tests {
     use lazy_static::lazy_static;
     use crate::utils::{check_len, check_index, check_index_relative};
 
+    fn assert_partial_perk_values_eq(actual: &Vec<PartialPerkValues>, expected: &Vec<PartialPerkValues>) {
+        PerkName::using_full_names();
+        check_len(actual, expected);
+
+        for (i, (acc, exp)) in actual.iter().zip(expected).enumerate() {
+            check_index(acc.name, exp.name, i, "name", actual, expected);
+            check_index(acc.base, exp.base, i, "base", actual, expected);
+
+            for (x, y) in acc.rolls.iter().zip_eq(&exp.rolls) {
+                check_index(*x, y, i, "rolls", actual, expected);
+            }
+        }
+    }
+
     fn assert_perk_values_eq(actual: &Vec<PerkValues>, expected: &Vec<PerkValues>) {
         PerkName::using_full_names();
         check_len(actual, expected);
@@ -311,8 +326,8 @@ mod tests {
             check_index(acc.i_first, exp.i_first, i, "i_first", actual, expected);
             check_index(acc.i_last, exp.i_last, i, "i_last", actual, expected);
 
-            for (x, y)  in acc.rolls.iter().zip_eq(&exp.rolls) {
-                check_index(x, y, i, "rolls", actual, expected);
+            for (x, y) in acc.rolls.iter().zip_eq(&exp.rolls) {
+                check_index(*x, y, i, "rolls", actual, expected);
             }
 
             for (x, y) in acc.ranks.iter().zip_eq(&exp.ranks) {
@@ -341,15 +356,15 @@ mod tests {
             let gizmo_type = GizmoType::Weapon;
             let is_ancient_gizmo = false;
             let expected = vec![
-                PerkValues{ base: 97, name: PerkName::Precise,      rolls: smallvec![8, 8, 32], ..Default::default() },
-                PerkValues{ base: 90, name: PerkName::Invigorating, rolls: smallvec![8, 8    ], ..Default::default() },
-                PerkValues{ base: 12, name: PerkName::Cautious,     rolls: smallvec![44      ], ..Default::default() },
-                PerkValues{ base: 12, name: PerkName::Blunted,      rolls: smallvec![45      ], ..Default::default() },
-                PerkValues{ base: 9,  name: PerkName::Equilibrium,  rolls: smallvec![33      ], ..Default::default() },
-                PerkValues{ base: 9,  name: PerkName::Flanking,     rolls: smallvec![32      ], ..Default::default() },
+                PartialPerkValues{ base: 97, name: PerkName::Precise,      rolls: StackVec::new(&[8, 8, 32]) },
+                PartialPerkValues{ base: 90, name: PerkName::Invigorating, rolls: StackVec::new(&[8, 8    ]) },
+                PartialPerkValues{ base: 12, name: PerkName::Cautious,     rolls: StackVec::new(&[44      ]) },
+                PartialPerkValues{ base: 12, name: PerkName::Blunted,      rolls: StackVec::new(&[45      ]) },
+                PartialPerkValues{ base: 9,  name: PerkName::Equilibrium,  rolls: StackVec::new(&[33      ]) },
+                PartialPerkValues{ base: 9,  name: PerkName::Flanking,     rolls: StackVec::new(&[32      ]) },
             ];
             let actual = get_perk_values(&*DATA, &input_materials, gizmo_type, is_ancient_gizmo);
-            assert_perk_values_eq(&actual, &expected);
+            assert_partial_perk_values_eq(&actual, &expected);
         }
 
         #[test]
@@ -364,12 +379,12 @@ mod tests {
             let gizmo_type = GizmoType::Armour;
             let is_ancient_gizmo = false;
             let expected = vec![
-                PerkValues{ base: 78, name: PerkName::Devoted,      rolls: smallvec![9, 9], ..Default::default() },
-                PerkValues{ base: 90, name: PerkName::Invigorating, rolls: smallvec![8, 8], ..Default::default() },
-                PerkValues{ base: 12, name: PerkName::Cautious,     rolls: smallvec![44  ], ..Default::default() },
+                PartialPerkValues{ base: 78, name: PerkName::Devoted,      rolls: StackVec::new(&[9, 9]) },
+                PartialPerkValues{ base: 90, name: PerkName::Invigorating, rolls: StackVec::new(&[8, 8]) },
+                PartialPerkValues{ base: 12, name: PerkName::Cautious,     rolls: StackVec::new(&[44  ]) },
             ];
             let actual = get_perk_values(&*DATA, &input_materials, gizmo_type, is_ancient_gizmo);
-            assert_perk_values_eq(&actual, &expected);
+            assert_partial_perk_values_eq(&actual, &expected);
         }
 
         #[test]
@@ -384,13 +399,13 @@ mod tests {
             let gizmo_type = GizmoType::Tool;
             let is_ancient_gizmo = false;
             let expected = vec![
-                PerkValues{ base: 50, name: PerkName::Charitable, rolls: smallvec![28, 28], ..Default::default() },
-                PerkValues{ base: 50, name: PerkName::Polishing,  rolls: smallvec![28, 28], ..Default::default() },
-                PerkValues{ base: 12, name: PerkName::Cautious,   rolls: smallvec![44    ], ..Default::default() },
-                PerkValues{ base: 9,  name: PerkName::Honed,      rolls: smallvec![32    ], ..Default::default() },
+                PartialPerkValues{ base: 50, name: PerkName::Charitable, rolls: StackVec::new(&[28, 28]) },
+                PartialPerkValues{ base: 50, name: PerkName::Polishing,  rolls: StackVec::new(&[28, 28]) },
+                PartialPerkValues{ base: 12, name: PerkName::Cautious,   rolls: StackVec::new(&[44    ]) },
+                PartialPerkValues{ base: 9,  name: PerkName::Honed,      rolls: StackVec::new(&[32    ]) },
             ];
             let actual = get_perk_values(&*DATA, &input_materials, gizmo_type, is_ancient_gizmo);
-            assert_perk_values_eq(&actual, &expected);
+            assert_partial_perk_values_eq(&actual, &expected);
         }
 
         #[test]
@@ -405,14 +420,14 @@ mod tests {
             let gizmo_type = GizmoType::Weapon;
             let is_ancient_gizmo = false;
             let expected = vec![
-                PerkValues{ base: 97, name: PerkName::Precise,     rolls: smallvec![8, 8, 32], ..Default::default() },
-                PerkValues{ base: 12, name: PerkName::Cautious,    rolls: smallvec![44      ], ..Default::default() },
-                PerkValues{ base: 12, name: PerkName::Blunted,     rolls: smallvec![45      ], ..Default::default() },
-                PerkValues{ base: 9,  name: PerkName::Equilibrium, rolls: smallvec![33      ], ..Default::default() },
-                PerkValues{ base: 9,  name: PerkName::Flanking,    rolls: smallvec![32      ], ..Default::default() },
+                PartialPerkValues{ base: 97, name: PerkName::Precise,     rolls: StackVec::new(&[8, 8, 32]) },
+                PartialPerkValues{ base: 12, name: PerkName::Cautious,    rolls: StackVec::new(&[44      ]) },
+                PartialPerkValues{ base: 12, name: PerkName::Blunted,     rolls: StackVec::new(&[45      ]) },
+                PartialPerkValues{ base: 9,  name: PerkName::Equilibrium, rolls: StackVec::new(&[33      ]) },
+                PartialPerkValues{ base: 9,  name: PerkName::Flanking,    rolls: StackVec::new(&[32      ]) },
             ];
             let actual = get_perk_values(&*DATA, &input_materials, gizmo_type, is_ancient_gizmo);
-            assert_perk_values_eq(&actual, &expected);
+            assert_partial_perk_values_eq(&actual, &expected);
         }
 
         #[test]
@@ -427,11 +442,11 @@ mod tests {
             let gizmo_type = GizmoType::Armour;
             let is_ancient_gizmo = false;
             let expected = vec![
-                PerkValues{ base: 78, name: PerkName::Devoted,  rolls: smallvec![9, 9], ..Default::default() },
-                PerkValues{ base: 12, name: PerkName::Cautious, rolls: smallvec![44  ], ..Default::default() },
+                PartialPerkValues{ base: 78, name: PerkName::Devoted,  rolls: StackVec::new(&[9, 9]) },
+                PartialPerkValues{ base: 12, name: PerkName::Cautious, rolls: StackVec::new(&[44  ]) },
             ];
             let actual = get_perk_values(&*DATA, &input_materials, gizmo_type, is_ancient_gizmo);
-            assert_perk_values_eq(&actual, &expected);
+            assert_partial_perk_values_eq(&actual, &expected);
         }
 
         #[test]
@@ -446,12 +461,12 @@ mod tests {
             let gizmo_type = GizmoType::Tool;
             let is_ancient_gizmo = false;
             let expected = vec![
-                PerkValues{ base: 50, name: PerkName::Charitable, rolls: smallvec![28, 28], ..Default::default() },
-                PerkValues{ base: 12, name: PerkName::Cautious,   rolls: smallvec![44    ], ..Default::default() },
-                PerkValues{ base: 9,  name: PerkName::Honed,      rolls: smallvec![32    ], ..Default::default() },
+                PartialPerkValues{ base: 50, name: PerkName::Charitable, rolls: StackVec::new(&[28, 28]) },
+                PartialPerkValues{ base: 12, name: PerkName::Cautious,   rolls: StackVec::new(&[44    ]) },
+                PartialPerkValues{ base: 9,  name: PerkName::Honed,      rolls: StackVec::new(&[32    ]) },
             ];
             let actual = get_perk_values(&*DATA, &input_materials, gizmo_type, is_ancient_gizmo);
-            assert_perk_values_eq(&actual, &expected);
+            assert_partial_perk_values_eq(&actual, &expected);
         }
 
         #[test]
@@ -466,17 +481,17 @@ mod tests {
             let gizmo_type = GizmoType::Weapon;
             let is_ancient_gizmo = true;
             let expected = vec![
-                PerkValues{ base: 99, name: PerkName::Precise,     rolls: smallvec![6, 6, 33, 33, 25], ..Default::default() },
-                PerkValues{ base: 22, name: PerkName::Genocidal,   rolls: smallvec![33, 33          ], ..Default::default() },
-                PerkValues{ base: 22, name: PerkName::Ultimatums,  rolls: smallvec![33, 33          ], ..Default::default() },
-                PerkValues{ base: 22, name: PerkName::Looting,     rolls: smallvec![33, 33          ], ..Default::default() },
-                PerkValues{ base: 9,  name: PerkName::Cautious,    rolls: smallvec![35              ], ..Default::default() },
-                PerkValues{ base: 9,  name: PerkName::Blunted,     rolls: smallvec![36              ], ..Default::default() },
-                PerkValues{ base: 7,  name: PerkName::Equilibrium, rolls: smallvec![26              ], ..Default::default() },
-                PerkValues{ base: 7,  name: PerkName::Flanking,    rolls: smallvec![25              ], ..Default::default() },
+                PartialPerkValues{ base: 99, name: PerkName::Precise,     rolls: StackVec::new(&[6, 6, 33, 33, 25]) },
+                PartialPerkValues{ base: 22, name: PerkName::Genocidal,   rolls: StackVec::new(&[33, 33          ]) },
+                PartialPerkValues{ base: 22, name: PerkName::Ultimatums,  rolls: StackVec::new(&[33, 33          ]) },
+                PartialPerkValues{ base: 22, name: PerkName::Looting,     rolls: StackVec::new(&[33, 33          ]) },
+                PartialPerkValues{ base: 9,  name: PerkName::Cautious,    rolls: StackVec::new(&[35              ]) },
+                PartialPerkValues{ base: 9,  name: PerkName::Blunted,     rolls: StackVec::new(&[36              ]) },
+                PartialPerkValues{ base: 7,  name: PerkName::Equilibrium, rolls: StackVec::new(&[26              ]) },
+                PartialPerkValues{ base: 7,  name: PerkName::Flanking,    rolls: StackVec::new(&[25              ]) },
             ];
             let actual = get_perk_values(&*DATA, &input_materials, gizmo_type, is_ancient_gizmo);
-            assert_perk_values_eq(&actual, &expected);
+            assert_partial_perk_values_eq(&actual, &expected);
         }
 
 
@@ -492,15 +507,15 @@ mod tests {
             let gizmo_type = GizmoType::Armour;
             let is_ancient_gizmo = true;
             let expected = vec![
-                PerkValues{ base: 62, name: PerkName::Devoted,    rolls: smallvec![7, 7  ], ..Default::default() },
-                PerkValues{ base: 22, name: PerkName::Genocidal,  rolls: smallvec![33, 33], ..Default::default() },
-                PerkValues{ base: 22, name: PerkName::Ultimatums, rolls: smallvec![33, 33], ..Default::default() },
-                PerkValues{ base: 22, name: PerkName::Looting,    rolls: smallvec![33, 33], ..Default::default() },
-                PerkValues{ base: 22, name: PerkName::Turtling,   rolls: smallvec![33, 33], ..Default::default() },
-                PerkValues{ base: 9,  name: PerkName::Cautious,   rolls: smallvec![35    ], ..Default::default() },
+                PartialPerkValues{ base: 62, name: PerkName::Devoted,    rolls: StackVec::new(&[7, 7  ]) },
+                PartialPerkValues{ base: 22, name: PerkName::Genocidal,  rolls: StackVec::new(&[33, 33]) },
+                PartialPerkValues{ base: 22, name: PerkName::Ultimatums, rolls: StackVec::new(&[33, 33]) },
+                PartialPerkValues{ base: 22, name: PerkName::Looting,    rolls: StackVec::new(&[33, 33]) },
+                PartialPerkValues{ base: 22, name: PerkName::Turtling,   rolls: StackVec::new(&[33, 33]) },
+                PartialPerkValues{ base: 9,  name: PerkName::Cautious,   rolls: StackVec::new(&[35    ]) },
             ];
             let actual = get_perk_values(&*DATA, &input_materials, gizmo_type, is_ancient_gizmo);
-            assert_perk_values_eq(&actual, &expected);
+            assert_partial_perk_values_eq(&actual, &expected);
         }
 
 
@@ -516,13 +531,13 @@ mod tests {
             let gizmo_type = GizmoType::Tool;
             let is_ancient_gizmo = true;
             let expected = vec![
-                PerkValues{ base: 40, name: PerkName::Charitable, rolls: smallvec![22, 22], ..Default::default() },
-                PerkValues{ base: 22, name: PerkName::ImpSouled,  rolls: smallvec![33, 33], ..Default::default() },
-                PerkValues{ base: 9,  name: PerkName::Cautious,   rolls: smallvec![35    ], ..Default::default() },
-                PerkValues{ base: 7,  name: PerkName::Honed,      rolls: smallvec![25    ], ..Default::default() },
+                PartialPerkValues{ base: 40, name: PerkName::Charitable, rolls: StackVec::new(&[22, 22]) },
+                PartialPerkValues{ base: 22, name: PerkName::ImpSouled,  rolls: StackVec::new(&[33, 33]) },
+                PartialPerkValues{ base: 9,  name: PerkName::Cautious,   rolls: StackVec::new(&[35    ]) },
+                PartialPerkValues{ base: 7,  name: PerkName::Honed,      rolls: StackVec::new(&[25    ]) },
             ];
             let actual = get_perk_values(&*DATA, &input_materials, gizmo_type, is_ancient_gizmo);
-            assert_perk_values_eq(&actual, &expected);
+            assert_partial_perk_values_eq(&actual, &expected);
         }
     }
 
@@ -569,8 +584,8 @@ mod tests {
 
         #[test]
         fn all_ranks_possible_not_ancient_gizmo() {
-            let mut perk_values_arr =  vec![
-                PerkValues { name: PerkName::Precise, base: 10, rolls: smallvec![32, 32, 64], ..Default::default() },
+            let partial_perk_values = vec![
+                PartialPerkValues { name: PerkName::Precise, base: 10, rolls: StackVec::new(&[32, 32, 64]) },
             ];
             let expected = vec![
                 PerkValues {
@@ -579,23 +594,23 @@ mod tests {
                     name: PerkName::Precise,
                     i_first: 1,
                     i_last: 2,
-                    rolls: smallvec![32, 32, 64],
-                    ranks: smallvec![
+                    rolls: StackVec::new(&[32, 32, 64]),
+                    ranks: StackVec::new(&[
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[0], probability: 0.0 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[1], probability: 0.87188720703125 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[2], probability: 0.12811279296875 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[3], probability: 0.0 },
-                    ]
+                    ])
                 }
             ];
-            calc_perk_rank_probabilities(&*DATA, &mut perk_values_arr, false);
-            assert_perk_values_eq(&perk_values_arr, &expected);
+            let actual = calc_perk_rank_probabilities(&*DATA, &partial_perk_values, false);
+            assert_perk_values_eq(&actual, &expected);
         }
 
         #[test]
         fn all_ranks_possible_ancient_gizmo() {
-            let mut perk_values_arr =  vec![
-                PerkValues { name: PerkName::Precise, base: 10, rolls: smallvec![128, 128], ..Default::default() },
+            let partial_perk_values = vec![
+                PartialPerkValues { name: PerkName::Precise, base: 10, rolls: StackVec::new(&[128, 128]) },
             ];
             let expected = vec![
                 PerkValues {
@@ -604,24 +619,24 @@ mod tests {
                     name: PerkName::Precise,
                     i_first: 1,
                     i_last: 3,
-                    rolls: smallvec![128, 128],
-                    ranks: smallvec![
+                    rolls: StackVec::new(&[128, 128]),
+                    ranks: StackVec::new(&[
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[0], probability: 0.0 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[1], probability: 0.24993896484375 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[2], probability: 0.34295654296875 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[3], probability: 0.4071044921875 },
-                    ]
+                    ])
                 }
             ];
-            calc_perk_rank_probabilities(&*DATA, &mut perk_values_arr, true);
-            assert_perk_values_eq(&perk_values_arr, &expected);
+            let actual = calc_perk_rank_probabilities(&*DATA, &partial_perk_values, true);
+            assert_perk_values_eq(&actual, &expected);
         }
 
         #[test]
         fn two_perks_all_ranks_possible_non_ancient_gizmo() {
-            let mut perk_values_arr =  vec![
-                PerkValues { name: PerkName::Precise, base: 10, rolls: smallvec![32, 32, 64], ..Default::default() },
-                PerkValues { name: PerkName::Biting, base: 50, rolls: smallvec![32, 32, 64], ..Default::default() },
+            let partial_perk_values = vec![
+                PartialPerkValues { name: PerkName::Precise, base: 10, rolls: StackVec::new(&[32, 32, 64]) },
+                PartialPerkValues { name: PerkName::Biting, base: 50, rolls: StackVec::new(&[32, 32, 64]) },
             ];
             let expected = vec![
                 PerkValues {
@@ -630,13 +645,13 @@ mod tests {
                     name: PerkName::Precise,
                     i_first: 1,
                     i_last: 2,
-                    rolls: smallvec![32, 32, 64],
-                    ranks: smallvec![
+                    rolls: StackVec::new(&[32, 32, 64]),
+                    ranks: StackVec::new(&[
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[0], probability: 0.0 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[1], probability: 0.87188720703125 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[2], probability: 0.12811279296875 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[3], probability: 0.0 },
-                    ]
+                    ])
                 },
                 PerkValues {
                     base: 50,
@@ -644,25 +659,25 @@ mod tests {
                     name: PerkName::Biting,
                     i_first: 1,
                     i_last: 2,
-                    rolls: smallvec![32, 32, 64],
-                    ranks: smallvec![
+                    rolls: StackVec::new(&[32, 32, 64]),
+                    ranks: StackVec::new(&[
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[0], probability: 0.0 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[1], probability: 0.07568359375 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[2], probability: 0.92431640625 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[3], probability: 0.0 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[4], probability: 0.0 },
-                    ]
+                    ])
                 }
             ];
-            calc_perk_rank_probabilities(&*DATA, &mut perk_values_arr, false);
-            assert_perk_values_eq(&perk_values_arr, &expected);
+            let actual = calc_perk_rank_probabilities(&*DATA, &partial_perk_values, false);
+            assert_perk_values_eq(&actual, &expected);
         }
 
         #[test]
         fn two_perks_all_ranks_possible_ancient_gizmo() {
-            let mut perk_values_arr =  vec![
-                PerkValues { name: PerkName::Precise, base: 10, rolls: smallvec![128, 128, 64], ..Default::default() },
-                PerkValues { name: PerkName::Biting, base: 50, rolls: smallvec![32, 128, 128], ..Default::default() },
+            let partial_perk_values = vec![
+                PartialPerkValues { name: PerkName::Precise, base: 10, rolls: StackVec::new(&[128, 128, 64]) },
+                PartialPerkValues { name: PerkName::Biting, base: 50, rolls: StackVec::new(&[32, 128, 128]) },
             ];
             let expected = vec![
                 PerkValues {
@@ -671,13 +686,13 @@ mod tests {
                     name: PerkName::Precise,
                     i_first: 1,
                     i_last: 3,
-                    rolls: smallvec![64, 128, 128],
-                    ranks: smallvec![
+                    rolls: StackVec::new(&[64, 128, 128]),
+                    ranks: StackVec::new(&[
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[0], probability: 0.0 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[1], probability: 0.11663818359375 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[2], probability: 0.25565338134765625 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[3], probability: 0.62770843505859375 },
-                    ]
+                    ])
                 },
                 PerkValues {
                     base: 50,
@@ -685,24 +700,24 @@ mod tests {
                     name: PerkName::Biting,
                     i_first: 1,
                     i_last: 4,
-                    rolls: smallvec![32, 128, 128],
-                    ranks: smallvec![
+                    rolls: StackVec::new(&[32, 128, 128]),
+                    ranks: StackVec::new(&[
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[0], probability: 0.0 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[1], probability: 0.00946044921875 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[2], probability: 0.541595458984375 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[3], probability: 0.292510986328125 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[4], probability: 0.15643310546875 },
-                    ]
+                    ])
                 }
             ];
-            calc_perk_rank_probabilities(&*DATA, &mut perk_values_arr, true);
-            assert_perk_values_eq(&perk_values_arr, &expected);
+            let actual = calc_perk_rank_probabilities(&*DATA, &partial_perk_values, true);
+            assert_perk_values_eq(&actual, &expected);
         }
 
         #[test]
         fn not_all_ranks_possible_non_ancient_gizmo() {
-            let mut perk_values_arr =  vec![
-                PerkValues { name: PerkName::Precise, base: 5, rolls: smallvec![16, 16, 32], ..Default::default() },
+            let partial_perk_values = vec![
+                PartialPerkValues { name: PerkName::Precise, base: 5, rolls: StackVec::new(&[16, 16, 32]) },
             ];
             let expected = vec![
                 PerkValues {
@@ -711,23 +726,23 @@ mod tests {
                     name: PerkName::Precise,
                     i_first: 0,
                     i_last: 1,
-                    rolls: smallvec![16, 16, 32],
-                    ranks: smallvec![
+                    rolls: StackVec::new(&[16, 16, 32]),
+                    ranks: StackVec::new(&[
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[0], probability: 0.0042724609375 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[1], probability: 0.9957275390625 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[2], probability: 0.0 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[3], probability: 0.0 },
-                    ]
+                    ])
                 }
             ];
-            calc_perk_rank_probabilities(&*DATA, &mut perk_values_arr, false);
-            assert_perk_values_eq(&perk_values_arr, &expected);
+            let actual = calc_perk_rank_probabilities(&*DATA, &partial_perk_values, false);
+            assert_perk_values_eq(&actual, &expected);
         }
 
         #[test]
         fn not_all_ranks_possible_ancient_gizmo() {
-            let mut perk_values_arr =  vec![
-                PerkValues { name: PerkName::Biting, base: 5, rolls: smallvec![32, 64, 64, 64], ..Default::default() },
+            let partial_perk_values = vec![
+                PartialPerkValues { name: PerkName::Biting, base: 5, rolls: StackVec::new(&[32, 64, 64, 64]) },
             ];
             let expected = vec![
                 PerkValues {
@@ -736,25 +751,25 @@ mod tests {
                     name: PerkName::Biting,
                     i_first: 0,
                     i_last: 3,
-                    rolls: smallvec![32, 64, 64, 64],
-                    ranks: smallvec![
+                    rolls: StackVec::new(&[32, 64, 64, 64]),
+                    ranks: StackVec::new(&[
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[0], probability: 0.02297878265380859375 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[1], probability: 0.12725317478179931641 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[2], probability: 0.84693670272827148438 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[3], probability: 0.00283133983612060547 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[4], probability: 0.0 },
-                    ]
+                    ])
                 }
             ];
-            calc_perk_rank_probabilities(&*DATA, &mut perk_values_arr, true);
-            assert_perk_values_eq(&perk_values_arr, &expected);
+            let actual = calc_perk_rank_probabilities(&*DATA, &partial_perk_values, true);
+            assert_perk_values_eq(&actual, &expected);
         }
 
         #[test]
         fn two_perks_not_all_ranks_possible_non_ancient_gizmo() {
-            let mut perk_values_arr =  vec![
-                PerkValues { name: PerkName::Precise, base: 5, rolls: smallvec![32, 32, 64, 16, 16], ..Default::default() },
-                PerkValues { name: PerkName::Biting, base: 5, rolls: smallvec![32, 32, 64, 16, 16], ..Default::default() },
+            let partial_perk_values = vec![
+                PartialPerkValues { name: PerkName::Precise, base: 5, rolls: StackVec::new(&[32, 32, 64, 16, 16]) },
+                PartialPerkValues { name: PerkName::Biting, base: 5, rolls: StackVec::new(&[32, 32, 64, 16, 16]) },
             ];
             let expected = vec![
                 PerkValues {
@@ -763,13 +778,13 @@ mod tests {
                     name: PerkName::Precise,
                     i_first: 0,
                     i_last: 2,
-                    rolls: smallvec![16, 16, 32, 32, 64],
-                    ranks: smallvec![
+                    rolls: StackVec::new(&[16, 16, 32, 32, 64]),
+                    ranks: StackVec::new(&[
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[0], probability: 0.00000751018524169921875 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[1], probability: 0.74765408039093017578125 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[2], probability: 0.252338409423828125 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[3], probability: 0.0 },
-                    ]
+                    ])
                 },
                 PerkValues {
                     base: 5,
@@ -777,25 +792,25 @@ mod tests {
                     name: PerkName::Biting,
                     i_first: 0,
                     i_last: 2,
-                    rolls: smallvec![16, 16, 32, 32, 64],
-                    ranks: smallvec![
+                    rolls: StackVec::new(&[16, 16, 32, 32, 64]),
+                    ranks: StackVec::new(&[
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[0], probability: 0.084997653961181640625 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[1], probability: 0.369161128997802734375 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[2], probability: 0.545841217041015625 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[3], probability: 0.0 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[4], probability: 0.0 },
-                    ]
+                    ])
                 }
             ];
-            calc_perk_rank_probabilities(&*DATA, &mut perk_values_arr, false);
-            assert_perk_values_eq(&perk_values_arr, &expected);
+            let actual = calc_perk_rank_probabilities(&*DATA, &partial_perk_values, false);
+            assert_perk_values_eq(&actual, &expected);
         }
 
         #[test]
         fn two_perks_not_all_ranks_possible_ancient_gizmo() {
-            let mut perk_values_arr =  vec![
-                PerkValues { name: PerkName::Precise, base: 5, rolls: smallvec![32, 64, 16], ..Default::default() },
-                PerkValues { name: PerkName::Biting, base: 5, rolls: smallvec![32, 64, 64, 64], ..Default::default() },
+            let partial_perk_values = vec![
+                PartialPerkValues { name: PerkName::Precise, base: 5, rolls: StackVec::new(&[32, 64, 16]) },
+                PartialPerkValues { name: PerkName::Biting, base: 5, rolls: StackVec::new(&[32, 64, 64, 64]) },
             ];
             let expected = vec![
                 PerkValues {
@@ -804,13 +819,13 @@ mod tests {
                     name: PerkName::Precise,
                     i_first: 0,
                     i_last: 2,
-                    rolls: smallvec![16, 32, 64],
-                    ranks: smallvec![
+                    rolls: StackVec::new(&[16, 32, 64]),
+                    ranks: StackVec::new(&[
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[0], probability: 0.001068115234375 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[1], probability: 0.978179931640625 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[2], probability: 0.020751953125 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Precise].ranks[3], probability: 0.0 },
-                    ]
+                    ])
                 },
                 PerkValues {
                     base: 5,
@@ -818,24 +833,24 @@ mod tests {
                     name: PerkName::Biting,
                     i_first: 0,
                     i_last: 3,
-                    rolls: smallvec![32, 64, 64, 64],
-                    ranks: smallvec![
+                    rolls: StackVec::new(&[32, 64, 64, 64]),
+                    ranks: StackVec::new(&[
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[0], probability: 0.02297878265380859375 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[1], probability: 0.12725317478179931641 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[2], probability: 0.84693670272827148438 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[3], probability: 0.00283133983612060547 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[4], probability: 0.0 },
-                    ]
+                    ])
                 }
             ];
-            calc_perk_rank_probabilities(&*DATA, &mut perk_values_arr, true);
-            assert_perk_values_eq(&perk_values_arr, &expected);
+            let actual = calc_perk_rank_probabilities(&*DATA, &partial_perk_values, true);
+            assert_perk_values_eq(&actual, &expected);
         }
 
         #[test]
         fn high_base_value() {
-            let mut perk_values_arr =  vec![
-                PerkValues { name: PerkName::Biting, base: 100, rolls: smallvec![250], ..Default::default() },
+            let partial_perk_values = vec![
+                PartialPerkValues { name: PerkName::Biting, base: 100, rolls: StackVec::new(&[250]) },
             ];
             let expected = vec![
                 PerkValues {
@@ -844,24 +859,24 @@ mod tests {
                     name: PerkName::Biting,
                     i_first: 2,
                     i_last: 4,
-                    rolls: smallvec![250],
-                    ranks: smallvec![
+                    rolls: StackVec::new(&[250]),
+                    ranks: StackVec::new(&[
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[0], probability: 0.0 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[1], probability: 0.0 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[2], probability: 0.4 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[3], probability: 0.2 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Biting].ranks[4], probability: 0.4 },
-                    ]
+                    ])
                 }
             ];
-            calc_perk_rank_probabilities(&*DATA, &mut perk_values_arr, true);
-            assert_perk_values_eq(&perk_values_arr, &expected);
+            let actual = calc_perk_rank_probabilities(&*DATA, &partial_perk_values, true);
+            assert_perk_values_eq(&actual, &expected);
         }
 
         #[test]
         fn threshold_equal_to_max_roll_plus_base() {
-            let mut perk_values_arr =  vec![
-                PerkValues { name: PerkName::Equilibrium, base: 10, rolls: smallvec![40], ..Default::default() },
+            let partial_perk_values = vec![
+                PartialPerkValues { name: PerkName::Equilibrium, base: 10, rolls: StackVec::new(&[40]) },
             ];
             let expected = vec![
                 PerkValues {
@@ -870,16 +885,16 @@ mod tests {
                     name: PerkName::Equilibrium,
                     i_first: 0,
                     i_last: 1,
-                    rolls: smallvec![40],
-                    ranks: smallvec![
+                    rolls: StackVec::new(&[40]),
+                    ranks: StackVec::new(&[
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Equilibrium].ranks[0], probability: 0.975 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Equilibrium].ranks[1], probability: 0.025 },
                         PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Equilibrium].ranks[2], probability: 0.0 },
-                    ]
+                    ])
                 }
             ];
-            calc_perk_rank_probabilities(&*DATA, &mut perk_values_arr, true);
-            assert_perk_values_eq(&perk_values_arr, &expected);
+            let actual = calc_perk_rank_probabilities(&*DATA, &partial_perk_values, true);
+            assert_perk_values_eq(&actual, &expected);
         }
     }
 
@@ -935,8 +950,8 @@ mod tests {
         #[test]
         fn single_wanted_not_in_perk_values() {
             let perk_values_arr = vec![
-                PerkValues { name: PerkName::Precise, base: 50, rolls: smallvec![20, 20], ..Default::default() },
-                PerkValues { name: PerkName::Biting, base: 50, rolls: smallvec![20, 20], ..Default::default() },
+                PartialPerkValues { name: PerkName::Precise, base: 50, rolls: StackVec::new(&[20, 20]) },
+                PartialPerkValues { name: PerkName::Biting, base: 50, rolls: StackVec::new(&[20, 20]) },
             ];
             let wanted_gizmo = Gizmo {
                 perks: (
@@ -951,8 +966,8 @@ mod tests {
         #[test]
         fn first_wanted_not_in_perk_values() {
             let perk_values_arr = vec![
-                PerkValues { name: PerkName::Precise, base: 50, rolls: smallvec![20, 20], ..Default::default() },
-                PerkValues { name: PerkName::Biting, base: 50, rolls: smallvec![20, 20], ..Default::default() },
+                PartialPerkValues { name: PerkName::Precise, base: 50, rolls: StackVec::new(&[20, 20]) },
+                PartialPerkValues { name: PerkName::Biting, base: 50, rolls: StackVec::new(&[20, 20]) },
             ];
             let wanted_gizmo = Gizmo {
                 perks: (
@@ -967,8 +982,8 @@ mod tests {
         #[test]
         fn second_wanted_not_in_perk_values() {
             let perk_values_arr = vec![
-                PerkValues { name: PerkName::Precise, base: 50, rolls: smallvec![20, 20], ..Default::default() },
-                PerkValues { name: PerkName::Biting, base: 50, rolls: smallvec![20, 20], ..Default::default() },
+                PartialPerkValues { name: PerkName::Precise, base: 50, rolls: StackVec::new(&[20, 20]) },
+                PartialPerkValues { name: PerkName::Biting, base: 50, rolls: StackVec::new(&[20, 20]) },
             ];
             let wanted_gizmo = Gizmo {
                 perks: (
@@ -983,8 +998,8 @@ mod tests {
         #[test]
         fn single_wanted_pv_below_threshold() {
             let perk_values_arr = vec![
-                PerkValues { name: PerkName::Precise, base: 10, rolls: smallvec![20, 71], ..Default::default() },
-                PerkValues { name: PerkName::Biting, base: 50, rolls: smallvec![20, 20], ..Default::default() },
+                PartialPerkValues { name: PerkName::Precise, base: 10, rolls: StackVec::new(&[20, 71]) },
+                PartialPerkValues { name: PerkName::Biting, base: 50, rolls: StackVec::new(&[20, 20]) },
             ];
             let wanted_gizmo = Gizmo {
                 perks: (
@@ -999,8 +1014,8 @@ mod tests {
         #[test]
         fn first_wanted_pv_below_threshold() {
             let perk_values_arr = vec![
-                PerkValues { name: PerkName::Precise, base: 10, rolls: smallvec![20, 71], ..Default::default() },
-                PerkValues { name: PerkName::Biting, base: 50, rolls: smallvec![20, 20], ..Default::default() },
+                PartialPerkValues { name: PerkName::Precise, base: 10, rolls: StackVec::new(&[20, 71]) },
+                PartialPerkValues { name: PerkName::Biting, base: 50, rolls: StackVec::new(&[20, 20]) },
             ];
             let wanted_gizmo = Gizmo {
                 perks: (
@@ -1015,8 +1030,8 @@ mod tests {
         #[test]
         fn second_wanted_pv_below_threshold() {
             let perk_values_arr = vec![
-                PerkValues { name: PerkName::Precise, base: 10, rolls: smallvec![20, 20], ..Default::default() },
-                PerkValues { name: PerkName::Biting, base: 50, rolls: smallvec![20, 20], ..Default::default() },
+                PartialPerkValues { name: PerkName::Precise, base: 10, rolls: StackVec::new(&[20, 20]) },
+                PartialPerkValues { name: PerkName::Biting, base: 50, rolls: StackVec::new(&[20, 20]) },
             ];
             let wanted_gizmo = Gizmo {
                 perks: (
@@ -1031,8 +1046,8 @@ mod tests {
         #[test]
         fn single_wanted_pv_above_threshold() {
             let perk_values_arr = vec![
-                PerkValues { name: PerkName::Precise, base: 50, rolls: smallvec![20, 20], ..Default::default() },
-                PerkValues { name: PerkName::Biting, base: 12, rolls: smallvec![20, 20], ..Default::default() },
+                PartialPerkValues { name: PerkName::Precise, base: 50, rolls: StackVec::new(&[20, 20]) },
+                PartialPerkValues { name: PerkName::Biting, base: 12, rolls: StackVec::new(&[20, 20]) },
             ];
             let wanted_gizmo = Gizmo {
                 perks: (
@@ -1047,8 +1062,8 @@ mod tests {
         #[test]
         fn both_wanted_pv_above_threshold() {
             let perk_values_arr = vec![
-                PerkValues { name: PerkName::Precise, base: 50, rolls: smallvec![20, 40], ..Default::default() },
-                PerkValues { name: PerkName::Biting, base: 50, rolls: smallvec![20, 20], ..Default::default() },
+                PartialPerkValues { name: PerkName::Precise, base: 50, rolls: StackVec::new(&[20, 40]) },
+                PartialPerkValues { name: PerkName::Biting, base: 50, rolls: StackVec::new(&[20, 20]) },
             ];
             let wanted_gizmo = Gizmo {
                 perks: (
@@ -1063,8 +1078,8 @@ mod tests {
         #[test]
         fn first_wanted_pv_base_too_high() {
             let perk_values_arr = vec![
-                PerkValues { name: PerkName::Precise, base: 80, rolls: smallvec![20, 20], ..Default::default() },
-                PerkValues { name: PerkName::Biting, base: 100, rolls: smallvec![20, 20], ..Default::default() },
+                PartialPerkValues { name: PerkName::Precise, base: 80, rolls: StackVec::new(&[20, 20]) },
+                PartialPerkValues { name: PerkName::Biting, base: 100, rolls: StackVec::new(&[20, 20]) },
             ];
             let wanted_gizmo = Gizmo {
                 perks: (
@@ -1079,8 +1094,8 @@ mod tests {
         #[test]
         fn second_wanted_pv_base_too_high() {
             let perk_values_arr = vec![
-                PerkValues { name: PerkName::Precise, base: 160, rolls: smallvec![20, 20], ..Default::default() },
-                PerkValues { name: PerkName::Biting, base: 50, rolls: smallvec![20, 20], ..Default::default() },
+                PartialPerkValues { name: PerkName::Precise, base: 160, rolls: StackVec::new(&[20, 20]) },
+                PartialPerkValues { name: PerkName::Biting, base: 50, rolls: StackVec::new(&[20, 20]) },
             ];
             let wanted_gizmo = Gizmo {
                 perks: (
@@ -1095,6 +1110,7 @@ mod tests {
 
     mod permutate_perk_ranks_test {
         use super::*;
+        use smallvec::smallvec;
 
         fn assert_rank_combination_eq(actual: &Vec<RankCombination>, expected: &Vec<RankCombination>) {
             PerkName::using_full_names();
@@ -1112,24 +1128,24 @@ mod tests {
                     name: PerkName::Precise,
                     i_first: 1,
                     i_last: 3,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PerkRankValuesProbabilityContainer { probability: 0.0, values: PerkRankValues { rank: 0, name: PerkName::Precise, ..Default::default() }},
                         PerkRankValuesProbabilityContainer { probability: 0.125, values: PerkRankValues { rank: 1, name: PerkName::Precise, ..Default::default() }},
                         PerkRankValuesProbabilityContainer { probability: 0.25, values: PerkRankValues { rank: 2, name: PerkName::Precise, ..Default::default() }},
                         PerkRankValuesProbabilityContainer { probability: 0.5, values: PerkRankValues { rank: 3, name: PerkName::Precise, ..Default::default() }},
-                    ],
+                    ]),
                     ..Default::default()
                 },
                 PerkValues {
                     name: PerkName::Biting,
                     i_first: 2,
                     i_last: 3,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PerkRankValuesProbabilityContainer { probability: 0.0, values: PerkRankValues { rank: 0, name: PerkName::Biting, ..Default::default() }},
                         PerkRankValuesProbabilityContainer { probability: 0.125, values: PerkRankValues { rank: 1, name: PerkName::Biting, ..Default::default() }},
                         PerkRankValuesProbabilityContainer { probability: 0.25, values: PerkRankValues { rank: 2, name: PerkName::Biting, ..Default::default() }},
                         PerkRankValuesProbabilityContainer { probability: 0.5, values: PerkRankValues { rank: 3, name: PerkName::Biting, ..Default::default() }},
-                    ],
+                    ]),
                     ..Default::default()
                 },
             ];
@@ -1187,35 +1203,35 @@ mod tests {
                     name: PerkName::Precise,
                     i_first: 1,
                     i_last: 3,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PerkRankValuesProbabilityContainer { probability: 0.0, values: PerkRankValues { rank: 0, name: PerkName::Precise, ..Default::default() }},
                         PerkRankValuesProbabilityContainer { probability: 0.125, values: PerkRankValues { rank: 1, name: PerkName::Precise, ..Default::default() }},
                         PerkRankValuesProbabilityContainer { probability: 0.25, values: PerkRankValues { rank: 2, name: PerkName::Precise, ..Default::default() }},
                         PerkRankValuesProbabilityContainer { probability: 0.5, values: PerkRankValues { rank: 3, name: PerkName::Precise, ..Default::default() }},
-                    ],
+                    ]),
                     ..Default::default()
                 },
                 PerkValues {
                     name: PerkName::Biting,
                     i_first: 2,
                     i_last: 3,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PerkRankValuesProbabilityContainer { probability: 0.0, values: PerkRankValues { rank: 0, name: PerkName::Biting, ..Default::default() }},
                         PerkRankValuesProbabilityContainer { probability: 0.125, values: PerkRankValues { rank: 1, name: PerkName::Biting, ..Default::default() }},
                         PerkRankValuesProbabilityContainer { probability: 0.25, values: PerkRankValues { rank: 2, name: PerkName::Biting, ..Default::default() }},
                         PerkRankValuesProbabilityContainer { probability: 0.5, values: PerkRankValues { rank: 3, name: PerkName::Biting, ..Default::default() }},
-                    ],
+                    ]),
                     ..Default::default()
                 },
                 PerkValues {
                     name: PerkName::Equilibrium,
                     i_first: 1,
                     i_last: 2,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PerkRankValuesProbabilityContainer { probability: 0.0, values: PerkRankValues { rank: 0, name: PerkName::Equilibrium, ..Default::default() }},
                         PerkRankValuesProbabilityContainer { probability: 0.25, values: PerkRankValues { rank: 1, name: PerkName::Equilibrium, ..Default::default() }},
                         PerkRankValuesProbabilityContainer { probability: 0.5, values: PerkRankValues { rank: 2, name: PerkName::Equilibrium, ..Default::default() }},
-                    ],
+                    ]),
                     ..Default::default()
                 },
             ];
@@ -1326,22 +1342,22 @@ mod tests {
                     name: PerkName::Precise,
                     i_first: 0,
                     i_last: 2,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 0, cost: 0, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 1, cost: 10, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 2, cost: 50, ..Default::default() }, probability: 6.0/8.0 },
-                    ],
+                    ]),
                     ..Default::default()
                 },
                 PerkValues {
                     name: PerkName::Biting,
                     i_first: 0,
                     i_last: 2,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 0, cost: 0, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 1, cost: 40, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 2, cost: 50, ..Default::default() }, probability: 6.0/8.0 },
-                    ],
+                    ]),
                     ..Default::default()
                 },
             ];
@@ -1357,22 +1373,22 @@ mod tests {
                     name: PerkName::Precise,
                     i_first: 0,
                     i_last: 2,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 0, cost: 0, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 1, cost: 10, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 2, cost: 50, ..Default::default() }, probability: 6.0/8.0 },
-                    ],
+                    ]),
                     ..Default::default()
                 },
                 PerkValues {
                     name: PerkName::Biting,
                     i_first: 0,
                     i_last: 2,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 0, cost: 0, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 1, cost: 15, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 2, cost: 50, ..Default::default() }, probability: 6.0/8.0 },
-                    ],
+                    ]),
                     ..Default::default()
                 },
             ];
@@ -1388,22 +1404,22 @@ mod tests {
                     name: PerkName::Precise,
                     i_first: 0,
                     i_last: 2,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 0, cost: 0, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 1, cost: 10, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 2, cost: 15, ..Default::default() }, probability: 6.0/8.0 },
-                    ],
+                    ]),
                     ..Default::default()
                 },
                 PerkValues {
                     name: PerkName::Biting,
                     i_first: 0,
                     i_last: 2,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 0, cost: 0, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 1, cost: 15, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 2, cost: 20, ..Default::default() }, probability: 6.0/8.0 },
-                    ],
+                    ]),
                     ..Default::default()
                 },
             ];
@@ -1419,22 +1435,22 @@ mod tests {
                     name: PerkName::Precise,
                     i_first: 0,
                     i_last: 2,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 0, cost: 0, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 1, cost: 10, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 2, cost: 15, ..Default::default() }, probability: 6.0/8.0 },
-                    ],
+                    ]),
                     ..Default::default()
                 },
                 PerkValues {
                     name: PerkName::Biting,
                     i_first: 1,
                     i_last: 2,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 0, cost: 0, ..Default::default() }, probability: 0.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 1, cost: 15, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 2, cost: 20, ..Default::default() }, probability: 6.0/8.0 },
-                    ],
+                    ]),
                     ..Default::default()
                 },
             ];
@@ -1450,22 +1466,22 @@ mod tests {
                     name: PerkName::Precise,
                     i_first: 0,
                     i_last: 2,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 0, cost: 0, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 1, cost: 10, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 2, cost: 150, ..Default::default() }, probability: 6.0/8.0 },
-                    ],
+                    ]),
                     ..Default::default()
                 },
                 PerkValues {
                     name: PerkName::Biting,
                     i_first: 1,
                     i_last: 2,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 0, cost: 0, ..Default::default() }, probability: 0.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 1, cost: 15, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 2, cost: 20, ..Default::default() }, probability: 6.0/8.0 },
-                    ],
+                    ]),
                     ..Default::default()
                 },
             ];
@@ -1481,22 +1497,22 @@ mod tests {
                     name: PerkName::Precise,
                     i_first: 0,
                     i_last: 2,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 0, cost: 0, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 1, cost: 10, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 2, cost: 15, ..Default::default() }, probability: 6.0/8.0 },
-                    ],
+                    ]),
                     ..Default::default()
                 },
                 PerkValues {
                     name: PerkName::Biting,
                     i_first: 1,
                     i_last: 2,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 0, cost: 0, ..Default::default() }, probability: 0.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 1, cost: 15, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 2, cost: 200, ..Default::default() }, probability: 6.0/8.0 },
-                    ],
+                    ]),
                     ..Default::default()
                 },
             ];
@@ -1512,22 +1528,22 @@ mod tests {
                     name: PerkName::Precise,
                     i_first: 1,
                     i_last: 2,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 0, cost: 0, ..Default::default() }, probability: 0.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 1, cost: 10, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 2, cost: 15, ..Default::default() }, probability: 6.0/8.0 },
-                    ],
+                    ]),
                     ..Default::default()
                 },
                 PerkValues {
                     name: PerkName::Biting,
                     i_first: 1,
                     i_last: 2,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 0, cost: 0, ..Default::default() }, probability: 0.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 1, cost: 15, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 2, cost: 200, ..Default::default() }, probability: 6.0/8.0 },
-                    ],
+                    ]),
                     ..Default::default()
                 },
             ];
@@ -1543,22 +1559,22 @@ mod tests {
                     name: PerkName::Precise,
                     i_first: 1,
                     i_last: 2,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 0, cost: 0, ..Default::default() }, probability: 0.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 1, cost: 100, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Precise, rank: 2, cost: 150, ..Default::default() }, probability: 6.0/8.0 },
-                    ],
+                    ]),
                     ..Default::default()
                 },
                 PerkValues {
                     name: PerkName::Biting,
                     i_first: 1,
                     i_last: 2,
-                    ranks: smallvec![
+                    ranks: StackVec::new(&[
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 0, cost: 0, ..Default::default() }, probability: 0.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 1, cost: 15, ..Default::default() }, probability: 1.0/8.0 },
                         PRVPC { values: PerkRankValues { name: PerkName::Biting, rank: 2, cost: 200, ..Default::default() }, probability: 6.0/8.0 },
-                    ],
+                    ]),
                     ..Default::default()
                 },
             ];

@@ -1,5 +1,5 @@
 pub mod stack_vec;
-use stack_vec::*;
+pub use stack_vec::*;
 use std::ops::Index;
 use crate::{PerkName, GizmoType};
 
@@ -23,8 +23,8 @@ impl Default for PerkRanksData {
 #[derive(Debug, Clone, Copy)]
 pub struct ComponentValues {
     pub perk: PerkName,
-    pub base: u16,
-    pub roll: u16,
+    pub base: u8,
+    pub roll: u8,
 }
 
 impl Default for ComponentValues {

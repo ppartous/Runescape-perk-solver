@@ -219,8 +219,8 @@ pub async fn perk_solver(args: Args, data: Data, wanted_gizmo: Gizmo) {
 pub fn calc_gizmo_probabilities(data: &Data, budget: &Budget, input_materials: &Vec<MaterialName>,
     gizmo_type: GizmoType, is_ancient: bool) -> Vec<Gizmo>
 {
-    let mut perk_values = get_perk_values(data, input_materials, gizmo_type, is_ancient);
-    calc_perk_rank_probabilities(data, &mut perk_values, is_ancient);
+    let perk_values = get_perk_values(data, input_materials, gizmo_type, is_ancient);
+    let perk_values = calc_perk_rank_probabilities(data, &perk_values, is_ancient);
     let mut permutations = permutate_perk_ranks(&perk_values, None);
 
     for x in permutations.iter_mut() {
@@ -229,8 +229,8 @@ pub fn calc_gizmo_probabilities(data: &Data, budget: &Budget, input_materials: &
 
     let mut gizmo_arr: Vec<Gizmo> = vec![];
     for comb in permutations {
-        let cost_thresholds = find_gizmo_cost_thresholds(&comb, budget.range.max);
-        let cost_thresholds = calc_probability_from_thresholds(&cost_thresholds, budget, comb.probability);
+        let mut cost_thresholds = find_gizmo_cost_thresholds(&comb, budget.range.max);
+        calc_probability_from_thresholds(&mut cost_thresholds, budget, comb.probability);
 
         for gizmo in cost_thresholds {
             if gizmo.probability == 0.0 {
@@ -252,13 +252,13 @@ pub fn calc_gizmo_probabilities(data: &Data, budget: &Budget, input_materials: &
 fn calc_wanted_gizmo_probabilities(data: &Data, args: &Args, budgets: &Vec<Budget>, input_materials: Vec<MaterialName>,
     wanted_gizmo: Gizmo) -> Vec<ResultLine>
 {
-    let mut perk_values = get_perk_values(data, &input_materials, args.gizmo_type, args.ancient);
+    let perk_values = get_perk_values(data, &input_materials, args.gizmo_type, args.ancient);
 
     if !can_generate_wanted_ranks(data, &perk_values, wanted_gizmo) {
         return vec![];
     }
 
-    calc_perk_rank_probabilities(data, &mut perk_values, args.ancient);
+    let perk_values = calc_perk_rank_probabilities(data, &perk_values, args.ancient);
     let mut permutations = permutate_perk_ranks(&perk_values, Some(wanted_gizmo));
 
     for x in permutations.iter_mut() {
@@ -268,14 +268,14 @@ fn calc_wanted_gizmo_probabilities(data: &Data, args: &Args, budgets: &Vec<Budge
     let mut p_wanted = vec![0.0; budgets.len()];
     let p_empty: Vec<f64> = budgets.iter().map(|x| get_empty_gizmo_chance(x, &perk_values)).collect();
     for combination in permutations {
-        let cost_thresholds = if args.fuzzy {
+        let mut cost_thresholds = if args.fuzzy {
             fuzzy_find_wanted_gizmo_cost_thresholds(&combination, budgets.last().unwrap().range.max, wanted_gizmo)
         } else {
             find_wanted_gizmo_cost_thresholds(&combination, budgets.last().unwrap().range.max, wanted_gizmo)
         };
 
         for (budget, pw) in budgets.iter().zip(&mut p_wanted) {
-            let cost_thresholds = calc_probability_from_thresholds(&cost_thresholds, budget, combination.probability);
+            calc_probability_from_thresholds(&mut cost_thresholds, budget, combination.probability);
             *pw += cost_thresholds.iter().fold(0.0, |acc, x| {
                 if (args.fuzzy && x.contains(&wanted_gizmo)) || (!args.fuzzy && x.same(&wanted_gizmo)) {
                     acc + x.probability
@@ -296,10 +296,8 @@ fn calc_wanted_gizmo_probabilities(data: &Data, args: &Args, budgets: &Vec<Budge
     }).collect()
 }
 
-fn calc_probability_from_thresholds(cth_in: &Vec<Gizmo>, budget: &Budget, comb_probability: f64) -> Vec<Gizmo> {
-    let mut cth = Vec::with_capacity(cth_in.len());
-
-    let mut it = cth_in.iter().copied().peekable();
+fn calc_probability_from_thresholds(cth_in: &mut Vec<Gizmo>, budget: &Budget, comb_probability: f64) {
+    let mut it = cth_in.iter_mut().peekable();
     while let Some(curr) = it.next() {
         // A gizmo is generated when the budget roll is strictly greater than the gizmo cost.
         // The budget arg of this function is a cumulative distribution of all possible budget roll values where the
@@ -335,10 +333,8 @@ fn calc_probability_from_thresholds(cth_in: &Vec<Gizmo>, budget: &Budget, comb_p
             }
         }
 
-        cth.push(Gizmo { probability: prob * comb_probability, ..curr });
+        curr.probability = prob * comb_probability;
     }
-
-    cth
 }
 
 fn get_materials(args: &Args, data: &Data, wanted_gizmo: Gizmo) -> Vec<MaterialName> {

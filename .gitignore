@@ -6,3 +6,7 @@ test.sh
 *.code-workspace
 out.csv
 prices.txt
+cachegrind.out*
+callgrind.out*
+perk_solver
+perk_solver.exe

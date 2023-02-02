@@ -19,7 +19,7 @@ pub use gizmo::*;
 pub mod budget;
 pub use budget::*;
 
-use smallvec::{SmallVec, smallvec};
+use smallvec::SmallVec;
 use std::sync::Arc;
 use colored::Colorize;
 
@@ -33,6 +33,15 @@ pub struct PerkRankValuesProbabilityContainer {
 
 pub type PRVPC = PerkRankValuesProbabilityContainer;
 
+impl Default for PerkRankValuesProbabilityContainer {
+    fn default() -> Self {
+        PerkRankValuesProbabilityContainer {
+            values: PerkRankValues { ..Default::default() },
+            probability: 0.0
+        }
+    }
+}
+
 // ---------------------------------------------------------------------------------------------------------------------
 
 #[derive(Debug, PartialEq)]
@@ -43,29 +52,24 @@ pub struct RankCombination {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct PerkValues {
     pub name: PerkName,
     pub base: u16,
-    pub rolls: SmallVec<[u8; 9]>,
+    pub rolls: StackVec<u8, 9>,
     pub doubleslot: bool,
-    pub ranks: SmallVec<[PerkRankValuesProbabilityContainer; 7]>,
+    pub ranks: StackVec<PerkRankValuesProbabilityContainer, 7>,
     pub i_first: usize,
     pub i_last: usize,
 }
 
-impl Default for PerkValues {
-    fn default() -> PerkValues {
-        PerkValues {
-            name: PerkName::Empty,
-            base: 0,
-            rolls: smallvec![],
-            doubleslot: false,
-            ranks: smallvec![],
-            i_first: 0,
-            i_last: 0
-        }
-    }
+// ---------------------------------------------------------------------------------------------------------------------
+
+#[derive(Debug, Clone, Copy, Default)]
+pub struct PartialPerkValues {
+    pub name: PerkName,
+    pub base: u16,
+    pub rolls: StackVec<u8, 9>
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

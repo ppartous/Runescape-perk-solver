@@ -29,5 +29,6 @@ test-case = "2.2.2"
 threadpool = "1.8.1"
 tokio = { version = "1.24.2", features = ["macros"] }
 
-[features]
-# debug = 1
+[profile.release-with-debug]
+inherits = "release"
+debug = true

@@ -32,11 +32,19 @@ where
         self.data[index] = value;
     }
 
-    pub fn get(&self, key: K) -> & V {
+    pub fn get(&self, key: K) -> &V {
         let index = usize::from(key);
         debug_assert!(index < N);
         unsafe {
             self.data.get_unchecked(index)
+        }
+    }
+
+    pub fn get_mut(&mut self, key: K) -> &mut V {
+        let index = usize::from(key);
+        debug_assert!(index < N);
+        unsafe {
+            self.data.get_unchecked_mut(index)
         }
     }
 

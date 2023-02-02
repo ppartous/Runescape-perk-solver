@@ -1,7 +1,7 @@
 use itertools::Itertools;
 use serde_json::{self, Value};
 use crate::{utils::print_warning, prelude::*};
-use std::{collections::HashMap, str::FromStr, fs};
+use std::{str::FromStr, fs};
 use regex::Regex;
 use once_cell::sync::OnceCell;
 
@@ -13,14 +13,16 @@ static APP_USER_AGENT: &str = concat!(
     env!("CARGO_PKG_REPOSITORY")
 );
 
+type PriceMap = StackMap<MaterialName, f64, {MaterialName::MAT_COUNT}>;
+
 static SHELL_PRICE: OnceCell<f64> = OnceCell::new();
-static PRICES: OnceCell<HashMap<MaterialName, f64>> = OnceCell::new();
+static PRICES: OnceCell<PriceMap> = OnceCell::new();
 
 pub fn calc_gizmo_price(line: &ResultLine) -> f64 {
     let shell_price = SHELL_PRICE.get().unwrap();
     let prices = PRICES.get().unwrap();
     let price = shell_price + line.mat_combination.iter().fold(0.0, |acc, x| {
-        acc + prices.get(x).unwrap()
+        acc + prices.get(*x)
     });
 
     price / line.prob_gizmo
@@ -41,12 +43,11 @@ pub fn load_component_prices(args: &Args) {
         }
     }
 
-    let mut prices = string_to_map(&text);
+    let prices = string_to_map(&text);
     for mat in MaterialName::iter() {
-        prices.entry(mat).or_insert_with(|| {
+        if *prices.get(mat) == 0.0 {
             print_warning(format!("Price missing for '{}'", mat).as_str());
-            0.0
-        });
+        };
     }
 
     text = prices.iter().map(|(name, value)| format!("{}: {},", name, value)).sorted().join("\n");
@@ -58,17 +59,17 @@ pub fn load_component_prices(args: &Args) {
     PRICES.set(prices).ok();
 }
 
-fn calc_shell_price(args: &Args, prices: &HashMap<MaterialName, f64>) -> f64 {
+fn calc_shell_price(args: &Args, prices: &PriceMap) -> f64 {
     match args.ancient {
         true => match args.gizmo_type {
-            GizmoType::Armour => 20.0 * prices.get(&MaterialName::DeflectingParts).unwrap() + 20.0 * prices.get(&MaterialName::HistoricComponents).unwrap() + 2.0 * prices.get(&MaterialName::ClassicComponents).unwrap() + 2.0 * prices.get(&MaterialName::ProtectiveComponents).unwrap(),
-            GizmoType::Weapon => 20.0 * prices.get(&MaterialName::BladeParts).unwrap() + 20.0 * prices.get(&MaterialName::HistoricComponents).unwrap() + 2.0 * prices.get(&MaterialName::ClassicComponents).unwrap() + 2.0 * prices.get(&MaterialName::StrongComponents).unwrap(),
-            GizmoType::Tool => 20.0 * prices.get(&MaterialName::HeadParts).unwrap() + 20.0 * prices.get(&MaterialName::HistoricComponents).unwrap() + 2.0 * prices.get(&MaterialName::ClassicComponents).unwrap() + 2.0 * prices.get(&MaterialName::PreciseComponents).unwrap(),
+            GizmoType::Armour => 20.0 * prices.get(MaterialName::DeflectingParts) + 20.0 * prices.get(MaterialName::HistoricComponents) + 2.0 * prices.get(MaterialName::ClassicComponents) + 2.0 * prices.get(MaterialName::ProtectiveComponents),
+            GizmoType::Weapon => 20.0 * prices.get(MaterialName::BladeParts) + 20.0 * prices.get(MaterialName::HistoricComponents) + 2.0 * prices.get(MaterialName::ClassicComponents) + 2.0 * prices.get(MaterialName::StrongComponents),
+            GizmoType::Tool => 20.0 * prices.get(MaterialName::HeadParts) + 20.0 * prices.get(MaterialName::HistoricComponents) + 2.0 * prices.get(MaterialName::ClassicComponents) + 2.0 * prices.get(MaterialName::PreciseComponents),
         },
         false => match args.gizmo_type {
-            GizmoType::Armour => 10.0 * prices.get(&MaterialName::DeflectingParts).unwrap() + 5.0 * prices.get(&MaterialName::CraftedParts).unwrap() + 2.0 * prices.get(&MaterialName::ProtectiveComponents).unwrap(),
-            GizmoType::Weapon => 10.0 * prices.get(&MaterialName::BladeParts).unwrap() + 5.0 * prices.get(&MaterialName::CraftedParts).unwrap() + 2.0 * prices.get(&MaterialName::StrongComponents).unwrap(),
-            GizmoType::Tool => 10.0 * prices.get(&MaterialName::HeadParts).unwrap() + 5.0 * prices.get(&MaterialName::CraftedParts).unwrap() + 2.0 * prices.get(&MaterialName::PreciseComponents).unwrap(),
+            GizmoType::Armour => 10.0 * prices.get(MaterialName::DeflectingParts) + 5.0 * prices.get(MaterialName::CraftedParts) + 2.0 * prices.get(MaterialName::ProtectiveComponents),
+            GizmoType::Weapon => 10.0 * prices.get(MaterialName::BladeParts) + 5.0 * prices.get(MaterialName::CraftedParts) + 2.0 * prices.get(MaterialName::StrongComponents),
+            GizmoType::Tool => 10.0 * prices.get(MaterialName::HeadParts) + 5.0 * prices.get(MaterialName::CraftedParts) + 2.0 * prices.get(MaterialName::PreciseComponents),
         },
     }
 }
@@ -106,8 +107,8 @@ fn extract_from_response(response: &str) -> String {
     String::new()
 }
 
-fn string_to_map(text: &str) -> HashMap<MaterialName, f64> {
-    let mut prices = HashMap::new();
+fn string_to_map(text: &str) -> PriceMap {
+    let mut prices = PriceMap::new();
     let re = Regex::new(r"^([^:]+): ?([\d\.]+)").unwrap();
     let lines = text.split('\n');
 
