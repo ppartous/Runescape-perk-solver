@@ -1,6 +1,6 @@
 /target
 temp.lua
-test.cmd
+test.bat
 test.sh
 bench.sh
 *.opt
@@ -9,5 +9,6 @@ out.csv
 prices.txt
 cachegrind.out*
 callgrind.out*
+xtmemory.out*
 perk_solver
 perk_solver.exe

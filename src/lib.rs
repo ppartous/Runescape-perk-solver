@@ -110,7 +110,7 @@ mod gizmo_cost_thresholds;
 mod jagex_sort;
 mod component_prices;
 mod result;
-use prelude::*;
+pub use prelude::*;
 use gizmo_cost_thresholds::*;
 use perk_values::*;
 use component_prices::load_component_prices;
@@ -119,6 +119,7 @@ use std::{cmp, cmp::{Ord, PartialOrd}, sync::{Arc, atomic::{self, Ordering::Rela
 use indicatif::{ProgressBar, ProgressStyle};
 use tokio::{sync::mpsc::channel, task, time};
 use threadpool::ThreadPool;
+use smallvec::{SmallVec, smallvec};
 
 #[tokio::main]
 pub async fn perk_solver(args: Args, data: Data, wanted_gizmo: Gizmo) {
@@ -265,24 +266,22 @@ fn calc_wanted_gizmo_probabilities(data: &Data, args: &Args, budgets: &Vec<Budge
         jagex_sort::jagex_quicksort(x);
     }
 
-    let mut p_wanted = vec![0.0; budgets.len()];
-    let p_empty: Vec<f64> = budgets.iter().map(|x| get_empty_gizmo_chance(x, &perk_values)).collect();
-    for combination in permutations {
+    let mut p_wanted: SmallVec<[f64; 96]> = smallvec![0.0; budgets.len()];
+    let p_empty: SmallVec<[f64; 96]> = budgets.iter().map(|x| get_empty_gizmo_chance(x, &perk_values)).collect();
+    for combination in permutations.iter() {
         let mut cost_thresholds = if args.fuzzy {
-            fuzzy_find_wanted_gizmo_cost_thresholds(&combination, budgets.last().unwrap().range.max, wanted_gizmo)
+            fuzzy_find_wanted_gizmo_cost_thresholds(combination, budgets.last().unwrap().range.max, wanted_gizmo)
         } else {
-            find_wanted_gizmo_cost_thresholds(&combination, budgets.last().unwrap().range.max, wanted_gizmo)
+            find_wanted_gizmo_cost_thresholds(combination, budgets.last().unwrap().range.max, wanted_gizmo)
         };
 
         for (budget, pw) in budgets.iter().zip(&mut p_wanted) {
             calc_probability_from_thresholds(&mut cost_thresholds, budget, combination.probability);
-            *pw += cost_thresholds.iter().fold(0.0, |acc, x| {
+            for x in cost_thresholds.iter() {
                 if (args.fuzzy && x.contains(&wanted_gizmo)) || (!args.fuzzy && x.same(&wanted_gizmo)) {
-                    acc + x.probability
-                } else {
-                    acc
+                    *pw += x.probability;
                 }
-            });
+            }
         }
     }
 
@@ -296,7 +295,7 @@ fn calc_wanted_gizmo_probabilities(data: &Data, args: &Args, budgets: &Vec<Budge
     }).collect()
 }
 
-fn calc_probability_from_thresholds(cth_in: &mut Vec<Gizmo>, budget: &Budget, comb_probability: f64) {
+fn calc_probability_from_thresholds(cth_in: &mut [Gizmo], budget: &Budget, comb_probability: f64) {
     let mut it = cth_in.iter_mut().peekable();
     while let Some(curr) = it.next() {
         // A gizmo is generated when the budget roll is strictly greater than the gizmo cost.

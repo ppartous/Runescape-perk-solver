@@ -11,5 +11,4 @@ $ ./perk_solver -t weapon -l 1,137 -a gizmo equilibrium 4 mobile -e connector,de
 ## Build from source
 * Clone this repo `git clone https://github.com/CephHunter/Runescape-perk-solver.git`
 * Make sure [Rust](https://www.rust-lang.org/) is installed
-* Build with `cargo build --release`
-* The binary in now located in `./target/release/perk_solver[.exe]`
+* Build with `./build.sh` or `./build.bat`

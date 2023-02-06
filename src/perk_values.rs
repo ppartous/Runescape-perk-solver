@@ -162,10 +162,10 @@ pub fn can_generate_wanted_ranks(data: &Data, perk_values_arr: &PartialPerkValue
     true
 }
 
-pub fn permutate_perk_ranks(perk_list: &PerkValuesVec, wanted_gizmo: Option<Gizmo>) -> Vec<RankCombination> {
-    let mut combinations = Vec::with_capacity(perk_list.len() * 7);
+pub fn permutate_perk_ranks<'a>(perk_list: &'a PerkValuesVec, wanted_gizmo: Option<Gizmo>) -> Vec<RankCombination> {
+    let mut combinations = Vec::with_capacity(perk_list.len() * 10);
 
-    for pv_combination in perk_list.iter().map(|x| {
+    let func = |x: &'a PerkValues| {
         let mut i_first = x.i_first;
         let mut i_last = x.i_last;
         match wanted_gizmo {
@@ -180,8 +180,9 @@ pub fn permutate_perk_ranks(perk_list: &PerkValuesVec, wanted_gizmo: Option<Gizm
             _ => ()
         }
         x.ranks.iter().take(i_last + 1).skip(i_first)
-    }).multi_cartesian_product() {
+    };
 
+    for pv_combination in perk_list.iter().map(func).multi_cartesian_product() {
         let mut probability = 1.0;
         let mut ranks = SmallVec::<[PerkRankValues; 8]>::new();
 
@@ -252,13 +253,13 @@ pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &[PerkValues]) -
         p_empty *= pv_ranks[0].probability;
 
         let mut psum = pv_ranks[0].probability;
-        for rank in pv_ranks.iter().copied().take(pv.i_last + 1).skip(pv.i_first).rev() {
+        for rank in pv_ranks.iter().take(pv.i_last + 1).skip(pv.i_first).rev() {
             if rank.values.cost <= budget.range.min {
                 break;
             }
 
             psum += rank.probability;
-            ranks.push(rank);
+            ranks.push(*rank);
         }
 
         *p_empty_per_perk.get_mut(pv.name) = psum;
@@ -273,7 +274,7 @@ pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &[PerkValues]) -
 
     ranks.sort_unstable_by(|x, y| x.values.cost.cmp(&y.values.cost));
 
-    for rank in ranks {
+    for rank in ranks.iter() {
         // Adjusted empty combo chance to a specific rank of a perk
         let mut p_empty_rank = p_empty_combo * rank.probability / p_empty_per_perk.get(rank.values.name);
         unsafe {
@@ -310,7 +311,7 @@ mod tests {
             check_index(acc.base, exp.base, i, "base", actual, expected);
 
             for (x, y) in acc.rolls.iter().zip_eq(&exp.rolls) {
-                check_index(*x, y, i, "rolls", actual, expected);
+                check_index(*x, *y, i, "rolls", actual, expected);
             }
         }
     }
@@ -327,7 +328,7 @@ mod tests {
             check_index(acc.i_last, exp.i_last, i, "i_last", actual, expected);
 
             for (x, y) in acc.rolls.iter().zip_eq(&exp.rolls) {
-                check_index(*x, y, i, "rolls", actual, expected);
+                check_index(*x, *y, i, "rolls", actual, expected);
             }
 
             for (x, y) in acc.ranks.iter().zip_eq(&exp.ranks) {
