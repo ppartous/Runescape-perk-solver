@@ -14,7 +14,7 @@ impl Default for Perk {
 
 impl PartialEq<PerkRankValues> for Perk {
     fn eq(&self, other: &PerkRankValues) -> bool {
-        self.name == other.name && self.rank == other.rank
+        (self.name == other.name) & (self.rank == other.rank)
     }
 }
 

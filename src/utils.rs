@@ -64,9 +64,9 @@ where
     }
 }
 
-pub fn check_len_result<T>(acc: &T, exp: &T) -> Result<(), String>
+pub fn check_len_result<T>(acc: &[T], exp: &[T]) -> Result<(), String>
 where
-    T: std::fmt::Debug + len_trait::Len
+    T: std::fmt::Debug
 {
     if acc.len() != exp.len() {
         return Err(format!("Actual and expected have different lengths (actual: {}, expected: {})\nActual: {:#?}\nExpected: {:#?}",
@@ -75,9 +75,9 @@ where
     Ok(())
 }
 
-pub fn check_len<T>(acc: &T, exp: &T)
+pub fn check_len<T>(acc: &[T], exp: &[T])
 where
-    T: std::fmt::Debug + len_trait::Len
+    T: std::fmt::Debug
 {
     if let Err(err) = check_len_result(acc, exp) {
         panic!("{}", err);

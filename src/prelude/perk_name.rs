@@ -1,6 +1,8 @@
 use std::{fmt, str::FromStr, sync::atomic::AtomicBool};
+use strum::EnumIter;
+use strum_macros::EnumCount;
 
-#[derive(PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash)]
+#[derive(PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash, EnumCount, EnumIter)]
 pub enum PerkName {
     Empty,
     Absorbative,
@@ -95,8 +97,6 @@ impl PerkName {
     pub const I: PerkName = PerkName::Bulwark;
     pub const J: PerkName = PerkName::Butterfingers;
     pub const K: PerkName = PerkName::Caroming;
-
-    pub const NAME_COUNT: usize = 77;
 
     pub fn using_simplified_names() {
         unsafe {

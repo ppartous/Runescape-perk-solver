@@ -1,13 +1,15 @@
 use itertools::Itertools;
-use smallvec::SmallVec;
+use smallvec::{SmallVec, smallvec};
+use strum::EnumCount;
 use crate::{prelude::*, dice, utils};
+use std::sync::Arc;
 
 /// Calculate the base and roll values for each possible perk based on the input materials and their order.
 pub fn get_perk_values(data: &Data, input_materials: &Vec<MaterialName>, gizmo_type: GizmoType,
-    is_ancient_gizmo: bool) -> Vec<PartialPerkValues> {
+    is_ancient_gizmo: bool) -> PartialPerkValuesVec {
 
-    let mut perk_values = Vec::new();
-    let mut name_index_map = StackMap::<PerkName, Option<usize>, {PerkName::NAME_COUNT}>::new();
+    let mut perk_values = smallvec![];
+    let mut name_index_map = StackMap::<PerkName, Option<usize>, {PerkName::COUNT}>::new();
 
     for mat in input_materials {
         let mat_data = &data.comps[*mat][gizmo_type];
@@ -44,8 +46,8 @@ pub fn get_perk_values(data: &Data, input_materials: &Vec<MaterialName>, gizmo_t
     perk_values
 }
 
-pub fn calc_perk_rank_probabilities(data: &Data, partial_values_arr: &[PartialPerkValues], is_ancient_gizmo: bool) -> Vec<PerkValues> {
-    let mut perk_values_arr = Vec::with_capacity(partial_values_arr.len());
+pub fn calc_perk_rank_probabilities(data: &Data, partial_values_arr: &[PartialPerkValues], is_ancient_gizmo: bool) -> PerkValuesVec {
+    let mut perk_values_arr = SmallVec::with_capacity(partial_values_arr.len());
 
     for partial_values in partial_values_arr.iter() {
         let perk_data = &data.perks[partial_values.name];
@@ -65,7 +67,7 @@ pub fn calc_perk_rank_probabilities(data: &Data, partial_values_arr: &[PartialPe
         }
 
         perk_values.rolls.sort();
-        let mut roll_dist = Vec::new();
+        let mut roll_dist = Arc::new(Vec::new());
 
         let mut iter = perk_values.rolls.iter().peekable();
         let mut count = 1;
@@ -77,7 +79,7 @@ pub fn calc_perk_rank_probabilities(data: &Data, partial_values_arr: &[PartialPe
             }
 
             if !roll_dist.is_empty() {
-                roll_dist = utils::convolve(&roll_dist, &dice::get_distribution(*x as usize, count));
+                roll_dist = Arc::new(utils::convolve(&roll_dist, &dice::get_distribution(*x as usize, count)));
             } else {
                 roll_dist = dice::get_distribution(*x as usize, count);
             }
@@ -117,7 +119,7 @@ pub fn calc_perk_rank_probabilities(data: &Data, partial_values_arr: &[PartialPe
 }
 
 /// Quick check if it is even possible to generate the wanted perk rank. This won't catch all impossible material orders.
-pub fn can_generate_wanted_ranks(data: &Data, perk_values_arr: &Vec<PartialPerkValues>, wanted_gizmo: Gizmo) -> bool {
+pub fn can_generate_wanted_ranks(data: &Data, perk_values_arr: &PartialPerkValuesVec, wanted_gizmo: Gizmo) -> bool {
     let wanted_rank1 = wanted_gizmo.perks.0.rank as usize;
     let wanted_rank2 = wanted_gizmo.perks.1.rank as usize;
 
@@ -160,7 +162,7 @@ pub fn can_generate_wanted_ranks(data: &Data, perk_values_arr: &Vec<PartialPerkV
     true
 }
 
-pub fn permutate_perk_ranks(perk_list: &Vec<PerkValues>, wanted_gizmo: Option<Gizmo>) -> Vec<RankCombination> {
+pub fn permutate_perk_ranks(perk_list: &PerkValuesVec, wanted_gizmo: Option<Gizmo>) -> Vec<RankCombination> {
     let mut combinations = Vec::with_capacity(perk_list.len() * 7);
 
     for pv_combination in perk_list.iter().map(|x| {
@@ -238,8 +240,8 @@ pub fn permutate_perk_ranks(perk_list: &Vec<PerkValues>, wanted_gizmo: Option<Gi
 /// Then move on to do the same with the next rank in the array.
 pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &[PerkValues]) -> f64 {
     let mut p_empty = 1.0; // Total empty gizmo chance
-    let mut p_empty_per_perk = vec![0.0; PerkName::NAME_COUNT];
-    let mut ranks = Vec::new(); // vec of non zero ranks with a cost higher than the invention level
+    let mut p_empty_per_perk = StackMap::<PerkName, f64, {PerkName::COUNT}>::new();
+    let mut ranks: SmallVec<[PRVPC; 30]> = smallvec![]; // vec of non zero ranks with a cost higher than the invention level
 
     // Chance to have a combination of perk ranks that can produce an empty gizmo (perks with a cost higher than
     // the invention level or of rank 0)
@@ -259,9 +261,7 @@ pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &[PerkValues]) -
             ranks.push(rank);
         }
 
-        unsafe {
-            *p_empty_per_perk.get_unchecked_mut(pv.name as usize) = psum;
-        }
+        *p_empty_per_perk.get_mut(pv.name) = psum;
         p_empty_combo *= psum;
     }
 
@@ -274,17 +274,17 @@ pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &[PerkValues]) -
     ranks.sort_unstable_by(|x, y| x.values.cost.cmp(&y.values.cost));
 
     for rank in ranks {
+        // Adjusted empty combo chance to a specific rank of a perk
+        let mut p_empty_rank = p_empty_combo * rank.probability / p_empty_per_perk.get(rank.values.name);
         unsafe {
-            // Adjusted empty combo chance to a specific rank of a perk
-            let mut p_empty_rank = p_empty_combo * rank.probability / p_empty_per_perk.get_unchecked(rank.values.name as usize);
             // Multiply with chance that our inventbudget is bellow the rank cost
             p_empty_rank *= budget.dist.get_unchecked(u16::min(rank.values.cost, budget.range.max) as usize);
-            p_empty += p_empty_rank;
-            // Remove this rank from 'p_empty_combo'
-            p_empty_combo *= (p_empty_per_perk.get_unchecked(rank.values.name as usize) - rank.probability) / p_empty_per_perk.get_unchecked(rank.values.name as usize);
-            // Remove this rank from the combined empty combo chance of a certain perk
-            *p_empty_per_perk.get_unchecked_mut(rank.values.name as usize) -= rank.probability;
         }
+        p_empty += p_empty_rank;
+        // Remove this rank from 'p_empty_combo'
+        p_empty_combo *= (p_empty_per_perk.get(rank.values.name) - rank.probability) / p_empty_per_perk.get(rank.values.name);
+        // Remove this rank from the combined empty combo chance of a certain perk
+        *p_empty_per_perk.get_mut(rank.values.name) -= rank.probability;
 
         if p_empty_combo == 0.0 {
             break;
@@ -301,7 +301,7 @@ mod tests {
     use lazy_static::lazy_static;
     use crate::utils::{check_len, check_index, check_index_relative};
 
-    fn assert_partial_perk_values_eq(actual: &Vec<PartialPerkValues>, expected: &Vec<PartialPerkValues>) {
+    fn assert_partial_perk_values_eq(actual: &PartialPerkValuesVec, expected: &PartialPerkValuesVec) {
         PerkName::using_full_names();
         check_len(actual, expected);
 
@@ -315,7 +315,7 @@ mod tests {
         }
     }
 
-    fn assert_perk_values_eq(actual: &Vec<PerkValues>, expected: &Vec<PerkValues>) {
+    fn assert_perk_values_eq(actual: &PerkValuesVec, expected: &PerkValuesVec) {
         PerkName::using_full_names();
         check_len(actual, expected);
 
@@ -355,7 +355,7 @@ mod tests {
             ];
             let gizmo_type = GizmoType::Weapon;
             let is_ancient_gizmo = false;
-            let expected = vec![
+            let expected = smallvec![
                 PartialPerkValues{ base: 97, name: PerkName::Precise,      rolls: StackVec::new(&[8, 8, 32]) },
                 PartialPerkValues{ base: 90, name: PerkName::Invigorating, rolls: StackVec::new(&[8, 8    ]) },
                 PartialPerkValues{ base: 12, name: PerkName::Cautious,     rolls: StackVec::new(&[44      ]) },
@@ -378,7 +378,7 @@ mod tests {
             ];
             let gizmo_type = GizmoType::Armour;
             let is_ancient_gizmo = false;
-            let expected = vec![
+            let expected = smallvec![
                 PartialPerkValues{ base: 78, name: PerkName::Devoted,      rolls: StackVec::new(&[9, 9]) },
                 PartialPerkValues{ base: 90, name: PerkName::Invigorating, rolls: StackVec::new(&[8, 8]) },
                 PartialPerkValues{ base: 12, name: PerkName::Cautious,     rolls: StackVec::new(&[44  ]) },
@@ -398,7 +398,7 @@ mod tests {
             ];
             let gizmo_type = GizmoType::Tool;
             let is_ancient_gizmo = false;
-            let expected = vec![
+            let expected = smallvec![
                 PartialPerkValues{ base: 50, name: PerkName::Charitable, rolls: StackVec::new(&[28, 28]) },
                 PartialPerkValues{ base: 50, name: PerkName::Polishing,  rolls: StackVec::new(&[28, 28]) },
                 PartialPerkValues{ base: 12, name: PerkName::Cautious,   rolls: StackVec::new(&[44    ]) },
@@ -419,7 +419,7 @@ mod tests {
             ];
             let gizmo_type = GizmoType::Weapon;
             let is_ancient_gizmo = false;
-            let expected = vec![
+            let expected = smallvec![
                 PartialPerkValues{ base: 97, name: PerkName::Precise,     rolls: StackVec::new(&[8, 8, 32]) },
                 PartialPerkValues{ base: 12, name: PerkName::Cautious,    rolls: StackVec::new(&[44      ]) },
                 PartialPerkValues{ base: 12, name: PerkName::Blunted,     rolls: StackVec::new(&[45      ]) },
@@ -441,7 +441,7 @@ mod tests {
             ];
             let gizmo_type = GizmoType::Armour;
             let is_ancient_gizmo = false;
-            let expected = vec![
+            let expected = smallvec![
                 PartialPerkValues{ base: 78, name: PerkName::Devoted,  rolls: StackVec::new(&[9, 9]) },
                 PartialPerkValues{ base: 12, name: PerkName::Cautious, rolls: StackVec::new(&[44  ]) },
             ];
@@ -460,7 +460,7 @@ mod tests {
             ];
             let gizmo_type = GizmoType::Tool;
             let is_ancient_gizmo = false;
-            let expected = vec![
+            let expected = smallvec![
                 PartialPerkValues{ base: 50, name: PerkName::Charitable, rolls: StackVec::new(&[28, 28]) },
                 PartialPerkValues{ base: 12, name: PerkName::Cautious,   rolls: StackVec::new(&[44    ]) },
                 PartialPerkValues{ base: 9,  name: PerkName::Honed,      rolls: StackVec::new(&[32    ]) },
@@ -480,7 +480,7 @@ mod tests {
             ];
             let gizmo_type = GizmoType::Weapon;
             let is_ancient_gizmo = true;
-            let expected = vec![
+            let expected = smallvec![
                 PartialPerkValues{ base: 99, name: PerkName::Precise,     rolls: StackVec::new(&[6, 6, 33, 33, 25]) },
                 PartialPerkValues{ base: 22, name: PerkName::Genocidal,   rolls: StackVec::new(&[33, 33          ]) },
                 PartialPerkValues{ base: 22, name: PerkName::Ultimatums,  rolls: StackVec::new(&[33, 33          ]) },
@@ -506,7 +506,7 @@ mod tests {
             ];
             let gizmo_type = GizmoType::Armour;
             let is_ancient_gizmo = true;
-            let expected = vec![
+            let expected = smallvec![
                 PartialPerkValues{ base: 62, name: PerkName::Devoted,    rolls: StackVec::new(&[7, 7  ]) },
                 PartialPerkValues{ base: 22, name: PerkName::Genocidal,  rolls: StackVec::new(&[33, 33]) },
                 PartialPerkValues{ base: 22, name: PerkName::Ultimatums, rolls: StackVec::new(&[33, 33]) },
@@ -530,7 +530,7 @@ mod tests {
             ];
             let gizmo_type = GizmoType::Tool;
             let is_ancient_gizmo = true;
-            let expected = vec![
+            let expected = smallvec![
                 PartialPerkValues{ base: 40, name: PerkName::Charitable, rolls: StackVec::new(&[22, 22]) },
                 PartialPerkValues{ base: 22, name: PerkName::ImpSouled,  rolls: StackVec::new(&[33, 33]) },
                 PartialPerkValues{ base: 9,  name: PerkName::Cautious,   rolls: StackVec::new(&[35    ]) },
@@ -587,7 +587,7 @@ mod tests {
             let partial_perk_values = vec![
                 PartialPerkValues { name: PerkName::Precise, base: 10, rolls: StackVec::new(&[32, 32, 64]) },
             ];
-            let expected = vec![
+            let expected = smallvec![
                 PerkValues {
                     base: 10,
                     doubleslot: true,
@@ -612,7 +612,7 @@ mod tests {
             let partial_perk_values = vec![
                 PartialPerkValues { name: PerkName::Precise, base: 10, rolls: StackVec::new(&[128, 128]) },
             ];
-            let expected = vec![
+            let expected = smallvec![
                 PerkValues {
                     base: 10,
                     doubleslot: true,
@@ -638,7 +638,7 @@ mod tests {
                 PartialPerkValues { name: PerkName::Precise, base: 10, rolls: StackVec::new(&[32, 32, 64]) },
                 PartialPerkValues { name: PerkName::Biting, base: 50, rolls: StackVec::new(&[32, 32, 64]) },
             ];
-            let expected = vec![
+            let expected = smallvec![
                 PerkValues {
                     base: 10,
                     doubleslot: true,
@@ -679,7 +679,7 @@ mod tests {
                 PartialPerkValues { name: PerkName::Precise, base: 10, rolls: StackVec::new(&[128, 128, 64]) },
                 PartialPerkValues { name: PerkName::Biting, base: 50, rolls: StackVec::new(&[32, 128, 128]) },
             ];
-            let expected = vec![
+            let expected = smallvec![
                 PerkValues {
                     base: 10,
                     doubleslot: true,
@@ -719,7 +719,7 @@ mod tests {
             let partial_perk_values = vec![
                 PartialPerkValues { name: PerkName::Precise, base: 5, rolls: StackVec::new(&[16, 16, 32]) },
             ];
-            let expected = vec![
+            let expected = smallvec![
                 PerkValues {
                     base: 5,
                     doubleslot: true,
@@ -744,7 +744,7 @@ mod tests {
             let partial_perk_values = vec![
                 PartialPerkValues { name: PerkName::Biting, base: 5, rolls: StackVec::new(&[32, 64, 64, 64]) },
             ];
-            let expected = vec![
+            let expected = smallvec![
                 PerkValues {
                     base: 5,
                     doubleslot: false,
@@ -771,7 +771,7 @@ mod tests {
                 PartialPerkValues { name: PerkName::Precise, base: 5, rolls: StackVec::new(&[32, 32, 64, 16, 16]) },
                 PartialPerkValues { name: PerkName::Biting, base: 5, rolls: StackVec::new(&[32, 32, 64, 16, 16]) },
             ];
-            let expected = vec![
+            let expected = smallvec![
                 PerkValues {
                     base: 5,
                     doubleslot: true,
@@ -812,7 +812,7 @@ mod tests {
                 PartialPerkValues { name: PerkName::Precise, base: 5, rolls: StackVec::new(&[32, 64, 16]) },
                 PartialPerkValues { name: PerkName::Biting, base: 5, rolls: StackVec::new(&[32, 64, 64, 64]) },
             ];
-            let expected = vec![
+            let expected = smallvec![
                 PerkValues {
                     base: 5,
                     doubleslot: true,
@@ -852,7 +852,7 @@ mod tests {
             let partial_perk_values = vec![
                 PartialPerkValues { name: PerkName::Biting, base: 100, rolls: StackVec::new(&[250]) },
             ];
-            let expected = vec![
+            let expected = smallvec![
                 PerkValues {
                     base: 100,
                     doubleslot: false,
@@ -878,7 +878,7 @@ mod tests {
             let partial_perk_values = vec![
                 PartialPerkValues { name: PerkName::Equilibrium, base: 10, rolls: StackVec::new(&[40]) },
             ];
-            let expected = vec![
+            let expected = smallvec![
                 PerkValues {
                     base: 10,
                     doubleslot: false,
@@ -949,7 +949,7 @@ mod tests {
 
         #[test]
         fn single_wanted_not_in_perk_values() {
-            let perk_values_arr = vec![
+            let perk_values_arr = smallvec![
                 PartialPerkValues { name: PerkName::Precise, base: 50, rolls: StackVec::new(&[20, 20]) },
                 PartialPerkValues { name: PerkName::Biting, base: 50, rolls: StackVec::new(&[20, 20]) },
             ];
@@ -965,7 +965,7 @@ mod tests {
 
         #[test]
         fn first_wanted_not_in_perk_values() {
-            let perk_values_arr = vec![
+            let perk_values_arr = smallvec![
                 PartialPerkValues { name: PerkName::Precise, base: 50, rolls: StackVec::new(&[20, 20]) },
                 PartialPerkValues { name: PerkName::Biting, base: 50, rolls: StackVec::new(&[20, 20]) },
             ];
@@ -981,7 +981,7 @@ mod tests {
 
         #[test]
         fn second_wanted_not_in_perk_values() {
-            let perk_values_arr = vec![
+            let perk_values_arr = smallvec![
                 PartialPerkValues { name: PerkName::Precise, base: 50, rolls: StackVec::new(&[20, 20]) },
                 PartialPerkValues { name: PerkName::Biting, base: 50, rolls: StackVec::new(&[20, 20]) },
             ];
@@ -997,7 +997,7 @@ mod tests {
 
         #[test]
         fn single_wanted_pv_below_threshold() {
-            let perk_values_arr = vec![
+            let perk_values_arr = smallvec![
                 PartialPerkValues { name: PerkName::Precise, base: 10, rolls: StackVec::new(&[20, 71]) },
                 PartialPerkValues { name: PerkName::Biting, base: 50, rolls: StackVec::new(&[20, 20]) },
             ];
@@ -1013,7 +1013,7 @@ mod tests {
 
         #[test]
         fn first_wanted_pv_below_threshold() {
-            let perk_values_arr = vec![
+            let perk_values_arr = smallvec![
                 PartialPerkValues { name: PerkName::Precise, base: 10, rolls: StackVec::new(&[20, 71]) },
                 PartialPerkValues { name: PerkName::Biting, base: 50, rolls: StackVec::new(&[20, 20]) },
             ];
@@ -1029,7 +1029,7 @@ mod tests {
 
         #[test]
         fn second_wanted_pv_below_threshold() {
-            let perk_values_arr = vec![
+            let perk_values_arr = smallvec![
                 PartialPerkValues { name: PerkName::Precise, base: 10, rolls: StackVec::new(&[20, 20]) },
                 PartialPerkValues { name: PerkName::Biting, base: 50, rolls: StackVec::new(&[20, 20]) },
             ];
@@ -1045,7 +1045,7 @@ mod tests {
 
         #[test]
         fn single_wanted_pv_above_threshold() {
-            let perk_values_arr = vec![
+            let perk_values_arr = smallvec![
                 PartialPerkValues { name: PerkName::Precise, base: 50, rolls: StackVec::new(&[20, 20]) },
                 PartialPerkValues { name: PerkName::Biting, base: 12, rolls: StackVec::new(&[20, 20]) },
             ];
@@ -1061,7 +1061,7 @@ mod tests {
 
         #[test]
         fn both_wanted_pv_above_threshold() {
-            let perk_values_arr = vec![
+            let perk_values_arr = smallvec![
                 PartialPerkValues { name: PerkName::Precise, base: 50, rolls: StackVec::new(&[20, 40]) },
                 PartialPerkValues { name: PerkName::Biting, base: 50, rolls: StackVec::new(&[20, 20]) },
             ];
@@ -1077,7 +1077,7 @@ mod tests {
 
         #[test]
         fn first_wanted_pv_base_too_high() {
-            let perk_values_arr = vec![
+            let perk_values_arr = smallvec![
                 PartialPerkValues { name: PerkName::Precise, base: 80, rolls: StackVec::new(&[20, 20]) },
                 PartialPerkValues { name: PerkName::Biting, base: 100, rolls: StackVec::new(&[20, 20]) },
             ];
@@ -1093,7 +1093,7 @@ mod tests {
 
         #[test]
         fn second_wanted_pv_base_too_high() {
-            let perk_values_arr = vec![
+            let perk_values_arr = smallvec![
                 PartialPerkValues { name: PerkName::Precise, base: 160, rolls: StackVec::new(&[20, 20]) },
                 PartialPerkValues { name: PerkName::Biting, base: 50, rolls: StackVec::new(&[20, 20]) },
             ];
@@ -1123,7 +1123,7 @@ mod tests {
 
         #[test]
         fn permutate_ranks() {
-            let perk_list = vec![
+            let perk_list: PerkValuesVec = smallvec![
                 PerkValues {
                     name: PerkName::Precise,
                     i_first: 1,
@@ -1198,7 +1198,7 @@ mod tests {
         }
 
         lazy_static!{
-            static ref PERK_LIST: Vec<PerkValues> = vec![
+            static ref PERK_LIST: PerkValuesVec = smallvec![
                 PerkValues {
                     name: PerkName::Precise,
                     i_first: 1,

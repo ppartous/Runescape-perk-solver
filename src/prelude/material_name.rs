@@ -1,8 +1,9 @@
 use std::{fmt, str::FromStr};
 use itertools::Itertools;
 use colored::*;
+use strum_macros::{EnumIter, EnumCount};
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash, EnumIter, EnumCount)]
 pub enum MaterialName {
     ArmadylComponents,
     AscendedComponents,
@@ -87,94 +88,6 @@ pub enum MaterialName {
 }
 
 impl MaterialName {
-    pub const MAT_COUNT: usize = 80;
-
-    pub fn iter() -> std::vec::IntoIter<MaterialName> {
-        let x = vec![
-            MaterialName::ArmadylComponents,
-            MaterialName::AscendedComponents,
-            MaterialName::AvernicComponents,
-            MaterialName::BandosComponents,
-            MaterialName::BaseParts,
-            MaterialName::BladeParts,
-            MaterialName::BrassicanComponents,
-            MaterialName::ClassicComponents,
-            MaterialName::ClearParts,
-            MaterialName::ClockworkComponents,
-            MaterialName::ConnectorParts,
-            MaterialName::CorporealComponents,
-            MaterialName::CoverParts,
-            MaterialName::CraftedParts,
-            MaterialName::CrystalParts,
-            MaterialName::CulinaryComponents,
-            MaterialName::CywirComponents,
-            MaterialName::DeflectingParts,
-            MaterialName::DelicateParts,
-            MaterialName::DextrousComponents,
-            MaterialName::DirectComponents,
-            MaterialName::DragonfireComponents,
-            MaterialName::EnhancingComponents,
-            MaterialName::EtherealComponents,
-            MaterialName::EvasiveComponents,
-            MaterialName::ExplosiveComponents,
-            MaterialName::FacetedComponents,
-            MaterialName::FlexibleParts,
-            MaterialName::FortunateComponents,
-            MaterialName::FungalComponents,
-            MaterialName::HarnessedComponents,
-            MaterialName::HeadParts,
-            MaterialName::HealthyComponents,
-            MaterialName::HeavyComponents,
-            MaterialName::HistoricComponents,
-            MaterialName::IlujankanComponents,
-            MaterialName::ImbuedComponents,
-            MaterialName::Junk,
-            MaterialName::KnightlyComponents,
-            MaterialName::LightComponents,
-            MaterialName::LivingComponents,
-            MaterialName::MagicParts,
-            MaterialName::MetallicParts,
-            MaterialName::NoxiousComponents,
-            MaterialName::OceanicComponents,
-            MaterialName::OrganicParts,
-            MaterialName::PaddedParts,
-            MaterialName::PestiferousComponents,
-            MaterialName::PiousComponents,
-            MaterialName::PlatedParts,
-            MaterialName::PowerfulComponents,
-            MaterialName::PreciousComponents,
-            MaterialName::PreciseComponents,
-            MaterialName::ProtectiveComponents,
-            MaterialName::RefinedComponents,
-            MaterialName::ResilientComponents,
-            MaterialName::RumblingComponents,
-            MaterialName::SaradominComponents,
-            MaterialName::SerenComponents,
-            MaterialName::ShadowComponents,
-            MaterialName::SharpComponents,
-            MaterialName::ShiftingComponents,
-            MaterialName::SilentComponents,
-            MaterialName::SimpleParts,
-            MaterialName::SmoothParts,
-            MaterialName::SpikedParts,
-            MaterialName::SpiritualParts,
-            MaterialName::StaveParts,
-            MaterialName::StrongComponents,
-            MaterialName::StunningComponents,
-            MaterialName::SubtleComponents,
-            MaterialName::SwiftComponents,
-            MaterialName::TensileParts,
-            MaterialName::ThirdAgeComponents,
-            MaterialName::TimewornComponents,
-            MaterialName::UndeadComponents,
-            MaterialName::VariableComponents,
-            MaterialName::VintageComponents,
-            MaterialName::ZamorakComponents,
-            MaterialName::ZarosComponents,
-        ];
-        x.into_iter()
-    }
-
     pub fn vec_to_string(v: &[MaterialName]) -> String {
         let counts = v.iter().counts();
         v.iter().unique().map(|x| {

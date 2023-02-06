@@ -3,6 +3,7 @@ use clap::{Parser, ValueEnum, Subcommand};
 use derive_more::Display;
 use colored::*;
 use itertools::Itertools;
+use strum::IntoEnumIterator;
 use crate::{PerkName, MaterialName, utils::*};
 
 

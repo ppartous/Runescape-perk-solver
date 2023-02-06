@@ -5,11 +5,12 @@ use std::str::FromStr;
 use crate::{PerkName, MaterialName};
 pub use stack_map::*;
 pub use prelude::*;
+use strum::EnumCount;
 
 #[derive(Debug)]
 pub struct Data {
-    pub comps: StackMap<MaterialName, CompPerksPerGizmoType, {MaterialName::MAT_COUNT}>,
-    pub perks: StackMap<PerkName, PerkRanksData, {PerkName::NAME_COUNT}>
+    pub comps: StackMap<MaterialName, CompPerksPerGizmoType, {MaterialName::COUNT}>,
+    pub perks: StackMap<PerkName, PerkRanksData, {PerkName::COUNT}>
 }
 
 impl Data {

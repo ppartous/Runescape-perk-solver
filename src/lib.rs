@@ -344,7 +344,7 @@ fn get_materials(args: &Args, data: &Data, wanted_gizmo: Gizmo) -> Vec<MaterialN
         for comp_values in mat_data[args.gizmo_type].iter() {
             if (comp_values.perk == wanted_gizmo.perks.0.name || comp_values.perk == wanted_gizmo.perks.1.name)
             && (args.ancient || !mat_data.ancient_only) {
-                possible_materials.push(*mat_name);
+                possible_materials.push(mat_name);
             }
         }
     }

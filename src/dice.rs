@@ -1,3 +1,6 @@
+use std::{collections::HashMap, sync::Mutex, sync::Arc};
+use lazy_static::lazy_static;
+
 /// Binomial coefficient $`\frac{n!}{k!(n-k)!}`$
 pub fn choose(n: usize, k: usize) -> f64 {
     if k > n {
@@ -32,24 +35,33 @@ pub fn dice_roll(val: usize, die_count: usize, die_sides: usize) -> f64 {
     res / (die_sides as f64).powf(die_count as f64)
 }
 
+lazy_static!{
+    pub static ref DIST_CACHE: Mutex<HashMap<(usize, usize), Arc<Vec<f64>>>> = Mutex::new(HashMap::new());
+}
+
 /// Returns a multinomial distribution indication the probability to see a certain count when
 /// summing the results of rolling a discrete uniform distribution ranging from 0 to `range` (exclusive), `rolls` times
-pub fn get_distribution(range: usize, rolls: usize) -> Vec<f64> {
+pub fn get_distribution(range: usize, rolls: usize) -> Arc<Vec<f64>> {
+    let key = (range, rolls);
+    if let Some(val) = DIST_CACHE.lock().unwrap().get(&key) {
+        return val.clone();
+    }
+
+    let mut dist = vec![];
+
     if rolls == 0 || range == 0 {
-        return vec![];
-    }
-
-    if rolls == 1 {
+        // do nothing; dist is already empty
+    } else if rolls == 1 {
         let x = 1.0 / range as f64;
-        return vec![x; range];
+        dist = vec![x; range];
+    } else {
+        dist.reserve(range * rolls);
+        for i in 0..=((range - 1) * rolls) {
+            dist.push(dice_roll(i + rolls, rolls, range))
+        }
     }
 
-    let mut dist = Vec::with_capacity(range * rolls);
-    for i in 0..=((range - 1) * rolls) {
-        dist.push(dice_roll(i + rolls, rolls, range))
-    }
-
-    dist
+    DIST_CACHE.lock().unwrap().entry(key).or_insert(Arc::new(dist)).clone()
 }
 
 /// Cumulative multinomial distribution

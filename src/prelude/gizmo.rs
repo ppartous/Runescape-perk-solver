@@ -20,13 +20,13 @@ impl Default for Gizmo {
 impl Gizmo {
     /// Check if both contain the same perks and ranks but different order is allowed
     pub fn same(&self, other: &Self) -> bool {
-        (self.perks.0 == other.perks.0 && self.perks.1 == other.perks.1)
-        || (self.perks.1 == other.perks.0 && self.perks.0 == other.perks.1)
+        ((self.perks.0 == other.perks.0) & (self.perks.1 == other.perks.1))
+        | ((self.perks.1 == other.perks.0) & (self.perks.0 == other.perks.1))
     }
 
     /// Check if a certain perk-rank combo is present in self
     pub fn contains(&self, other: &Self) -> bool {
-        self.perks.0 == other.perks.0 || self.perks.1 == other.perks.0
+        (self.perks.0 == other.perks.0) | (self.perks.1 == other.perks.0)
     }
 
     pub fn create(x: &PerkRankValues, y: Option<&PerkRankValues>) -> Gizmo {
@@ -68,7 +68,7 @@ impl Gizmo {
 impl PartialEq for Gizmo {
     /// Equal perks, ranks and order
     fn eq(&self, other: &Self) -> bool {
-        self.perks.0 == other.perks.0 && self.perks.1 == other.perks.1
+        (self.perks.0 == other.perks.0) & (self.perks.1 == other.perks.1)
     }
 }
 

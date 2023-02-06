@@ -1,4 +1,5 @@
 use std::{default::Default, fmt::Debug, marker::PhantomData, iter::Zip, slice::Iter, ops::Index};
+use strum::IntoEnumIterator;
 
 #[derive(Debug)]
 pub struct StackMap<K, V, const N: usize>
@@ -8,7 +9,6 @@ where
     usize: From<K>
 {
     data: [V; N],
-    keys: [K; N],
     phantom: PhantomData<K>
 }
 
@@ -21,14 +21,12 @@ where
     pub fn new() -> Self {
         StackMap {
             data: [V::default(); N],
-            keys: [K::default(); N],
             phantom: PhantomData
         }
     }
 
     pub fn insert(&mut self, key: K, value: V) {
         let index = usize::from(key);
-        self.keys[index] = key;
         self.data[index] = value;
     }
 
@@ -48,8 +46,11 @@ where
         }
     }
 
-    pub fn iter(&self) -> Zip<Iter<'_, K>, Iter<'_, V>> {
-        self.keys.iter().zip(self.data.iter())
+    pub fn iter(&self) -> Zip<<K as IntoEnumIterator>::Iterator, Iter<'_, V>>
+    where
+        K: IntoEnumIterator
+    {
+        K::iter().zip(self.data.iter())
     }
 }
 

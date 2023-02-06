@@ -4,6 +4,7 @@ use crate::{utils::print_warning, prelude::*};
 use std::{str::FromStr, fs};
 use regex::Regex;
 use once_cell::sync::OnceCell;
+use strum::{EnumCount, IntoEnumIterator};
 
 static APP_USER_AGENT: &str = concat!(
     env!("CARGO_PKG_NAME"),
@@ -13,7 +14,7 @@ static APP_USER_AGENT: &str = concat!(
     env!("CARGO_PKG_REPOSITORY")
 );
 
-type PriceMap = StackMap<MaterialName, f64, {MaterialName::MAT_COUNT}>;
+type PriceMap = StackMap<MaterialName, f64, {MaterialName::COUNT}>;
 
 static SHELL_PRICE: OnceCell<f64> = OnceCell::new();
 static PRICES: OnceCell<PriceMap> = OnceCell::new();

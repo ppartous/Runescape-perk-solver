@@ -52,7 +52,7 @@ pub struct RankCombination {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct PerkValues {
     pub name: PerkName,
     pub base: u16,
@@ -63,6 +63,8 @@ pub struct PerkValues {
     pub i_last: usize,
 }
 
+pub type PerkValuesVec = SmallVec<[PerkValues; 10]>;
+
 // ---------------------------------------------------------------------------------------------------------------------
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -71,6 +73,8 @@ pub struct PartialPerkValues {
     pub base: u16,
     pub rolls: StackVec<u8, 9>
 }
+
+pub type PartialPerkValuesVec = SmallVec<[PartialPerkValues; 10]>;
 
 // ---------------------------------------------------------------------------------------------------------------------
 
