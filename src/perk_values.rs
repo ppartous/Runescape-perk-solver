@@ -254,7 +254,7 @@ pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &[PerkValues]) -
 
         let mut psum = pv_ranks[0].probability;
         for rank in pv_ranks.iter().take(pv.i_last + 1).skip(pv.i_first).rev() {
-            if rank.values.cost <= budget.range.min {
+            if rank.values.cost < budget.range.min {
                 break;
             }
 

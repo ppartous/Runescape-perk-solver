@@ -186,7 +186,7 @@ pub async fn perk_solver(args: Args, data: Data, wanted_gizmo: Gizmo) {
                             let args = args.clone();
                             let budgets = budgets.clone();
                             let bar_progress = bar_progress.clone();
-                            while pool.queued_count() > 10000 {
+                            while pool.queued_count() > 100000 {
                                 interval.tick().await;
                             }
                             pool.execute(move || {
@@ -287,6 +287,7 @@ fn calc_wanted_gizmo_probabilities(data: &Data, args: &Args, budgets: &Vec<Budge
 
     let input_materials = Arc::new(input_materials);
     itertools::multizip((budgets, p_wanted, p_empty)).filter(|(_, pw, _)| *pw > 0.0).map(|(budget, pw, pe)| {
+
         if pe == 1.0 {
             ResultLine { level: budget.level, prob_attempt: 0.0, prob_gizmo: 0.0, mat_combination: input_materials.clone() }
         } else {

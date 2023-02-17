@@ -65,8 +65,9 @@ pub fn result_handler(args: Arc<Args>, mut rx: Receiver<Arc<Vec<ResultLine>>>) -
 }
 
 fn format_float(num: f64) -> String {
-    if num > 1e-4 {
-        format!("{:.7}", num)
+    let num = num.min(1.0) * 100.0;
+    if num > 1e-2 {
+        format!("{:.5}", num)
     } else if num > 1e-9 {
         format!("{:.4e}", num)
     } else if num > 1e-99 {
@@ -115,7 +116,7 @@ pub fn print_result(best_per_level: &[ResultLineWithPrice], args: &Args) {
 
     if let Some(best_wanted_index) = best_wanted_index {
         println!("|-------|---------------------------|-----------|");
-        println!("|       |        Probability        |           |");
+        println!("|       |      Probability (%)      |           |");
         println!("| Level |---------------------------|   Price   |");
         println!("|       |    Gizmo    |   Attempt   |           |");
         println!("|-------|---------------------------|-----------|");
@@ -130,7 +131,7 @@ pub fn print_result(best_per_level: &[ResultLineWithPrice], args: &Args) {
             let (r2, g2, b2) = get_color(line.prob_attempt / best_attempt);
             let (r3, g3, b3) = get_color(best_price / line.price);
 
-            print!("| {:>4}  |  {:<9}  |  {:<9}  | {:>9} |", line.level,
+            print!("| {:>4}  |  {:>9}  |  {:>9}  | {:>9} |", line.level,
                 format_float(line.prob_gizmo).truecolor(r1, g1, b1),
                 format_float(line.prob_attempt).truecolor(r2, g2, b2),
                 format_price(line.price).truecolor(r3, g3, b3));

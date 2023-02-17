@@ -117,14 +117,21 @@ impl Args {
                 _ => InventionLevel::Range(cli.invention_level[0], cli.invention_level[1])
             };
 
+            let mut fuzzy = *fuzzy;
+
             let perk = PerkName::from_str(perk).unwrap_or_else(|_| {
                 print_error(format!("Perk '{}' does not exist.", &perk).as_str())
             });
 
             let perk_two = if let Some(perk) = perk_two.as_ref() {
-                PerkName::from_str(perk).unwrap_or_else(|_| {
-                    print_error(format!("Perk '{}' does not exist.", &perk).as_str())
-                })
+                if perk.to_lowercase() == "any" {
+                    fuzzy = true;
+                    PerkName::Empty
+                } else {
+                    PerkName::from_str(perk).unwrap_or_else(|_| {
+                        print_error(format!("Perk '{}' does not exist.", &perk).as_str())
+                    })
+                }
             } else {
                 PerkName::Empty
             };
@@ -147,7 +154,7 @@ impl Args {
                 rank: *rank,
                 perk_two,
                 rank_two,
-                fuzzy: *fuzzy,
+                fuzzy,
                 sort_type: *sort_type,
                 exclude
             }
