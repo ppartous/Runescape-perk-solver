@@ -141,6 +141,42 @@ pub fn print_result(best_per_level: &[ResultLineWithPrice], args: &Args) {
 
         println!("|-------|---------------------------|-----------|\n");
         println!("Best combination at level {}:\n {}", best_wanted.level, MaterialName::vec_to_string_colored(best_wanted.mat_combination.as_ref()));
+
+        #[cfg(feature="wiki-template")]
+        {
+            let counts = best_wanted.mat_combination.iter().counts();
+            let mut mats = vec![];
+            for mat in best_wanted.mat_combination.iter().unique() {
+                let s = mat.to_string()
+                    .replace(" parts", "")
+                    .replace(" components", "");
+                for _ in 0..counts[mat] {
+                    mats.push(s.clone());
+                }
+            }
+            if mats.len() >= 3 {
+                mats.swap(0, 2);
+                mats.swap(0, 1);
+            }
+            let mats = mats.join("|");
+            let gizmo_type = args.gizmo_type.to_string().to_lowercase();
+            let gizmo_image = match args.ancient {
+                true => format!("Ancient {gizmo_type}"),
+                false => {
+                    let (x, y) = gizmo_type.split_at(1);
+                    format!("{}{y}", x.to_uppercase())
+                }
+            };
+            let (level, potion) = match best_wanted.level {
+                ..=120 => ((best_wanted.level / 2) * 2, "none"),
+                121..=123 => (120, "normal"),
+                124..=125 => (120, "super"),
+                126.. => (120, "extreme")
+            };
+            println!("[[File:{gizmo_image} gizmo.png|link=]] {{{{Perk calclink|{mats}|gizmo={gizmo_type}|level={level}|potion={potion}|text='''Probability: {:.2}%'''}}}}", best_wanted.prob_gizmo * 100.0);
+            println!("{{{{Perk calclink|{mats}|gizmo={gizmo_type}|level={level}|potion={potion}|text={} {}, {} {}}}}} ({:.2}%)",
+                args.perk, args.rank, args.perk_two, args.rank_two, best_wanted.prob_gizmo * 100.0);
+        }
     } else {
         println!("No material combination found that can produce these perks.");
     }

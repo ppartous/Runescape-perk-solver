@@ -19,7 +19,6 @@ fn main() {
                 ..Default::default()
             };
 
-            validate_input(&args, wanted_gizmo, &data);
             perk_solver(args, data, wanted_gizmo);
         },
         Commands::MaterialInput { mats } => {
@@ -43,41 +42,4 @@ fn main() {
         }
     }
     println!("{:?}", timer.elapsed());
-}
-
-fn validate_input(args: &Args, wanted_gizmo: Gizmo, data: &Data) {
-    if data.perks[wanted_gizmo.perks.0.name].doubleslot && wanted_gizmo.perks.1.name != PerkName::Empty {
-        utils::print_error(format!("Perk '{}' can't be combined with another perk as it uses both slots.", wanted_gizmo.perks.0.name).as_str())
-    }
-    if data.perks[wanted_gizmo.perks.1.name].doubleslot {
-        utils::print_error(format!("Perk '{}' can't be combined with another perk as it uses both slots.", wanted_gizmo.perks.1.name).as_str())
-    }
-
-    if wanted_gizmo.perks.0.rank as usize >= data.perks[wanted_gizmo.perks.0.name].ranks.len() {
-        utils::print_error(format!("Perk '{}' only goes up to rank {}.",
-            &wanted_gizmo.perks.0.name,
-            data.perks[wanted_gizmo.perks.0.name].ranks.len() - 1).as_str())
-    }
-
-    if wanted_gizmo.perks.1.name != PerkName::Empty && wanted_gizmo.perks.1.rank as usize >= data.perks[wanted_gizmo.perks.1.name].ranks.len() {
-        utils::print_error(format!("Perk '{}' only goes up to rank {}.",
-            &wanted_gizmo.perks.1.name,
-            data.perks[wanted_gizmo.perks.1.name].ranks.len() - 1).as_str())
-    }
-
-    match args.invention_level {
-        InventionLevel::Single(x) => {
-            match x {
-                1..=137 => (),
-                _ => utils::print_error("Invention level must be between 1 and 137.")
-            }
-        },
-        InventionLevel::Range(x, y) => {
-            match (x, y) {
-                (x, y) if x > y => utils::print_error("First value of the invention level range must be lower or equal to the second value."),
-                (1..=137, 1..=137) => (),
-                _ => utils::print_error("Invention level must be between 1 and 137.")
-            }
-        }
-    }
 }

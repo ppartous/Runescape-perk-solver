@@ -1,13 +1,12 @@
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [package]
 name = "perk_solver"
-version = "1.0.0"
+version = "1.2.0"
 edition = "2021"
 authors = ["Pieter Partous <pieter.partous@outlook.com>"]
 description = "Finds optimal material combination for a given gizmo"
 repository = "https://github.com/CephHunter/Runescape-perk-solver"
 license = "GPL-3.0-or-later"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 approx = "0.5.1"
@@ -34,6 +33,9 @@ uninit = "0.5.1"
 [dev-dependencies]
 criterion = "0.4.0"
 test-case = "2.2.2"
+
+[features]
+wiki-template = []
 
 [profile.release-with-debug]
 inherits = "release"

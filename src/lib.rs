@@ -123,6 +123,8 @@ use smallvec::{SmallVec, smallvec};
 
 #[tokio::main]
 pub async fn perk_solver(args: Args, data: Data, wanted_gizmo: Gizmo) {
+    validate_input(&args, wanted_gizmo, &data);
+
     let args = Arc::new(args);
     let data = Arc::new(data);
     let wanted_gizmo = wanted_gizmo;
@@ -250,6 +252,43 @@ pub fn calc_gizmo_probabilities(data: &Data, budget: &Budget, input_materials: &
     gizmo_arr
 }
 
+fn validate_input(args: &Args, wanted_gizmo: Gizmo, data: &Data) {
+    if data.perks[wanted_gizmo.perks.0.name].doubleslot && wanted_gizmo.perks.1.name != PerkName::Empty {
+        utils::print_error(format!("Perk '{}' can't be combined with another perk as it uses both slots.", wanted_gizmo.perks.0.name).as_str())
+    }
+    if data.perks[wanted_gizmo.perks.1.name].doubleslot {
+        utils::print_error(format!("Perk '{}' can't be combined with another perk as it uses both slots.", wanted_gizmo.perks.1.name).as_str())
+    }
+
+    if wanted_gizmo.perks.0.rank as usize >= data.perks[wanted_gizmo.perks.0.name].ranks.len() {
+        utils::print_error(format!("Perk '{}' only goes up to rank {}.",
+            &wanted_gizmo.perks.0.name,
+            data.perks[wanted_gizmo.perks.0.name].ranks.len() - 1).as_str())
+    }
+
+    if wanted_gizmo.perks.1.name != PerkName::Empty && wanted_gizmo.perks.1.rank as usize >= data.perks[wanted_gizmo.perks.1.name].ranks.len() {
+        utils::print_error(format!("Perk '{}' only goes up to rank {}.",
+            &wanted_gizmo.perks.1.name,
+            data.perks[wanted_gizmo.perks.1.name].ranks.len() - 1).as_str())
+    }
+
+    match args.invention_level {
+        InventionLevel::Single(x) => {
+            match x {
+                1..=137 => (),
+                _ => utils::print_error("Invention level must be between 1 and 137.")
+            }
+        },
+        InventionLevel::Range(x, y) => {
+            match (x, y) {
+                (x, y) if x > y => utils::print_error("First value of the invention level range must be lower or equal to the second value."),
+                (1..=137, 1..=137) => (),
+                _ => utils::print_error("Invention level must be between 1 and 137.")
+            }
+        }
+    }
+}
+
 fn calc_wanted_gizmo_probabilities(data: &Data, args: &Args, budgets: &Vec<Budget>, input_materials: Vec<MaterialName>,
     wanted_gizmo: Gizmo) -> Vec<ResultLine>
 {
@@ -287,7 +326,6 @@ fn calc_wanted_gizmo_probabilities(data: &Data, args: &Args, budgets: &Vec<Budge
 
     let input_materials = Arc::new(input_materials);
     itertools::multizip((budgets, p_wanted, p_empty)).filter(|(_, pw, _)| *pw > 0.0).map(|(budget, pw, pe)| {
-
         if pe == 1.0 {
             ResultLine { level: budget.level, prob_attempt: 0.0, prob_gizmo: 0.0, mat_combination: input_materials.clone() }
         } else {
