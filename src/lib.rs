@@ -110,7 +110,7 @@ mod gizmo_cost_thresholds;
 mod jagex_sort;
 mod component_prices;
 mod result;
-pub mod c_ffi;
+pub mod ffi;
 
 pub use prelude::*;
 use gizmo_cost_thresholds::*;
