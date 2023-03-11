@@ -4,7 +4,10 @@ use std::str::FromStr;
 use clap::Parser;
 
 fn main() {
-    let timer = howlong::HighResolutionTimer::new();
+    #[cfg(feature="precise-time")]
+    {
+        let timer = howlong::HighResolutionTimer::new();
+    }
     let cli = Cli::parse();
     let data = Data::load();
 
@@ -41,5 +44,9 @@ fn main() {
             }
         }
     }
-    println!("{:?}", timer.elapsed());
+
+    #[cfg(feature="precise-time")]
+    {
+        println!("{:?}", timer.elapsed());
+    }
 }

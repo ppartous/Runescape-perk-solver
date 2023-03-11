@@ -110,6 +110,8 @@ mod gizmo_cost_thresholds;
 mod jagex_sort;
 mod component_prices;
 mod result;
+pub mod c_ffi;
+
 pub use prelude::*;
 use gizmo_cost_thresholds::*;
 use perk_values::*;
@@ -117,48 +119,81 @@ use component_prices::load_component_prices;
 use itertools::Itertools;
 use std::{cmp, cmp::{Ord, PartialOrd}, sync::{Arc, atomic::{self, Ordering::Relaxed}}, time::Duration};
 use indicatif::{ProgressBar, ProgressStyle};
-use tokio::{sync::mpsc::channel, task, time};
+use tokio::{sync::mpsc, task, time};
 use threadpool::ThreadPool;
 use smallvec::{SmallVec, smallvec};
 
 #[tokio::main]
 pub async fn perk_solver(args: Args, data: Data, wanted_gizmo: Gizmo) {
-    validate_input(&args, wanted_gizmo, &data);
+    let s = setup(args, &data, wanted_gizmo);
+    println!("{}\n", s.args.clone());
+    println!("{}\n", s.materials);
 
-    let args = Arc::new(args);
-    let data = Arc::new(data);
-    let wanted_gizmo = wanted_gizmo;
-    let materials = get_materials(&args, &data, wanted_gizmo);
-    let materials = Arc::new(split_materials(&args, &data, wanted_gizmo, materials));
-    let budgets = Arc::new(generate_budgets(&args.invention_level, args.ancient));
-    let slot_count = if args.ancient { 9 } else { 5 };
-    let total_combination_count = calc_combination_count(materials.conflict.len(), materials.no_conflict.len(), args.ancient);
-    let pool = ThreadPool::new(num_cpus::get() * 2);
-    let (result_tx, result_rx) = channel::<Arc<Vec<ResultLine>>>(100);
-    let bar_progress = Arc::new(atomic::AtomicU64::new(0));
-    let result_handler = result::result_handler(args.clone(), result_rx);
-    let mut interval = time::interval(Duration::from_millis(10));
+    load_component_prices(&s.args);
 
-    println!("{}\n", args);
-    println!("{}\n", materials);
-
-    load_component_prices(&args);
-
-    let x = bar_progress.clone();
+    let x = s.bar_progress.clone();
     let bar_handler = task::spawn(async move {
-        let bar = ProgressBar::new(total_combination_count as u64);
+        let bar = ProgressBar::new(s.total_combination_count as u64);
         bar.set_style(ProgressStyle::with_template("[{elapsed_precise}] {bar:60} {human_pos}/{human_len} ({percent}%)").unwrap());
         let mut interval = time::interval(Duration::from_millis(100));
 
         loop {
             interval.tick().await;
             bar.set_position(x.load(Relaxed));
-            if x.load(Relaxed) == total_combination_count as u64 {
+            if x.load(Relaxed) == s.total_combination_count as u64 {
                 bar.finish();
                 break;
             }
         }
     });
+
+    perk_solver_core(s.args.clone(), data, wanted_gizmo, s.materials, s.bar_progress, s.total_combination_count, s.result_tx).await;
+
+    bar_handler.await.ok();
+    println!("\n");
+
+    let best_per_level = s.result_handler.join().unwrap();
+    result::print_result(&best_per_level, &s.args);
+    result::write_best_mats_to_file(&best_per_level, &s.args);
+}
+
+struct Setup {
+    materials: Arc<SplitMaterials>,
+    bar_progress: Arc<atomic::AtomicU64>,
+    total_combination_count: usize,
+    result_tx: mpsc::Sender<Arc<Vec<ResultLine>>>,
+    result_handler: std::thread::JoinHandle<Vec<ResultLineWithPrice>>,
+    args: Arc<Args>
+}
+
+fn setup(args: Args, data: &Data, wanted_gizmo: Gizmo) -> Setup {
+    validate_input(&args, wanted_gizmo, &data);
+    let materials = get_materials(&args, &data, wanted_gizmo);
+    let materials = Arc::new(split_materials(&args, &data, wanted_gizmo, materials));
+    let total_combination_count = calc_combination_count(materials.conflict.len(), materials.no_conflict.len(), args.ancient);
+    let bar_progress = Arc::new(atomic::AtomicU64::new(0));
+    let (result_tx, result_rx) = mpsc::channel::<Arc<Vec<ResultLine>>>(100);
+    let args = Arc::new(args);
+    let result_handler = result::result_handler(args.clone(), result_rx);
+
+    Setup {
+        materials,
+        bar_progress,
+        total_combination_count,
+        result_tx,
+        result_handler,
+        args
+    }
+}
+
+async fn perk_solver_core(args: Arc<Args>, data: Data, wanted_gizmo: Gizmo, materials: Arc<SplitMaterials>,
+    bar_progress: Arc<atomic::AtomicU64>, total_combination_count: usize, result_tx: mpsc::Sender<Arc<Vec<ResultLine>>>)
+{
+    let data = Arc::new(data);
+    let budgets = Arc::new(generate_budgets(&args.invention_level, args.ancient));
+    let slot_count = if args.ancient { 9 } else { 5 };
+    let pool = ThreadPool::new(num_cpus::get() * 2);
+    let mut interval = time::interval(Duration::from_millis(10));
 
     for n_mats_used in 1 ..= slot_count {
         {
@@ -210,12 +245,6 @@ pub async fn perk_solver(args: Args, data: Data, wanted_gizmo: Gizmo) {
     drop(result_tx);
 
     bar_progress.store(total_combination_count as u64, Relaxed);
-    bar_handler.await.ok();
-    println!("\n");
-
-    let best_per_level = result_handler.join().unwrap();
-    result::print_result(&best_per_level, &args);
-    result::write_best_mats_to_file(&best_per_level);
 }
 
 /// Returns a vector of all possible gizmos and their probabilities

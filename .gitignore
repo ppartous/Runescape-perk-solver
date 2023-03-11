@@ -1,4 +1,5 @@
 /target
+
 temp.lua
 test.bat
 test.sh
@@ -10,5 +11,8 @@ prices.txt
 cachegrind.out*
 callgrind.out*
 xtmemory.out*
+
 perk_solver
+perk_solver.so
 perk_solver.exe
+perk_solver.dll

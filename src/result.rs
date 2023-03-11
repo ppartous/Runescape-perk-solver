@@ -182,12 +182,24 @@ pub fn print_result(best_per_level: &[ResultLineWithPrice], args: &Args) {
     }
 }
 
-pub fn write_best_mats_to_file(best_per_level: &[ResultLineWithPrice]) {
+pub fn write_best_mats_to_file(best_per_level: &[ResultLineWithPrice], args: &Args) {
+    if args.out_file == "false" {
+        return;
+    }
+
     let str = best_per_level.iter().map(|x| {
         format!("{}, {}", x.level, MaterialName::vec_to_string(x.mat_combination.as_ref()))
     }).join("\n");
-    let res = fs::write("out.csv", str);
+    let res = fs::write(&args.out_file, str);
     if let Err(err) = res {
         print_warning(format!("Unable to write result to file: \"{}\"", err).as_str());
     }
+}
+
+pub fn gizmo_combination_sort(v: &[MaterialName]) -> Vec<MaterialName> {
+    let counts = v.iter().counts();
+    v.iter().copied().unique().map(|x| {
+        let count = *counts.get(&x).unwrap();
+        vec![x; count]
+    }).flatten().collect_vec()
 }

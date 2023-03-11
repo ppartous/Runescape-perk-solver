@@ -22,6 +22,7 @@ pub use budget::*;
 use smallvec::SmallVec;
 use std::sync::Arc;
 use colored::Colorize;
+use serde::Serialize;
 
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -120,7 +121,7 @@ pub struct ResultLine {
 // ---------------------------------------------------------------------------------------------------------------------
 
 // Keep separate to reduce memory usage
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ResultLineWithPrice {
     pub level: u8,
     pub prob_gizmo: f64,

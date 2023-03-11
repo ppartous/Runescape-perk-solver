@@ -6,7 +6,6 @@ use itertools::Itertools;
 use strum::IntoEnumIterator;
 use crate::{PerkName, MaterialName, utils::*};
 
-
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
 pub struct Cli {
@@ -57,6 +56,14 @@ pub enum Commands {
         /// Sort the result on probability per consumed gizmo, probability per attempt, or on estimated price.
         #[arg(value_enum, short, long, default_value_t = SortType::Price)]
         sort_type: SortType,
+
+        /// Output file name. Set to false to disable output
+        #[arg(long, id = "out-file", default_value_t = String::from("out.csv"))]
+        out_file: String,
+
+        /// Prices file name. Set to false to disable. When disabled prices are always loaded from the wiki.
+        #[arg(long, id = "price-file", default_value_t = String::from("prices.txt"))]
+        price_file: String
     },
     /// Show the gizmo probabilities for a given material combination
     MaterialInput {
@@ -68,6 +75,7 @@ pub enum Commands {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
+#[repr(C)]
 #[derive(Debug, Display, Copy, Clone, PartialEq, Eq, ValueEnum)]
 pub enum GizmoType {
     Weapon,
@@ -77,6 +85,7 @@ pub enum GizmoType {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
+#[repr(C)]
 #[derive(Debug, Display, Copy, Clone, PartialEq, Eq, ValueEnum)]
 pub enum SortType {
     Gizmo,
@@ -105,12 +114,14 @@ pub struct Args {
     pub rank_two: u8,
     pub fuzzy: bool,
     pub exclude: Vec<MaterialName>,
-    pub sort_type: SortType
+    pub sort_type: SortType,
+    pub out_file: String,
+    pub price_file: String
 }
 
 impl Args {
     pub fn create(cli: &Cli) -> Args {
-        if let Commands::Gizmo { perk, rank, perk_two, rank_two, fuzzy, exclude, sort_type } = &cli.command {
+        if let Commands::Gizmo { perk, rank, perk_two, rank_two, fuzzy, exclude, sort_type, out_file, price_file } = &cli.command {
             let invention_level = match cli.invention_level.len() {
                 0 => print_error("Missing invention level"),
                 1 => InventionLevel::Single(cli.invention_level[0]),
@@ -156,7 +167,9 @@ impl Args {
                 rank_two,
                 fuzzy,
                 sort_type: *sort_type,
-                exclude
+                exclude,
+                out_file: out_file.clone(),
+                price_file: price_file.clone()
             }
         } else {
             print_error("Bad command");
@@ -176,7 +189,9 @@ impl Default for Args {
             rank_two: 0,
             fuzzy: false,
             exclude: vec![],
-            sort_type: SortType::Price
+            sort_type: SortType::Price,
+            out_file: String::from("out.csv"),
+            price_file: String::from("prices.txt")
         }
     }
 }

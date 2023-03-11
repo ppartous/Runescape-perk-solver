@@ -32,10 +32,10 @@ pub fn calc_gizmo_price(line: &ResultLine) -> f64 {
 pub fn load_component_prices(args: &Args) {
     let mut text = String::new();
 
-    if std::path::Path::new("prices.txt").exists() {
-        match fs::read_to_string("prices.txt") {
+    if args.price_file != "false" && std::path::Path::new(&args.price_file).exists() {
+        match fs::read_to_string(&args.price_file) {
             Ok(file) => text = file,
-            Err(err) => print_warning(format!("Failed to read prices.txt: {}", err).as_str())
+            Err(err) => print_warning(format!("Failed to read {}: {}", args.price_file, err).as_str())
         }
     } else {
         match lookup_on_wiki() {
@@ -51,10 +51,12 @@ pub fn load_component_prices(args: &Args) {
         };
     }
 
-    text = prices.iter().map(|(name, value)| format!("{}: {},", name, value)).sorted().join("\n");
-    fs::write("prices.txt", text).unwrap_or_else(|err| {
-        print_warning(format!("Failed to save prices.txt: {}", err).as_str());
-    });
+    if args.price_file != "false" {
+        text = prices.iter().map(|(name, value)| format!("{}: {},", name, value)).sorted().join("\n");
+        fs::write(&args.price_file, text).unwrap_or_else(|err| {
+            print_warning(format!("Failed to save {}: {}", args.price_file, err).as_str());
+        });
+    }
 
     SHELL_PRICE.set(calc_shell_price(args, &prices)).ok();
     PRICES.set(prices).ok();

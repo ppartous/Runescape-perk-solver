@@ -105,6 +105,14 @@ impl MaterialName {
     }
 }
 
+impl serde::Serialize for MaterialName {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer {
+        serializer.collect_str(&self)
+    }
+}
+
 impl fmt::Display for MaterialName {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
