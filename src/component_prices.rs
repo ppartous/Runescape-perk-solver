@@ -29,18 +29,21 @@ pub fn calc_gizmo_price(line: &ResultLine) -> f64 {
     price / line.prob_gizmo
 }
 
-pub fn load_component_prices(args: &Args) {
+pub fn load_component_prices(args: &Args) -> Result<(), String> {
     let mut text = String::new();
 
     if args.price_file != "false" && std::path::Path::new(&args.price_file).exists() {
         match fs::read_to_string(&args.price_file) {
             Ok(file) => text = file,
-            Err(err) => print_warning(format!("Failed to read {}: {}", args.price_file, err).as_str())
+            Err(err) => return Err(format!("Failed to read {}: {}", args.price_file, err))
         }
     } else {
-        match lookup_on_wiki() {
-            Ok(response) => text = extract_from_response(&response),
-            Err(_) => print_warning("Failed to fetch prices")
+        if let Ok(response) = lookup_on_wiki() {
+            text = extract_from_response(&response)?;
+        } else if args.sort_type == SortType::Price {
+            return Err("Failed to fetch prices".to_string());
+        } else {
+            print_warning("Failed to fetch prices")
         }
     }
 
@@ -60,6 +63,7 @@ pub fn load_component_prices(args: &Args) {
 
     SHELL_PRICE.set(calc_shell_price(args, &prices)).ok();
     PRICES.set(prices).ok();
+    Ok(())
 }
 
 fn calc_shell_price(args: &Args, prices: &PriceMap) -> f64 {
@@ -90,7 +94,7 @@ fn lookup_on_wiki() -> Result<String, reqwest::Error> {
     Ok(body)
 }
 
-fn extract_from_response(response: &str) -> String {
+fn extract_from_response(response: &str) -> Result<String, String> {
     let json: Value = serde_json::from_str(response).unwrap_or_default();
     let text= &json["parse"]["text"];
 
@@ -99,15 +103,13 @@ fn extract_from_response(response: &str) -> String {
         let content = re.captures(text);
 
         if let Some(content) = content {
-            return content[1].to_string();
+            return Ok(content[1].to_string());
         } else {
-            print_warning("Unexpected response from Runescape.wiki");
+            return Err("Unexpected response from Runescape.wiki".to_string());
         }
     } else {
-        print_warning("Unexpected response from Runescape.wiki");
+        return Err("Unexpected response from Runescape.wiki".to_string());
     }
-
-    String::new()
 }
 
 fn string_to_map(text: &str) -> PriceMap {

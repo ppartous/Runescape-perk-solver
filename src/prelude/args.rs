@@ -120,28 +120,30 @@ pub struct Args {
 }
 
 impl Args {
-    pub fn create(cli: &Cli) -> Args {
+    pub fn create(cli: &Cli) -> Result<Args, String> {
         if let Commands::Gizmo { perk, rank, perk_two, rank_two, fuzzy, exclude, sort_type, out_file, price_file } = &cli.command {
             let invention_level = match cli.invention_level.len() {
-                0 => print_error("Missing invention level"),
+                0 => return Err("Missing invention level".to_string()),
                 1 => InventionLevel::Single(cli.invention_level[0]),
                 _ => InventionLevel::Range(cli.invention_level[0], cli.invention_level[1])
             };
 
             let mut fuzzy = *fuzzy;
 
-            let perk = PerkName::from_str(perk).unwrap_or_else(|_| {
-                print_error(format!("Perk '{}' does not exist.", &perk).as_str())
-            });
+            let perk = match PerkName::from_str(perk) {
+                Ok(perk) => perk,
+                Err(_) => return Err(format!("Perk '{}' does not exist.", &perk))
+            };
 
             let perk_two = if let Some(perk) = perk_two.as_ref() {
                 if perk.to_lowercase() == "any" {
                     fuzzy = true;
                     PerkName::Empty
                 } else {
-                    PerkName::from_str(perk).unwrap_or_else(|_| {
-                        print_error(format!("Perk '{}' does not exist.", &perk).as_str())
-                    })
+                    match PerkName::from_str(perk) {
+                        Ok(perk) => perk,
+                        Err(_) => return Err(format!("Perk '{}' does not exist.", &perk))
+                    }
                 }
             } else {
                 PerkName::Empty
@@ -157,7 +159,7 @@ impl Args {
                 mat
             }).collect_vec();
 
-            Args {
+            Ok(Args {
                 invention_level,
                 gizmo_type: cli.gizmo_type,
                 ancient: cli.ancient,
@@ -170,9 +172,9 @@ impl Args {
                 exclude,
                 out_file: out_file.clone(),
                 price_file: price_file.clone()
-            }
+            })
         } else {
-            print_error("Bad command");
+            Err("Bad command".to_string())
         }
     }
 }

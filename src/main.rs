@@ -13,16 +13,8 @@ fn main() {
 
     match cli.command {
         Commands::Gizmo {..} => {
-            let args = Args::create(&cli);
-            let wanted_gizmo = Gizmo {
-                perks: (
-                    Perk { name: args.perk, rank: args.rank },
-                    Perk { name: args.perk_two, rank: args.rank_two }
-                ),
-                ..Default::default()
-            };
-
-            perk_solver(args, data, wanted_gizmo);
+            let args = Args::create(&cli).unwrap_or_else(|err| utils::print_error(err.as_str()));
+            perk_solver(args, data);
         },
         Commands::MaterialInput { mats } => {
             let mut materials = vec![];

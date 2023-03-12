@@ -1,7 +1,7 @@
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [package]
 name = "perk_solver"
-version = "1.2.1"
+version = "1.3.0"
 edition = "2021"
 authors = ["Pieter Partous <pieter.partous@outlook.com>"]
 description = "Finds optimal material combination for a given gizmo"

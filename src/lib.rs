@@ -124,12 +124,14 @@ use threadpool::ThreadPool;
 use smallvec::{SmallVec, smallvec};
 
 #[tokio::main]
-pub async fn perk_solver(args: Args, data: Data, wanted_gizmo: Gizmo) {
-    let s = setup(args, &data, wanted_gizmo);
+pub async fn perk_solver(args: Args, data: Data) {
+    let s = setup(args, &data).unwrap_or_else(|err| utils::print_error(err.as_str()));
     println!("{}\n", s.args.clone());
     println!("{}\n", s.materials);
 
-    load_component_prices(&s.args);
+    if let Err(err) = load_component_prices(&s.args) {
+        utils::print_error(err.as_str());
+    }
 
     let x = s.bar_progress.clone();
     let bar_handler = task::spawn(async move {
@@ -147,7 +149,7 @@ pub async fn perk_solver(args: Args, data: Data, wanted_gizmo: Gizmo) {
         }
     });
 
-    perk_solver_core(s.args.clone(), data, wanted_gizmo, s.materials, s.bar_progress, s.total_combination_count, s.result_tx).await;
+    perk_solver_core(s.args.clone(), data, s.wanted_gizmo, s.materials, s.bar_progress, s.total_combination_count, s.result_tx);
 
     bar_handler.await.ok();
     println!("\n");
@@ -158,6 +160,7 @@ pub async fn perk_solver(args: Args, data: Data, wanted_gizmo: Gizmo) {
 }
 
 struct Setup {
+    wanted_gizmo: Gizmo,
     materials: Arc<SplitMaterials>,
     bar_progress: Arc<atomic::AtomicU64>,
     total_combination_count: usize,
@@ -166,9 +169,16 @@ struct Setup {
     args: Arc<Args>
 }
 
-fn setup(args: Args, data: &Data, wanted_gizmo: Gizmo) -> Setup {
-    validate_input(&args, wanted_gizmo, &data);
-    let materials = get_materials(&args, &data, wanted_gizmo);
+fn setup(args: Args, data: &Data) -> Result<Setup, String> {
+    let wanted_gizmo = Gizmo {
+        perks: (
+            Perk { name: args.perk, rank: args.rank },
+            Perk { name: args.perk_two, rank: args.rank_two }
+        ),
+        ..Default::default()
+    };
+    validate_input(&args, wanted_gizmo, &data)?;
+    let materials = get_materials(&args, &data, wanted_gizmo)?;
     let materials = Arc::new(split_materials(&args, &data, wanted_gizmo, materials));
     let total_combination_count = calc_combination_count(materials.conflict.len(), materials.no_conflict.len(), args.ancient);
     let bar_progress = Arc::new(atomic::AtomicU64::new(0));
@@ -176,24 +186,25 @@ fn setup(args: Args, data: &Data, wanted_gizmo: Gizmo) -> Setup {
     let args = Arc::new(args);
     let result_handler = result::result_handler(args.clone(), result_rx);
 
-    Setup {
+    Ok(Setup {
+        wanted_gizmo,
         materials,
         bar_progress,
         total_combination_count,
         result_tx,
         result_handler,
         args
-    }
+    })
 }
 
-async fn perk_solver_core(args: Arc<Args>, data: Data, wanted_gizmo: Gizmo, materials: Arc<SplitMaterials>,
+fn perk_solver_core(args: Arc<Args>, data: Data, wanted_gizmo: Gizmo, materials: Arc<SplitMaterials>,
     bar_progress: Arc<atomic::AtomicU64>, total_combination_count: usize, result_tx: mpsc::Sender<Arc<Vec<ResultLine>>>)
 {
     let data = Arc::new(data);
     let budgets = Arc::new(generate_budgets(&args.invention_level, args.ancient));
     let slot_count = if args.ancient { 9 } else { 5 };
     let pool = ThreadPool::new(num_cpus::get() * 2);
-    let mut interval = time::interval(Duration::from_millis(10));
+    let ten_millis = Duration::from_millis(10);
 
     for n_mats_used in 1 ..= slot_count {
         {
@@ -224,7 +235,7 @@ async fn perk_solver_core(args: Arc<Args>, data: Data, wanted_gizmo: Gizmo, mate
                             let budgets = budgets.clone();
                             let bar_progress = bar_progress.clone();
                             while pool.queued_count() > 100000 {
-                                interval.tick().await;
+                                std::thread::sleep(ten_millis);
                             }
                             pool.execute(move || {
                                 for unordered_mats in ordered_mats.iter().copied().combinations_with_replacement(n_mats_used - n_conflict_mats - n_noconflict_mats) {
@@ -281,41 +292,43 @@ pub fn calc_gizmo_probabilities(data: &Data, budget: &Budget, input_materials: &
     gizmo_arr
 }
 
-fn validate_input(args: &Args, wanted_gizmo: Gizmo, data: &Data) {
+fn validate_input(args: &Args, wanted_gizmo: Gizmo, data: &Data) -> Result<(), String> {
     if data.perks[wanted_gizmo.perks.0.name].doubleslot && wanted_gizmo.perks.1.name != PerkName::Empty {
-        utils::print_error(format!("Perk '{}' can't be combined with another perk as it uses both slots.", wanted_gizmo.perks.0.name).as_str())
+        return Err(format!("Perk '{}' can't be combined with another perk as it uses both slots.", wanted_gizmo.perks.0.name))
     }
     if data.perks[wanted_gizmo.perks.1.name].doubleslot {
-        utils::print_error(format!("Perk '{}' can't be combined with another perk as it uses both slots.", wanted_gizmo.perks.1.name).as_str())
+        return Err(format!("Perk '{}' can't be combined with another perk as it uses both slots.", wanted_gizmo.perks.1.name))
     }
 
     if wanted_gizmo.perks.0.rank as usize >= data.perks[wanted_gizmo.perks.0.name].ranks.len() {
-        utils::print_error(format!("Perk '{}' only goes up to rank {}.",
+        return Err(format!("Perk '{}' only goes up to rank {}.",
             &wanted_gizmo.perks.0.name,
-            data.perks[wanted_gizmo.perks.0.name].ranks.len() - 1).as_str())
+            data.perks[wanted_gizmo.perks.0.name].ranks.len() - 1))
     }
 
     if wanted_gizmo.perks.1.name != PerkName::Empty && wanted_gizmo.perks.1.rank as usize >= data.perks[wanted_gizmo.perks.1.name].ranks.len() {
-        utils::print_error(format!("Perk '{}' only goes up to rank {}.",
+        return Err(format!("Perk '{}' only goes up to rank {}.",
             &wanted_gizmo.perks.1.name,
-            data.perks[wanted_gizmo.perks.1.name].ranks.len() - 1).as_str())
+            data.perks[wanted_gizmo.perks.1.name].ranks.len() - 1))
     }
 
     match args.invention_level {
         InventionLevel::Single(x) => {
             match x {
                 1..=137 => (),
-                _ => utils::print_error("Invention level must be between 1 and 137.")
+                _ => return Err("Invention level must be between 1 and 137.".to_string())
             }
         },
         InventionLevel::Range(x, y) => {
             match (x, y) {
-                (x, y) if x > y => utils::print_error("First value of the invention level range must be lower or equal to the second value."),
+                (x, y) if x > y => return Err("First value of the invention level range must be lower or equal to the second value.".to_string()),
                 (1..=137, 1..=137) => (),
-                _ => utils::print_error("Invention level must be between 1 and 137.")
+                _ => return Err("Invention level must be between 1 and 137.".to_string())
             }
         }
     }
+
+    Ok(())
 }
 
 fn calc_wanted_gizmo_probabilities(data: &Data, args: &Args, budgets: &Vec<Budget>, input_materials: Vec<MaterialName>,
@@ -404,7 +417,7 @@ fn calc_probability_from_thresholds(cth_in: &mut [Gizmo], budget: &Budget, comb_
     }
 }
 
-fn get_materials(args: &Args, data: &Data, wanted_gizmo: Gizmo) -> Vec<MaterialName> {
+fn get_materials(args: &Args, data: &Data, wanted_gizmo: Gizmo) -> Result<Vec<MaterialName>, String> {
     let mut possible_materials = Vec::new();
 
     for (mat_name, mat_data) in data.comps.iter() {
@@ -421,10 +434,10 @@ fn get_materials(args: &Args, data: &Data, wanted_gizmo: Gizmo) -> Vec<MaterialN
     }).copied().collect_vec();
 
     if possible_materials.is_empty() {
-        utils::print_error("No materials found that can produce this perk.")
+        return Err("No materials found that can produce this perk.".to_string())
     }
 
-    possible_materials
+    Ok(possible_materials)
 }
 
 /// Splits material into two groups: conflict and non-conflict materials.

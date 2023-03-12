@@ -23,6 +23,7 @@ use smallvec::SmallVec;
 use std::sync::Arc;
 use colored::Colorize;
 use serde::Serialize;
+use itertools::Itertools;
 
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -79,10 +80,18 @@ pub type PartialPerkValuesVec = SmallVec<[PartialPerkValues; 10]>;
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SplitMaterials {
     pub conflict: Vec<MaterialName>,
     pub no_conflict: Vec<MaterialName>
+}
+
+impl SplitMaterials {
+    pub fn to_json(&self) -> String {
+        let conflict = self.conflict.iter().map(|x| format!("\"{}\"", x.to_string())).join(", ");
+        let no_conflict = self.no_conflict.iter().map(|x| format!("\"{}\"", x.to_string())).join(", ");
+        format!("{{\"conflict\": [{conflict}], \"no_conflict\": [{no_conflict}]}}")
+    }
 }
 
 impl std::fmt::Display for SplitMaterials {

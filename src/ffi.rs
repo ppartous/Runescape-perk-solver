@@ -1,9 +1,7 @@
 use crate::{prelude::*, result::gizmo_combination_sort, component_prices::load_component_prices};
-use std::time::Duration;
 use std::ffi::{c_char, CStr, CString};
-use std::sync::{Mutex, Arc, atomic::AtomicBool, atomic::Ordering};
+use std::sync::{Mutex, Arc, Condvar};
 use itertools::Itertools;
-use tokio::time;
 
 static CHANNEL: Mutex<Option<CString>> = Mutex::new(None);
 
@@ -24,39 +22,47 @@ pub struct FfiArgs {
     pub price_file: *const c_char
 }
 
-#[derive(Debug)]
 #[repr(C)]
 pub struct Response {
-    bar_progress: *const u64,
     total_combination_count: usize,
+    bar_progress: *const u64,
+    materials: *const c_char,
+    result: *const c_char
 }
 
-// Any pointer previously obtained from `get_result_json` become dangling after calling this function.
-#[tokio::main]
+impl From<String> for Response {
+    fn from(value: String) -> Self {
+        Response {
+            total_combination_count: 0,
+            bar_progress: std::ptr::null(),
+            materials: std::ptr::null(),
+            result: CString::new(value).unwrap().into_raw() as *const c_char
+        }
+    }
+}
+
 #[no_mangle]
-pub async extern "C" fn perk_solver_ctypes(args: FfiArgs) -> Response {
+pub unsafe extern "C" fn perk_solver_ctypes(args: FfiArgs) -> Response {
     let mut perk = String::new();
     let mut perk_two = String::new();
     let mut exclude = Vec::new();
     let mut out_file = Args::default().out_file;
     let mut price_file = Args::default().price_file;
 
-    unsafe {
-        if !args.perk.is_null() {
-            perk = CStr::from_ptr(args.perk).to_str().unwrap().to_string();
-        }
-        if !args.perk_two.is_null() {
-            perk_two = CStr::from_ptr(args.perk_two).to_str().unwrap().to_string();
-        }
-        if !args.out_file.is_null() {
-            out_file = CStr::from_ptr(args.out_file).to_str().unwrap().to_string();
-        }
-        if !args.price_file.is_null() {
-            price_file = CStr::from_ptr(args.price_file).to_str().unwrap().to_string();
-        }
-        if !args.exclude.is_null() {
-            exclude = CStr::from_ptr(args.exclude).to_str().unwrap().split(",").map(|x| x.to_string()).collect_vec();
-        }
+    if !args.perk.is_null() {
+        perk = CStr::from_ptr(args.perk).to_str().unwrap().to_string();
+    }
+    if !args.perk_two.is_null() {
+        perk_two = CStr::from_ptr(args.perk_two).to_str().unwrap().to_string();
+    }
+    if !args.out_file.is_null() {
+        out_file = CStr::from_ptr(args.out_file).to_str().unwrap().to_string();
+    }
+    if !args.price_file.is_null() {
+        price_file = CStr::from_ptr(args.price_file).to_str().unwrap().to_string();
+    }
+    if !args.exclude.is_null() {
+        exclude = CStr::from_ptr(args.exclude).to_str().unwrap().split(",").map(|x| x.to_string()).collect_vec();
     }
 
     let cli = Cli {
@@ -76,60 +82,79 @@ pub async extern "C" fn perk_solver_ctypes(args: FfiArgs) -> Response {
         }
     };
 
-    let args = Args::create(&cli);
     let data = Data::load();
-    let wanted_gizmo = Gizmo {
-        perks: (
-            Perk { name: args.perk, rank: args.rank },
-            Perk { name: args.perk_two, rank: args.rank_two }
-        ),
-        ..Default::default()
+    let args = match Args::create(&cli) {
+        Ok(args) => args,
+        Err(err) => return Response::from(err)
     };
-    let s = crate::setup(args, &data, wanted_gizmo);
-    let ptr = Arc::into_raw(s.bar_progress.clone()) as *const u64;
-    let has_started = Arc::new(AtomicBool::new(false));
-
-    load_component_prices(&s.args);
-
-    {
-        let x = has_started.clone();
-        std::thread::spawn(move || {
-            tokio::runtime::Builder::new_current_thread()
-                .enable_all()
-                .build()
-                .unwrap()
-                .block_on(async {
-                    x.store(true, Ordering::SeqCst);
-                    let mut channel = CHANNEL.lock().unwrap();
-                    crate::perk_solver_core(s.args, data, wanted_gizmo, s.materials, s.bar_progress, s.total_combination_count, s.result_tx).await;
-                    let mut best_per_level = s.result_handler.join().unwrap();
-                    for x in best_per_level.iter_mut() {
-                        x.mat_combination = Arc::new(gizmo_combination_sort(&x.mat_combination));
-                    }
-                    let json = serde_json::to_string(&best_per_level).unwrap();
-                    channel.replace(CString::new(json).unwrap());
-                })
-        });
+    let s = match crate::setup(args, &data) {
+        Ok(s) => s,
+        Err(err) => return Response::from(err)
+    };
+    if let Err(err) = load_component_prices(&s.args) {
+        return Response::from(err);
     }
 
-    let mut interval = time::interval(Duration::from_millis(10));
-    while !has_started.load(Ordering::SeqCst) {
-        interval.tick().await;
+    let bar_progress = Arc::into_raw(s.bar_progress.clone()) as *const u64;
+    let materials = CString::new(s.materials.to_json()).unwrap();
+    let has_started = Arc::new((Mutex::new(false), Condvar::new()));
+    let has_started2 = Arc::clone(&has_started);
+
+    std::thread::spawn(move || {
+        let mut channel = CHANNEL.lock().unwrap();
+        let (lock, cvar) = &*has_started2;
+        if let Ok(mut started) = lock.lock() {
+            *started = true;
+            cvar.notify_one();
+        }
+
+        crate::perk_solver_core(s.args, data, s.wanted_gizmo, s.materials, s.bar_progress, s.total_combination_count, s.result_tx);
+        let mut best_per_level = s.result_handler.join().unwrap();
+        for x in best_per_level.iter_mut() {
+            x.mat_combination = Arc::new(gizmo_combination_sort(&x.mat_combination));
+        }
+        let json = serde_json::to_string(&best_per_level).unwrap();
+        channel.replace(CString::new(json).unwrap());
+    });
+
+    // Wait for the thread to start up.
+    let (lock, cvar) = &*has_started;
+    let mut started = lock.lock().unwrap();
+    while !*started {
+        started = cvar.wait(started).unwrap();
     }
 
     Response {
-        bar_progress: ptr,
-        total_combination_count: s.total_combination_count
+        total_combination_count: s.total_combination_count,
+        bar_progress,
+        materials: materials.into_raw(),
+        result: std::ptr::null()
     }
 }
 
 #[no_mangle]
-pub extern "C" fn get_result_json() -> *const c_char {
-    let json = CHANNEL.lock().unwrap();
+pub extern "C" fn get_result(response: &mut Response) {
+    let json = CHANNEL.lock().unwrap().take();
 
-    if let Some(s) = json.as_ref() {
-        s.as_ptr()
-    } else  {
-        std::ptr::null()
+    if let Some(s) = json {
+        response.result = s.into_raw();
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn free_response(response: Response) {
+    if response.bar_progress != std::ptr::null() {
+        let bar_progress = Arc::from_raw(response.bar_progress);
+        drop(bar_progress);
+    }
+
+    if response.result != std::ptr::null() {
+        let result = CString::from_raw(response.result as *mut c_char);
+        drop(result);
+    }
+
+    if response.materials != std::ptr::null() {
+        let materials = CString::from_raw(response.materials as *mut c_char);
+        drop(materials);
     }
 }
