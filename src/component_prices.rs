@@ -19,14 +19,14 @@ type PriceMap = StackMap<MaterialName, f64, {MaterialName::COUNT}>;
 static SHELL_PRICE: OnceCell<f64> = OnceCell::new();
 static PRICES: OnceCell<PriceMap> = OnceCell::new();
 
-pub fn calc_gizmo_price(line: &ResultLine) -> f64 {
+pub fn calc_gizmo_price(mat_combination: &[MaterialName], prob_gizmo: f64) -> f64 {
     let shell_price = SHELL_PRICE.get().unwrap();
     let prices = PRICES.get().unwrap();
-    let price = shell_price + line.mat_combination.iter().fold(0.0, |acc, x| {
+    let price = shell_price + mat_combination.iter().fold(0.0, |acc, x| {
         acc + prices.get(*x)
     });
 
-    price / line.prob_gizmo
+    price / prob_gizmo
 }
 
 pub fn load_component_prices(args: &Args) -> Result<(), String> {

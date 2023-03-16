@@ -24,6 +24,7 @@ use std::sync::Arc;
 use colored::Colorize;
 use serde::Serialize;
 use itertools::Itertools;
+use crate::component_prices::calc_gizmo_price;
 
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -119,19 +120,8 @@ impl std::fmt::Display for SplitMaterials {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-#[derive(Debug, Clone)]
-pub struct ResultLine {
-    pub level: u8,
-    pub prob_gizmo: f64,
-    pub prob_attempt: f64,
-    pub mat_combination: Arc<Vec<MaterialName>>
-}
-
-// ---------------------------------------------------------------------------------------------------------------------
-
-// Keep separate to reduce memory usage
 #[derive(Debug, Clone, Serialize)]
-pub struct ResultLineWithPrice {
+pub struct ResultLine {
     pub level: u8,
     pub prob_gizmo: f64,
     pub prob_attempt: f64,
@@ -139,9 +129,23 @@ pub struct ResultLineWithPrice {
     pub mat_combination: Arc<Vec<MaterialName>>
 }
 
-impl Default for ResultLineWithPrice {
+impl ResultLine {
+    pub fn create(level: u8, prob_attempt: f64, prob_empty: f64, mat_combination: Arc<Vec<MaterialName>>) -> ResultLine {
+        let prob_gizmo = if prob_empty == 1.0 { 0.0 } else { prob_attempt / (1.0 - prob_empty) };
+        let price = calc_gizmo_price(&mat_combination, prob_gizmo);
+        ResultLine {
+            level,
+            prob_gizmo,
+            prob_attempt,
+            price,
+            mat_combination
+        }
+    }
+}
+
+impl Default for ResultLine {
     fn default() -> Self {
-        ResultLineWithPrice {
+        ResultLine {
             level: 0,
             prob_gizmo: 0.0,
             prob_attempt: 0.0,

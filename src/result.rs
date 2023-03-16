@@ -1,29 +1,28 @@
-use crate::{component_prices::calc_gizmo_price, utils::print_warning, prelude::*};
+use crate::{utils::print_warning, prelude::*};
 use colored::*;
 use std::{collections::HashMap, fs, sync::{Arc, mpsc::Receiver}, thread::JoinHandle};
 use itertools::Itertools;
 
-pub fn result_handler(args: Arc<Args>, rx: Receiver<Arc<Vec<ResultLine>>>) -> JoinHandle<Vec<ResultLineWithPrice>> {
+pub fn result_handler(args: Arc<Args>, rx: Receiver<Vec<ResultLine>>) -> JoinHandle<Vec<ResultLine>> {
     let handler = std::thread::spawn(move || {
         let mut best_per_level = HashMap::new();
         match args.invention_level {
-            InventionLevel::Single(x) => { best_per_level.insert(x, ResultLineWithPrice { ..Default::default() }); },
+            InventionLevel::Single(x) => { best_per_level.insert(x, ResultLine { ..Default::default() }); },
             InventionLevel::Range(x, y) => for lvl in (x..=y).step_by(2) {
-                best_per_level.insert(lvl, ResultLineWithPrice { ..Default::default() });
+                best_per_level.insert(lvl, ResultLine { ..Default::default() });
             }
         }
 
         while let Ok(lines) = rx.recv() {
-            for line in lines.iter() {
-                let price = calc_gizmo_price(line);
+            for line in lines.into_iter() {
                 let prev_best = best_per_level.get(&line.level).unwrap();
 
                 let is_best = match args.sort_type {
                     SortType::Price => {
-                        if price == prev_best.price {
+                        if line.price == prev_best.price {
                             line.mat_combination.len() < prev_best.mat_combination.len()
                         } else {
-                            price < prev_best.price
+                            line.price < prev_best.price
                         }
                     },
                     SortType::Gizmo => {
@@ -43,13 +42,6 @@ pub fn result_handler(args: Arc<Args>, rx: Receiver<Arc<Vec<ResultLine>>>) -> Jo
                 };
 
                 if is_best {
-                    let line = ResultLineWithPrice {
-                        level: line.level,
-                        prob_attempt: line.prob_attempt,
-                        prob_gizmo: line.prob_gizmo,
-                        mat_combination: line.mat_combination.clone(),
-                        price,
-                    };
                     best_per_level.insert(line.level, line);
                 }
             }
@@ -105,7 +97,7 @@ fn get_color(ratio: f64) -> (u8, u8, u8) {
     }
 }
 
-pub fn print_result(best_per_level: &[ResultLineWithPrice], args: &Args) {
+pub fn print_result(best_per_level: &[ResultLine], args: &Args) {
     let best_wanted_index = match args.sort_type {
         SortType::Price => best_per_level.iter().position_min_by(|a, b| a.price.partial_cmp(&b.price).unwrap()),
         SortType::Gizmo => best_per_level.iter().position_max_by(|a, b| a.prob_gizmo.partial_cmp(&b.prob_gizmo).unwrap()),
@@ -180,7 +172,7 @@ pub fn print_result(best_per_level: &[ResultLineWithPrice], args: &Args) {
     }
 }
 
-pub fn write_best_mats_to_file(best_per_level: &[ResultLineWithPrice], args: &Args) {
+pub fn write_best_mats_to_file(best_per_level: &[ResultLine], args: &Args) {
     if args.out_file == "false" {
         return;
     }
