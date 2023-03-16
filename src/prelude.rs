@@ -48,7 +48,7 @@ impl Default for PerkRankValuesProbabilityContainer {
 
 #[derive(Debug, PartialEq)]
 pub struct RankCombination {
-    pub ranks: SmallVec<[PerkRankValues; 8]>,
+    pub ranks: SmallVec<[PerkRankValues; 12]>,
     pub probability: f64
 }
 

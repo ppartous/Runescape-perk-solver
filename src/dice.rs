@@ -1,5 +1,5 @@
 use std::{collections::HashMap, sync::Mutex, sync::Arc};
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 
 /// Binomial coefficient $`\frac{n!}{k!(n-k)!}`$
 pub fn choose(n: usize, k: usize) -> f64 {
@@ -35,13 +35,11 @@ pub fn dice_roll(val: usize, die_count: usize, die_sides: usize) -> f64 {
     res / (die_sides as f64).powf(die_count as f64)
 }
 
-lazy_static!{
-    pub static ref DIST_CACHE: Mutex<HashMap<(usize, usize), Arc<Vec<f64>>>> = Mutex::new(HashMap::new());
-}
-
 /// Returns a multinomial distribution indication the probability to see a certain count when
 /// summing the results of rolling a discrete uniform distribution ranging from 0 to `range` (exclusive), `rolls` times
 pub fn get_distribution(range: usize, rolls: usize) -> Arc<Vec<f64>> {
+    static DIST_CACHE: Lazy<Mutex<HashMap<(usize, usize), Arc<Vec<f64>>>>> = Lazy::new(|| Mutex::new(HashMap::new()));
+
     let key = (range, rolls);
     if let Some(val) = DIST_CACHE.lock().unwrap().get(&key) {
         return val.clone();

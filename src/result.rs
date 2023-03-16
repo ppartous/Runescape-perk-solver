@@ -1,11 +1,9 @@
 use crate::{component_prices::calc_gizmo_price, utils::print_warning, prelude::*};
 use colored::*;
-use std::{collections::HashMap, fs, sync::Arc};
+use std::{collections::HashMap, fs, sync::{Arc, mpsc::Receiver}, thread::JoinHandle};
 use itertools::Itertools;
-use tokio::sync::mpsc::Receiver;
-use std::thread::JoinHandle;
 
-pub fn result_handler(args: Arc<Args>, mut rx: Receiver<Arc<Vec<ResultLine>>>) -> JoinHandle<Vec<ResultLineWithPrice>> {
+pub fn result_handler(args: Arc<Args>, rx: Receiver<Arc<Vec<ResultLine>>>) -> JoinHandle<Vec<ResultLineWithPrice>> {
     let handler = std::thread::spawn(move || {
         let mut best_per_level = HashMap::new();
         match args.invention_level {
@@ -15,7 +13,7 @@ pub fn result_handler(args: Arc<Args>, mut rx: Receiver<Arc<Vec<ResultLine>>>) -
             }
         }
 
-        while let Some(lines) = rx.blocking_recv() {
+        while let Ok(lines) = rx.recv() {
             for line in lines.iter() {
                 let price = calc_gizmo_price(line);
                 let prev_best = best_per_level.get(&line.level).unwrap();

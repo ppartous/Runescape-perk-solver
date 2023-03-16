@@ -5,9 +5,8 @@ use clap::Parser;
 
 fn main() {
     #[cfg(feature="precise-time")]
-    {
-        let timer = howlong::HighResolutionTimer::new();
-    }
+    let timer = howlong::HighResolutionTimer::new();
+
     let cli = Cli::parse();
     let data = Data::load();
 
@@ -38,7 +37,5 @@ fn main() {
     }
 
     #[cfg(feature="precise-time")]
-    {
-        println!("{:?}", timer.elapsed());
-    }
+    println!("{:?}", timer.elapsed());
 }

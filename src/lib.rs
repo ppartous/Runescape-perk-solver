@@ -117,14 +117,12 @@ use gizmo_cost_thresholds::*;
 use perk_values::*;
 use component_prices::load_component_prices;
 use itertools::Itertools;
-use std::{cmp, cmp::{Ord, PartialOrd}, sync::{Arc, atomic::{self, Ordering::Relaxed}}, time::Duration};
+use std::{cmp, cmp::{Ord, PartialOrd}, sync::{Arc, atomic::{self, Ordering::Relaxed}, mpsc}, time::Duration, thread};
 use indicatif::{ProgressBar, ProgressStyle};
-use tokio::{sync::mpsc, task, time};
 use threadpool::ThreadPool;
 use smallvec::{SmallVec, smallvec};
 
-#[tokio::main]
-pub async fn perk_solver(args: Args, data: Data) {
+pub fn perk_solver(args: Args, data: Data) {
     let s = setup(args, &data).unwrap_or_else(|err| utils::print_error(err.as_str()));
     println!("{}\n", s.args.clone());
     println!("{}\n", s.materials);
@@ -134,13 +132,13 @@ pub async fn perk_solver(args: Args, data: Data) {
     }
 
     let x = s.bar_progress.clone();
-    let bar_handler = task::spawn(async move {
+    let bar_handler = thread::spawn(move || {
         let bar = ProgressBar::new(s.total_combination_count as u64);
         bar.set_style(ProgressStyle::with_template("[{elapsed_precise}] {bar:60} {human_pos}/{human_len} ({percent}%)").unwrap());
-        let mut interval = time::interval(Duration::from_millis(100));
+        let interval = Duration::from_millis(100);
 
         loop {
-            interval.tick().await;
+            std::thread::sleep(interval);
             bar.set_position(x.load(Relaxed));
             if x.load(Relaxed) == s.total_combination_count as u64 {
                 bar.finish();
@@ -151,7 +149,7 @@ pub async fn perk_solver(args: Args, data: Data) {
 
     perk_solver_core(s.args.clone(), data, s.wanted_gizmo, s.materials, s.bar_progress, s.total_combination_count, s.result_tx);
 
-    bar_handler.await.ok();
+    bar_handler.join().ok();
     println!("\n");
 
     let best_per_level = s.result_handler.join().unwrap();
@@ -165,7 +163,7 @@ struct Setup {
     bar_progress: Arc<atomic::AtomicU64>,
     total_combination_count: usize,
     result_tx: mpsc::Sender<Arc<Vec<ResultLine>>>,
-    result_handler: std::thread::JoinHandle<Vec<ResultLineWithPrice>>,
+    result_handler: thread::JoinHandle<Vec<ResultLineWithPrice>>,
     args: Arc<Args>
 }
 
@@ -182,7 +180,7 @@ fn setup(args: Args, data: &Data) -> Result<Setup, String> {
     let materials = Arc::new(split_materials(&args, &data, wanted_gizmo, materials));
     let total_combination_count = calc_combination_count(materials.conflict.len(), materials.no_conflict.len(), args.ancient);
     let bar_progress = Arc::new(atomic::AtomicU64::new(0));
-    let (result_tx, result_rx) = mpsc::channel::<Arc<Vec<ResultLine>>>(100);
+    let (result_tx, result_rx) = mpsc::channel::<Arc<Vec<ResultLine>>>();
     let args = Arc::new(args);
     let result_handler = result::result_handler(args.clone(), result_rx);
 
@@ -219,7 +217,7 @@ fn perk_solver_core(args: Arc<Args>, data: Data, wanted_gizmo: Gizmo, materials:
                 for mat_combination in materials.no_conflict.iter().copied().combinations_with_replacement(n_mats_used) {
                     let lines = calc_wanted_gizmo_probabilities(&data, &args, &budgets, mat_combination, wanted_gizmo);
                     bar_progress.fetch_add(1, Relaxed);
-                    tx.blocking_send(Arc::new(lines)).ok();
+                    tx.send(Arc::new(lines)).ok();
                 }
             });
         }
@@ -239,10 +237,10 @@ fn perk_solver_core(args: Arc<Args>, data: Data, wanted_gizmo: Gizmo, materials:
                             }
                             pool.execute(move || {
                                 for unordered_mats in ordered_mats.iter().copied().combinations_with_replacement(n_mats_used - n_conflict_mats - n_noconflict_mats) {
-                                    let mat_combination = ordered_mats.iter().copied().chain(unordered_mats.iter().copied()).collect_vec();
+                                    let mat_combination = ordered_mats.iter().copied().chain(unordered_mats.iter().copied()).collect();
                                     let lines = calc_wanted_gizmo_probabilities(&data, &args, &budgets, mat_combination, wanted_gizmo);
                                     bar_progress.fetch_add(1, Relaxed);
-                                    tx.blocking_send(Arc::new(lines)).ok();
+                                    tx.send(Arc::new(lines)).ok();
                                 }
                             });
                         }
@@ -310,6 +308,14 @@ fn validate_input(args: &Args, wanted_gizmo: Gizmo, data: &Data) -> Result<(), S
         return Err(format!("Perk '{}' only goes up to rank {}.",
             &wanted_gizmo.perks.1.name,
             data.perks[wanted_gizmo.perks.1.name].ranks.len() - 1))
+    }
+
+    if wanted_gizmo.perks.0.rank == 0 {
+        return Err(format!("Perk '{}' must have a rank greater than zero.", &wanted_gizmo.perks.0.name));
+    }
+
+    if wanted_gizmo.perks.1.name != PerkName::Empty && wanted_gizmo.perks.1.rank == 0 {
+        return Err(format!("Perk '{}' must have a rank greater than zero.", &wanted_gizmo.perks.1.name));
     }
 
     match args.invention_level {
@@ -532,12 +538,10 @@ fn calc_combination_count(conflict_size: usize, no_conflict_size: usize, is_anci
 #[cfg(test)]
 mod tests {
     use super::*;
-    use lazy_static::lazy_static;
+    use once_cell::sync::Lazy;
     use crate::utils::{check_index, check_index_relative, check_len};
 
-    lazy_static!{
-        static ref DATA: Data = Data::load();
-    }
+    static DATA: Lazy<Data> = Lazy::new(|| Data::load());
 
     mod calc_gizmo_probabilities_tests {
         use super::*;

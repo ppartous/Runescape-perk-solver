@@ -985,7 +985,7 @@ checksum = "478c572c3d73181ff3c2539045f6eb99e5491218eae919370993b890cdbdd98e"
 
 [[package]]
 name = "perk_solver"
-version = "1.3.0"
+version = "1.3.1"
 dependencies = [
  "approx",
  "clap 4.0.23",
@@ -995,7 +995,6 @@ dependencies = [
  "howlong",
  "indicatif",
  "itertools",
- "lazy_static",
  "len-trait",
  "num_cpus",
  "once_cell",
@@ -1008,7 +1007,6 @@ dependencies = [
  "strum_macros",
  "test-case",
  "threadpool",
- "tokio",
  "uninit",
 ]
 
@@ -1527,19 +1525,7 @@ dependencies = [
  "num_cpus",
  "pin-project-lite",
  "socket2",
- "tokio-macros",
  "windows-sys",
-]
-
-[[package]]
-name = "tokio-macros"
-version = "1.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d266c00fde287f55d3f1c3e96c500c362a2b8c695076ec180f27918820bc6df8"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
 ]
 
 [[package]]

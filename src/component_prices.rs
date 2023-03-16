@@ -30,6 +30,11 @@ pub fn calc_gizmo_price(line: &ResultLine) -> f64 {
 }
 
 pub fn load_component_prices(args: &Args) -> Result<(), String> {
+    // Don't need to set prices again if the calc is invoked multiple times thourgh the ffi
+    if PRICES.get().is_some() {
+        return Ok(())
+    }
+
     let mut text = String::new();
 
     if args.price_file != "false" && std::path::Path::new(&args.price_file).exists() {

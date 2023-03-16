@@ -45,6 +45,7 @@ pub fn convolve(x: &Vec<f64>, y: &Vec<f64>) -> Vec<f64> {
     z
 }
 
+#[cfg(test)]
 pub fn check_result<T>(acc: T, exp: T, name: &str) -> Result<(), String>
 where
     T: PartialEq + std::fmt::Display
@@ -55,6 +56,7 @@ where
     Ok(())
 }
 
+#[cfg(test)]
 pub fn check<T>(acc: T, exp: T, name: &str)
 where
     T: PartialEq + std::fmt::Display
@@ -64,6 +66,7 @@ where
     }
 }
 
+#[cfg(test)]
 pub fn check_len_result<T>(acc: &[T], exp: &[T]) -> Result<(), String>
 where
     T: std::fmt::Debug
@@ -75,6 +78,7 @@ where
     Ok(())
 }
 
+#[cfg(test)]
 pub fn check_len<T>(acc: &[T], exp: &[T])
 where
     T: std::fmt::Debug
@@ -84,6 +88,7 @@ where
     }
 }
 
+#[cfg(test)]
 pub fn check_index_result<T, K>(acc: T, exp: T, i: usize, name: &str, acc_full: K, exp_full: K) -> Result<(), String>
 where
     T: PartialEq + std::fmt::Display,
@@ -96,6 +101,7 @@ where
     Ok(())
 }
 
+#[cfg(test)]
 pub fn check_index<T, K>(acc: T, exp: T, i: usize, name: &str, acc_full: K, exp_full: K)
 where
     T: PartialEq + std::fmt::Display,
@@ -106,6 +112,7 @@ where
     }
 }
 
+#[cfg(test)]
 pub fn check_index_relative_result<K>(acc: f64, exp: f64, max_relative: f64, i: usize, name: &str, acc_full: K, exp_full: K) -> Result<(), String>
 where
     K: std::fmt::Debug
@@ -118,6 +125,7 @@ where
     Ok(())
 }
 
+#[cfg(test)]
 pub fn check_index_relative<K>(acc: f64, exp: f64, max_relative: f64, i: usize, name: &str, acc_full: K, exp_full: K)
 where
     K: std::fmt::Debug

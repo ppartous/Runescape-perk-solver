@@ -1,7 +1,7 @@
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [package]
 name = "perk_solver"
-version = "1.3.0"
+version = "1.3.1"
 edition = "2021"
 authors = ["Pieter Partous <pieter.partous@outlook.com>"]
 description = "Finds optimal material combination for a given gizmo"
@@ -12,14 +12,12 @@ license = "GPL-3.0-or-later"
 crate-type = ["rlib", "dylib"]
 
 [dependencies]
-approx = "0.5.1"
 clap = { version = "4.0.23", features = ["derive"] }
 colored = "2.0.0"
 derive_more = "0.99.17"
-howlong = "0.1.7"
+howlong = { version = "0.1.7", optional = true }
 indicatif = "0.17.2"
 itertools = "0.10.5"
-lazy_static = "1.4.0"
 len-trait = "0.6.1"
 num_cpus = "1.15.0"
 once_cell = "1.17.0"
@@ -31,16 +29,16 @@ smallvec = "1.10.0"
 strum = { version = "0.24.1", features = ["strum_macros", "derive"] }
 strum_macros = "0.24.3"
 threadpool = "1.8.1"
-tokio = { version = "1.24.2", features = ["macros"] }
 uninit = "0.5.1"
 
 [dev-dependencies]
 criterion = "0.4.0"
 test-case = "2.2.2"
+approx = "0.5.1"
 
 [features]
 wiki-template = []
-precise-time = []
+precise-time = ["dep:howlong"]
 
 [profile.release-with-debug]
 inherits = "release"

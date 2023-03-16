@@ -184,7 +184,7 @@ pub fn permutate_perk_ranks<'a>(perk_list: &'a PerkValuesVec, wanted_gizmo: Opti
 
     for pv_combination in perk_list.iter().map(func).multi_cartesian_product() {
         let mut probability = 1.0;
-        let mut ranks = SmallVec::<[PerkRankValues; 8]>::new();
+        let mut ranks = SmallVec::<[PerkRankValues; 12]>::new();
 
         for rank in pv_combination {
             probability *= rank.probability;
@@ -299,7 +299,7 @@ pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &[PerkValues]) -
 mod tests {
     use super::*;
     use itertools::Itertools;
-    use lazy_static::lazy_static;
+    use once_cell::sync::Lazy;
     use crate::utils::{check_len, check_index, check_index_relative};
 
     fn assert_partial_perk_values_eq(actual: &PartialPerkValuesVec, expected: &PartialPerkValuesVec) {
@@ -340,10 +340,7 @@ mod tests {
 
     mod get_perk_values_tests {
         use super::*;
-
-        lazy_static!{
-            static ref DATA: Data = Data::load();
-        }
+        static DATA: Lazy<Data> = Lazy::new(|| Data::load());
 
         #[test]
         fn no_ancient_mats_non_ancient_weapon_gizmo() {
@@ -546,8 +543,8 @@ mod tests {
         use crate::{stack_map::StackMap, stack_vec::StackVec};
         use super::*;
 
-        lazy_static!{
-            static ref DATA: Data = Data {
+        static DATA: Lazy<Data> = Lazy::new(|| {
+            Data {
                 comps: StackMap::new(),
                 perks: {
                     let mut map = StackMap::new();
@@ -580,8 +577,8 @@ mod tests {
                     });
                     map
                 }
-            };
-        }
+            }
+        });
 
         #[test]
         fn all_ranks_possible_not_ancient_gizmo() {
@@ -903,8 +900,8 @@ mod tests {
         use super::*;
         use crate::{stack_map::StackMap, stack_vec::StackVec};
 
-        lazy_static!{
-            static ref DATA: Data = Data {
+        static DATA: Lazy<Data> = Lazy::new(|| {
+            Data {
                 comps: StackMap::new(),
                 perks: {
                     let mut map = StackMap::new();
@@ -945,8 +942,8 @@ mod tests {
                     });
                     map
                 }
-            };
-        }
+            }
+        });
 
         #[test]
         fn single_wanted_not_in_perk_values() {
@@ -1198,8 +1195,8 @@ mod tests {
             assert_rank_combination_eq(&actual, &expected);
         }
 
-        lazy_static!{
-            static ref PERK_LIST: PerkValuesVec = smallvec![
+        static PERK_LIST: Lazy<PerkValuesVec> = Lazy::new(|| {
+            smallvec![
                 PerkValues {
                     name: PerkName::Precise,
                     i_first: 1,
@@ -1235,8 +1232,8 @@ mod tests {
                     ]),
                     ..Default::default()
                 },
-            ];
-        }
+            ]
+        });
 
         #[test]
         fn permutate_ranks_one_wanted() {
@@ -1321,8 +1318,8 @@ mod tests {
         use super::*;
         use approx::assert_relative_eq;
 
-        lazy_static!{
-            static ref BUDGET: Budget = Budget {
+        static BUDGET: Lazy<Budget> = Lazy::new(||
+            Budget {
                 dist: vec![
                     0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16,
                     0.17, 0.18, 0.19, 0.2, 0.21, 0.22, 0.23, 0.24, 0.25, 0.26, 0.27, 0.28, 0.29, 0.3, 0.31, 0.32, 0.33,
@@ -1333,8 +1330,8 @@ mod tests {
                 ],
                 level: 25,
                 range: Range { min: 25, max: 100 }
-            };
-        }
+            }
+        );
 
         #[test]
         fn all_have_zero_rank_one_has_cost_below_min_range() {
