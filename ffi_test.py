@@ -82,10 +82,9 @@ args = FfiArgs(
     fuzzy = c_bool(False),
     exclude = create_string_buffer(b"connector,delicate,flexible").raw,
     sort_type = SortType.Price.value,
-    out_file = c_char_p(0),
+    out_file = create_string_buffer(b"false").raw,
     price_file = create_string_buffer(b"false").raw # Always get fresh prices. Prices are still cached when making multiple calls without reloading the binary
 )
-print(perk_solver(args))
 print(perk_solver(args))
 
 

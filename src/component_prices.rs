@@ -1,7 +1,7 @@
 use itertools::Itertools;
 use serde_json::{self, Value};
 use crate::{utils::print_warning, prelude::*};
-use std::{str::FromStr, fs};
+use std::{str::FromStr, fs, sync::RwLock};
 use regex::Regex;
 use once_cell::sync::OnceCell;
 use strum::{EnumCount, IntoEnumIterator};
@@ -16,12 +16,12 @@ static APP_USER_AGENT: &str = concat!(
 
 type PriceMap = StackMap<MaterialName, f64, {MaterialName::COUNT}>;
 
-static SHELL_PRICE: OnceCell<f64> = OnceCell::new();
 static PRICES: OnceCell<PriceMap> = OnceCell::new();
+static SHELL_PRICE: RwLock<f64> = RwLock::new(0.0);
 
 pub fn calc_gizmo_price(mat_combination: &[MaterialName], prob_gizmo: f64) -> f64 {
-    let shell_price = SHELL_PRICE.get().unwrap();
-    let prices = PRICES.get().unwrap();
+    let shell_price = *SHELL_PRICE.read().unwrap();
+    let prices = PRICES.get_or_init(|| StackMap::new());
     let price = shell_price + mat_combination.iter().fold(0.0, |acc, x| {
         acc + prices.get(*x)
     });
@@ -31,7 +31,8 @@ pub fn calc_gizmo_price(mat_combination: &[MaterialName], prob_gizmo: f64) -> f6
 
 pub fn load_component_prices(args: &Args) -> Result<(), String> {
     // Don't need to set prices again if the calc is invoked multiple times thourgh the ffi
-    if PRICES.get().is_some() {
+    if let Some(prices) = PRICES.get() {
+        *SHELL_PRICE.write().unwrap() = calc_shell_price(args, prices);
         return Ok(())
     }
 
@@ -66,7 +67,7 @@ pub fn load_component_prices(args: &Args) -> Result<(), String> {
         });
     }
 
-    SHELL_PRICE.set(calc_shell_price(args, &prices)).ok();
+    *SHELL_PRICE.write().unwrap() = calc_shell_price(args, &prices);
     PRICES.set(prices).ok();
     Ok(())
 }

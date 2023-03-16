@@ -78,8 +78,11 @@ pub enum Commands {
 #[repr(C)]
 #[derive(Debug, Display, Copy, Clone, PartialEq, Eq, ValueEnum)]
 pub enum GizmoType {
+    #[value(alias("w"))]
     Weapon,
+    #[value(alias("a"))]
     Armour,
+    #[value(alias("t"))]
     Tool
 }
 
@@ -88,8 +91,11 @@ pub enum GizmoType {
 #[repr(C)]
 #[derive(Debug, Display, Copy, Clone, PartialEq, Eq, ValueEnum)]
 pub enum SortType {
+    #[value(alias("g"))]
     Gizmo,
+    #[value(alias("a"))]
     Attempt,
+    #[value(alias("p"))]
     Price
 }
 

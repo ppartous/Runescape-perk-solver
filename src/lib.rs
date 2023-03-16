@@ -469,6 +469,10 @@ fn split_materials(args: &Args, data: &Data, wanted_gizmo: Gizmo, mats: Vec<Mate
         0
     };
 
+    if cost_p1 == cost_p2 {
+        return SplitMaterials { conflict: mats, no_conflict: vec![] }
+    }
+
     for mat in mats {
         let mut is_conflict = false;
         'comp: for comp_values in data.comps[mat][args.gizmo_type].iter() {
@@ -928,6 +932,7 @@ mod tests {
                 fuzzy: false,
                 ..Default::default()
             };
+            load_component_prices(&args).ok();
             let budgets = generate_budgets(&InventionLevel::Range(110, 120), args.ancient);
             let input_materials = vec![
                 MaterialName::ZamorakComponents,

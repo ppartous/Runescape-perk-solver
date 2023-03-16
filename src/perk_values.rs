@@ -146,17 +146,22 @@ pub fn can_generate_wanted_ranks(data: &Data, perk_values_arr: &PartialPerkValue
             perk2_base = Some(perk_value.base as usize);
             perk2_max_roll = Some(perk_value.rolls.iter().map(|x| *x as usize).sum::<usize>() - perk_value.rolls.len());
         }
+        if perk1_base.is_some() && perk2_base.is_some() {
+            break;
+        }
     }
 
     if perk1_base.is_none() || (wanted_gizmo.perks.1.name != PerkName::Empty && perk2_base.is_none()) {
         return false;
     }
-    if !(perk1_base.unwrap() + perk1_max_roll.unwrap() >= perk1_threshold && perk1_base.unwrap() < perk1_next_threshold) {
-        return false;
-    }
-    if wanted_gizmo.perks.1.name != PerkName::Empty
-    && !(perk2_base.unwrap() + perk2_max_roll.unwrap() >= perk2_threshold && perk2_base.unwrap() < perk2_next_threshold) {
-        return false;
+    unsafe {
+        if !(perk1_base.unwrap_unchecked() + perk1_max_roll.unwrap_unchecked() >= perk1_threshold && perk1_base.unwrap_unchecked() < perk1_next_threshold) {
+            return false;
+        }
+        if wanted_gizmo.perks.1.name != PerkName::Empty
+        && !(perk2_base.unwrap_unchecked() + perk2_max_roll.unwrap_unchecked() >= perk2_threshold && perk2_base.unwrap_unchecked() < perk2_next_threshold) {
+            return false;
+        }
     }
 
     true
@@ -298,6 +303,10 @@ pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &[PerkValues]) -
 pub fn contains_conflict_ranks(data: &Data, perk_values_arr: &[PerkValues], wanted_gizmo: Gizmo) -> bool {
     let p1_cost = data.perks[wanted_gizmo.perks.0.name].ranks[wanted_gizmo.perks.0.rank as usize].cost;
     let p2_cost = data.perks[wanted_gizmo.perks.1.name].ranks[wanted_gizmo.perks.1.rank as usize].cost;
+
+    if p1_cost == p2_cost {
+        return true;
+    }
 
     for perk_values in perk_values_arr.iter() {
         if perk_values.name == wanted_gizmo.perks.0.name || perk_values.name == wanted_gizmo.perks.1.name {
