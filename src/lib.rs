@@ -162,7 +162,7 @@ struct Setup {
     materials: Arc<SplitMaterials>,
     bar_progress: Arc<atomic::AtomicU64>,
     total_combination_count: usize,
-    result_tx: mpsc::Sender<Vec<ResultLine>>,
+    result_tx: mpsc::SyncSender<Vec<ResultLine>>,
     result_handler: thread::JoinHandle<Vec<ResultLine>>,
     args: Arc<Args>
 }
@@ -180,7 +180,7 @@ fn setup(args: Args, data: &Data) -> Result<Setup, String> {
     let materials = Arc::new(split_materials(&args, &data, wanted_gizmo, materials));
     let total_combination_count = calc_combination_count(materials.conflict.len(), materials.no_conflict.len(), args.ancient);
     let bar_progress = Arc::new(atomic::AtomicU64::new(0));
-    let (result_tx, result_rx) = mpsc::channel::<Vec<ResultLine>>();
+    let (result_tx, result_rx) = mpsc::sync_channel::<Vec<ResultLine>>(1000);
     let args = Arc::new(args);
     let result_handler = result::result_handler(args.clone(), result_rx);
 
@@ -196,7 +196,7 @@ fn setup(args: Args, data: &Data) -> Result<Setup, String> {
 }
 
 fn perk_solver_core(args: Arc<Args>, data: Data, wanted_gizmo: Gizmo, materials: Arc<SplitMaterials>,
-    bar_progress: Arc<atomic::AtomicU64>, total_combination_count: usize, result_tx: mpsc::Sender<Vec<ResultLine>>)
+    bar_progress: Arc<atomic::AtomicU64>, total_combination_count: usize, result_tx: mpsc::SyncSender<Vec<ResultLine>>)
 {
     let data = Arc::new(data);
     let budgets = Arc::new(generate_budgets(&args.invention_level, args.ancient));
@@ -215,7 +215,7 @@ fn perk_solver_core(args: Arc<Args>, data: Data, wanted_gizmo: Gizmo, materials:
             pool.execute(move || {
                 // Order does no matter when none of the materials used have a cost conflict with the wanted perks
                 for mat_combination in materials.no_conflict.iter().copied().combinations_with_replacement(n_mats_used) {
-                    let lines = calc_wanted_gizmo_probabilities(&data, &args, &budgets, mat_combination, wanted_gizmo);
+                    let lines = calc_wanted_gizmo_probabilities(&data, &args, &budgets, mat_combination, wanted_gizmo, &mut None);
                     bar_progress.fetch_add(1, Relaxed);
                     tx.send(lines).ok();
                 }
@@ -226,21 +226,29 @@ fn perk_solver_core(args: Arc<Args>, data: Data, wanted_gizmo: Gizmo, materials:
             for conflict_mats in materials.conflict.iter().copied().combinations(n_conflict_mats) {
                 for n_noconflict_mats in 0 ..= usize::min(n_mats_used - n_conflict_mats, materials.no_conflict.len()) {
                     for no_conflict_mats in materials.no_conflict.iter().copied().combinations(n_noconflict_mats) {
-                        for ordered_mats in conflict_mats.iter().copied().chain(no_conflict_mats.iter().copied()).permutations(n_conflict_mats + n_noconflict_mats) {
+                        let mut mats = no_conflict_mats;
+                        mats.extend_from_slice(&conflict_mats);
+                        let mats = Arc::new(mats);
+                        for unordered_mats in mats.iter().copied().combinations_with_replacement(n_mats_used - n_conflict_mats - n_noconflict_mats) {
                             let tx = result_tx.clone();
                             let data = data.clone();
                             let args = args.clone();
                             let budgets = budgets.clone();
                             let bar_progress = bar_progress.clone();
+                            let mats = mats.clone();
                             while pool.queued_count() > 100000 {
                                 std::thread::sleep(ten_millis);
                             }
                             pool.execute(move || {
-                                for unordered_mats in ordered_mats.iter().copied().combinations_with_replacement(n_mats_used - n_conflict_mats - n_noconflict_mats) {
-                                    let mat_combination = ordered_mats.iter().copied().chain(unordered_mats.iter().copied()).collect();
-                                    let lines = calc_wanted_gizmo_probabilities(&data, &args, &budgets, mat_combination, wanted_gizmo);
+                                let mut has_conflict = None;
+                                for ordered_mats in mats.iter().copied().permutations(n_conflict_mats + n_noconflict_mats) {
+                                    if has_conflict.is_none() || (has_conflict.unwrap() == true) {
+                                        let mut mat_combination = ordered_mats;
+                                        mat_combination.extend_from_slice(&unordered_mats);
+                                        let lines = calc_wanted_gizmo_probabilities(&data, &args, &budgets, mat_combination, wanted_gizmo, &mut has_conflict);
+                                        tx.send(lines).ok();
+                                    }
                                     bar_progress.fetch_add(1, Relaxed);
-                                    tx.send(lines).ok();
                                 }
                             });
                         }
@@ -338,7 +346,7 @@ fn validate_input(args: &Args, wanted_gizmo: Gizmo, data: &Data) -> Result<(), S
 }
 
 fn calc_wanted_gizmo_probabilities(data: &Data, args: &Args, budgets: &Vec<Budget>, input_materials: Vec<MaterialName>,
-    wanted_gizmo: Gizmo) -> Vec<ResultLine>
+    wanted_gizmo: Gizmo, has_conflict: &mut Option<bool>) -> Vec<ResultLine>
 {
     let perk_values = get_perk_values(data, &input_materials, args.gizmo_type, args.ancient);
 
@@ -347,6 +355,9 @@ fn calc_wanted_gizmo_probabilities(data: &Data, args: &Args, budgets: &Vec<Budge
     }
 
     let perk_values = calc_perk_rank_probabilities(data, &perk_values, args.ancient);
+    if has_conflict.is_none() {
+        has_conflict.replace(contains_conflict_ranks(data, &perk_values, wanted_gizmo));
+    }
     let mut permutations = permutate_perk_ranks(&perk_values, Some(wanted_gizmo));
 
     for x in permutations.iter_mut() {
@@ -506,22 +517,13 @@ fn calc_combination_count(conflict_size: usize, no_conflict_size: usize, is_anci
     let slot_count = if is_ancient { 9 } else { 5 };
     let mut count = 0.0;
 
-    // Factorial operator (https://en.wikipedia.org/wiki/Factorial)
-    fn fac(n: usize) -> f64 {
-        let mut r = 1;
-        for i in 2 ..= n {
-            r *= i;
-        }
-        r as f64
-    }
-
     for i in 1 ..= slot_count {
         count += dice::choose(no_conflict_size + i - 1, i); // Combination with repetition
 
         for j in 1 ..= cmp::min(i, conflict_size) {
             let mut x = 0.0;
             for k in 0 ..= cmp::min(i - j, no_conflict_size) {
-                x += dice::choose(no_conflict_size, k) * fac(j + k) * dice::choose(i - 1, i - j - k);
+                x += dice::choose(no_conflict_size, k) * utils::fac(j + k) * dice::choose(i - 1, i - j - k);
             }
 
             count += x * dice::choose(conflict_size, j);
@@ -947,7 +949,7 @@ mod tests {
                 ResultLine { level: 118, prob_gizmo: 0.02431630038465943874, prob_attempt: 0.02196620262677148952, ..Default::default() },
                 ResultLine { level: 120, prob_gizmo: 0.02945385241280866484, prob_attempt: 0.02679068305588063956, ..Default::default() },
             ];
-            let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, input_materials, wanted_gizmo);
+            let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, input_materials, wanted_gizmo, &mut None);
             assert_resultlines_eq(&actual, &expected);
         }
 
@@ -980,7 +982,7 @@ mod tests {
                 ResultLine { level: 118, prob_gizmo: 0.02701942633140705374, prob_attempt: 0.02701942633140705374, ..Default::default() },
                 ResultLine { level: 120, prob_gizmo: 0.02901884688250149988, prob_attempt: 0.02901884688250149988, ..Default::default() },
             ];
-            let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, input_materials, wanted_gizmo);
+            let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, input_materials, wanted_gizmo, &mut None);
             assert_resultlines_eq(&actual, &expected);
         }
 
@@ -1011,7 +1013,7 @@ mod tests {
                 ResultLine { level: 58, prob_gizmo: 0.00000017572813762414, prob_attempt: 0.00000017572813762414, ..Default::default() },
                 ResultLine { level: 60, prob_gizmo: 0.00000112864757880545, prob_attempt: 0.00000112864757880545, ..Default::default() },
             ];
-            let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, input_materials, wanted_gizmo);
+            let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, input_materials, wanted_gizmo, &mut None);
             assert_resultlines_eq(&actual, &expected);
         }
 
@@ -1044,7 +1046,7 @@ mod tests {
                 ResultLine { level: 58, prob_gizmo: 0.39049529671634181094, prob_attempt: 0.39049529671634181094, ..Default::default() },
                 ResultLine { level: 60, prob_gizmo: 0.37476699430103094235, prob_attempt: 0.37476699430103094235, ..Default::default() },
             ];
-            let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, input_materials, wanted_gizmo);
+            let actual = calc_wanted_gizmo_probabilities(&*DATA, &args, &budgets, input_materials, wanted_gizmo, &mut None);
             assert_resultlines_eq(&actual, &expected);
         }
     }

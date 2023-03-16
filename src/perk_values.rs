@@ -295,6 +295,25 @@ pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &[PerkValues]) -
     p_empty
 }
 
+pub fn contains_conflict_ranks(data: &Data, perk_values_arr: &[PerkValues], wanted_gizmo: Gizmo) -> bool {
+    let p1_cost = data.perks[wanted_gizmo.perks.0.name].ranks[wanted_gizmo.perks.0.rank as usize].cost;
+    let p2_cost = data.perks[wanted_gizmo.perks.1.name].ranks[wanted_gizmo.perks.1.rank as usize].cost;
+
+    for perk_values in perk_values_arr.iter() {
+        if perk_values.name == wanted_gizmo.perks.0.name || perk_values.name == wanted_gizmo.perks.1.name {
+            continue;
+        }
+
+        for rank in perk_values.ranks.iter().take(perk_values.i_last + 1).skip(perk_values.i_first) {
+            if rank.values.cost == p1_cost || rank.values.cost == p2_cost {
+                return true;
+            }
+        }
+    }
+
+    false
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

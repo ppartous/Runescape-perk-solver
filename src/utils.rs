@@ -30,6 +30,15 @@ pub fn format_int(mut num: i64) -> String {
     s.chars().rev().collect()
 }
 
+/// Factorial operator (https://en.wikipedia.org/wiki/Factorial)
+pub fn fac(n: usize) -> f64 {
+    let mut r = 1;
+    for i in 2 ..= n {
+        r *= i;
+    }
+    r as f64
+}
+
 /// Convolutes two arrays <https://en.wikipedia.org/wiki/Convolution>
 pub fn convolve(x: &Vec<f64>, y: &Vec<f64>) -> Vec<f64> {
     let xlen = x.len() as i64;
