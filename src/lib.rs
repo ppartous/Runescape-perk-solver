@@ -163,7 +163,7 @@ struct Setup {
     bar_progress: Arc<atomic::AtomicU64>,
     total_combination_count: usize,
     result_tx: mpsc::SyncSender<Vec<ResultLine>>,
-    result_handler: thread::JoinHandle<Vec<ResultLine>>,
+    result_handler: thread::JoinHandle<Vec<Vec<ResultLine>>>,
     args: Arc<Args>
 }
 
@@ -217,7 +217,9 @@ fn perk_solver_core(args: Arc<Args>, data: Data, wanted_gizmo: Gizmo, materials:
                 for mat_combination in materials.no_conflict.iter().copied().combinations_with_replacement(n_mats_used) {
                     let lines = calc_wanted_gizmo_probabilities(&data, &args, &budgets, mat_combination, wanted_gizmo, &mut None);
                     bar_progress.fetch_add(1, Relaxed);
-                    tx.send(lines).ok();
+                    if lines.len() > 0 {
+                        tx.send(lines).ok();
+                    }
                 }
             });
         }
@@ -246,7 +248,9 @@ fn perk_solver_core(args: Arc<Args>, data: Data, wanted_gizmo: Gizmo, materials:
                                         let mut mat_combination = ordered_mats;
                                         mat_combination.extend_from_slice(&unordered_mats);
                                         let lines = calc_wanted_gizmo_probabilities(&data, &args, &budgets, mat_combination, wanted_gizmo, &mut has_conflict);
-                                        tx.send(lines).ok();
+                                        if lines.len() > 0 {
+                                            tx.send(lines).ok();
+                                        }
                                     }
                                     bar_progress.fetch_add(1, Relaxed);
                                 }
@@ -351,6 +355,7 @@ fn calc_wanted_gizmo_probabilities(data: &Data, args: &Args, budgets: &Vec<Budge
     let perk_values = get_perk_values(data, &input_materials, args.gizmo_type, args.ancient);
 
     if !can_generate_wanted_ranks(data, &perk_values, wanted_gizmo) {
+        has_conflict.replace(false);
         return vec![];
     }
 

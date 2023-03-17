@@ -38,32 +38,37 @@ pub enum Commands {
         #[arg(default_value_t = 1)]
         rank: u8,
 
-        /// Second perk in the gizmo
+        /// Second perk in the gizmo. Use 'any' if you don't care what the second perk is. Leaving this field empty or
+        /// using the string 'empty' means no second perk.
         perk_two: Option<String>,
 
         /// Rank of the second perk
         #[arg(default_value_t = 1)]
         rank_two: u8,
 
-        /// Use this if you don't care what the second perk is
+        /// Use this if you don't care what the second perk is. Is set automatically is second perk is 'any'
         #[arg(short, long)]
         fuzzy: bool,
 
-        /// Comma separated list of material values to exclude. Uses basic substring matching.
+        /// Comma separated list of material values to exclude. Uses basic substring matching
         #[arg(short, long, use_value_delimiter = true, value_delimiter = ',')]
         exclude: Vec<String>,
 
-        /// Sort the result on probability per consumed gizmo, probability per attempt, or on estimated price.
+        /// Sort the result on probability per consumed gizmo, probability per attempt, or on estimated price
         #[arg(value_enum, short, long, default_value_t = SortType::Price)]
         sort_type: SortType,
 
         /// Output file name. Set to false to disable output
-        #[arg(long, id = "out-file", default_value_t = String::from("out.csv"))]
+        #[arg(long = "out-file", default_value_t = String::from("out.csv"))]
         out_file: String,
 
-        /// Prices file name. Set to false to disable. When disabled prices are always loaded from the wiki.
-        #[arg(long, id = "price-file", default_value_t = String::from("prices.txt"))]
-        price_file: String
+        /// Prices file name. Set to false to disable. When disabled prices are always loaded from the wiki
+        #[arg(long = "price-file", default_value_t = String::from("prices.txt"))]
+        price_file: String,
+
+        /// Amount of alternative combinations to show
+        #[arg(long = "alt-count", short = 'A', default_value_t = 0, value_parser = clap::value_parser!(u8).range(..254))]
+        alt_count: u8
     },
     /// Show the gizmo probabilities for a given material combination
     MaterialInput {
@@ -75,6 +80,7 @@ pub enum Commands {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
+/// Single letter aliases allowed
 #[repr(C)]
 #[derive(Debug, Display, Copy, Clone, PartialEq, Eq, ValueEnum)]
 pub enum GizmoType {
@@ -88,6 +94,7 @@ pub enum GizmoType {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
+/// Single letter aliases allowed
 #[repr(C)]
 #[derive(Debug, Display, Copy, Clone, PartialEq, Eq, ValueEnum)]
 pub enum SortType {
@@ -122,12 +129,13 @@ pub struct Args {
     pub exclude: Vec<MaterialName>,
     pub sort_type: SortType,
     pub out_file: String,
-    pub price_file: String
+    pub price_file: String,
+    pub result_depth: u8
 }
 
 impl Args {
     pub fn create(cli: &Cli) -> Result<Args, String> {
-        if let Commands::Gizmo { perk, rank, perk_two, rank_two, fuzzy, exclude, sort_type, out_file, price_file } = &cli.command {
+        if let Commands::Gizmo { perk, rank, perk_two, rank_two, fuzzy, exclude, sort_type, out_file, price_file, alt_count } = &cli.command {
             let invention_level = match cli.invention_level.len() {
                 0 => return Err("Missing invention level".to_string()),
                 1 => InventionLevel::Single(cli.invention_level[0]),
@@ -177,7 +185,8 @@ impl Args {
                 sort_type: *sort_type,
                 exclude,
                 out_file: out_file.clone(),
-                price_file: price_file.clone()
+                price_file: price_file.clone(),
+                result_depth: *alt_count + 1
             })
         } else {
             Err("Bad command".to_string())
@@ -199,7 +208,8 @@ impl Default for Args {
             exclude: vec![],
             sort_type: SortType::Price,
             out_file: String::from("out.csv"),
-            price_file: String::from("prices.txt")
+            price_file: String::from("prices.txt"),
+            result_depth: 1
         }
     }
 }

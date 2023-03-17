@@ -29,7 +29,8 @@ class FfiArgs(Structure):
         ("exclude", c_char_p), # null terminated
         ("sort_type", c_int), # Enum value
         ("out_file", c_char_p), # null terminated
-        ("price_file", c_char_p) # null terminated
+        ("price_file", c_char_p), # null terminated
+        ("alt_count", c_uint8) # Amount of alternative material combination results
     ]
 
 class Response(Structure):
@@ -58,7 +59,7 @@ def perk_solver(args):
         lib.free_response(response)
         return result
 
-    print(json.loads(response.materials))
+    print(json.dumps(json.loads(response.materials), indent=2))
 
     while response.bar_progress[0] != response.total_combination_count:
         format_progress(response)
@@ -68,13 +69,13 @@ def perk_solver(args):
     lib.get_result(byref(response)) # Blocking call. Returns when the result is ready.
     result = response.result
     lib.free_response(response)
-    return json.loads(result)
+    return json.dumps(json.loads(result), indent=2)
 
 # Call the functions
 args = FfiArgs(
     ancient = c_bool(True),
     gizmo_type = GizmoType.Weapon.value,
-    invention_level = TwoUint8Arr(1, 50),
+    invention_level = TwoUint8Arr(40, 50),
     perk = create_string_buffer(b"equilibrium").raw,
     rank = 4,
     perk_two = create_string_buffer(b"mobile").raw,
@@ -83,7 +84,8 @@ args = FfiArgs(
     exclude = create_string_buffer(b"connector,delicate,flexible").raw,
     sort_type = SortType.Price.value,
     out_file = create_string_buffer(b"false").raw,
-    price_file = create_string_buffer(b"false").raw # Always get fresh prices. Prices are still cached when making multiple calls without reloading the binary
+    price_file = create_string_buffer(b"false").raw, # Always get fresh prices. Prices are still cached when making multiple calls without reloading the binary
+    alt_count = 1
 )
 print(perk_solver(args))
 

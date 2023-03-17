@@ -19,7 +19,8 @@ pub struct FfiArgs {
     pub exclude: *const c_char,
     pub sort_type: SortType,
     pub out_file: *const c_char,
-    pub price_file: *const c_char
+    pub price_file: *const c_char,
+    pub alt_count: u8
 }
 
 #[repr(C)]
@@ -78,7 +79,8 @@ pub unsafe extern "C" fn perk_solver_ctypes(args: FfiArgs) -> Response {
             exclude,
             sort_type: args.sort_type,
             out_file,
-            price_file
+            price_file,
+            alt_count: args.alt_count
         }
     };
 
@@ -109,9 +111,12 @@ pub unsafe extern "C" fn perk_solver_ctypes(args: FfiArgs) -> Response {
         }
 
         crate::perk_solver_core(s.args, data, s.wanted_gizmo, s.materials, s.bar_progress, s.total_combination_count, s.result_tx);
-        let mut best_per_level = s.result_handler.join().unwrap();
+        let mut best_per_level = s.result_handler.join().unwrap()
+            .into_iter().map(|x| x.into_iter().filter(|y| y.prob_gizmo > 0.0).collect_vec()).collect_vec();
         for x in best_per_level.iter_mut() {
-            x.mat_combination = Arc::new(gizmo_combination_sort(&x.mat_combination));
+            for y in x.iter_mut() {
+                y.mat_combination = Arc::new(gizmo_combination_sort(&y.mat_combination));
+            }
         }
         let json = serde_json::to_string(&best_per_level).unwrap();
         channel.replace(CString::new(json).unwrap());

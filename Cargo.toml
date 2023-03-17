@@ -1,7 +1,7 @@
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [package]
 name = "perk_solver"
-version = "1.4.0"
+version = "1.5.0"
 edition = "2021"
 authors = ["Pieter Partous <pieter.partous@outlook.com>"]
 description = "Finds optimal material combination for a given gizmo"
@@ -9,6 +9,7 @@ repository = "https://github.com/CephHunter/Runescape-perk-solver"
 license = "GPL-3.0-or-later"
 
 [lib]
+# crate-type = ["rlib"]
 crate-type = ["rlib", "dylib"]
 
 [dependencies]

@@ -37,5 +37,5 @@ fn main() {
     }
 
     #[cfg(feature="precise-time")]
-    println!("{:?}", timer.elapsed());
+    println!("\n{:?}", timer.elapsed());
 }
