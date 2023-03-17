@@ -195,7 +195,7 @@ pub fn write_best_mats_to_file(best_per_level: &Vec<Vec<ResultLine>>, args: &Arg
         return;
     }
 
-    let str = best_per_level.iter().cloned().flatten().map(|x| {
+    let str = best_per_level.iter().cloned().flatten().filter(|x| x.prob_gizmo > 0.0).map(|x| {
         format!("{}, {:.3e}, {:.3e}, {:.3e}, {}", x.level, x.prob_gizmo * 100.0, x.prob_attempt * 100.0, x.price, MaterialName::vec_to_string(x.mat_combination.as_ref()))
     }).join("\n");
     let str = format!("Level, Prob gizmo (%), Prob attemp (%), Price, Materials\n{}", str);

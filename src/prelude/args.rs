@@ -67,7 +67,7 @@ pub enum Commands {
         price_file: String,
 
         /// Amount of alternative combinations to show
-        #[arg(long = "alt-count", short = 'A', default_value_t = 0, value_parser = clap::value_parser!(u8).range(..254))]
+        #[arg(long = "alt-count", short = 'A', default_value_t = 0, value_parser = clap::value_parser!(u8).range(..=254))]
         alt_count: u8
     },
     /// Show the gizmo probabilities for a given material combination
