@@ -166,12 +166,16 @@ impl Args {
             let rank_two = if perk_two == PerkName::Empty { 0 } else { *rank_two };
 
             let exclude = exclude.iter().filter_map(|x| {
-                let mat = MaterialName::iter().find(|mat| {
+                let mat = MaterialName::iter().filter(|mat| {
                     mat.to_string().to_lowercase().contains(x)
-                });
-                if mat.is_none() { print_warning(format!("Ignoring exclude filter '{}' because it does not match with any material", x).as_str()) }
-                mat
             }).collect_vec();
+                if mat.is_empty() {
+                    print_warning(format!("Ignoring exclude filter '{}' because it does not match with any material", x.yellow()).as_str());
+                    None
+                } else {
+                    Some(mat)
+                }
+            }).flatten().collect_vec();
 
             Ok(Args {
                 invention_level,
