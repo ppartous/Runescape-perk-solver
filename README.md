@@ -18,7 +18,7 @@ Options:
 | `-a`  | `--ancient`                 | For ancient gizmos                                         |    No    |
 
 ### Gizmo command
-Usage: `perk_solver.exe --type <GIZMO_TYPE> --level <INVENTION_LEVEL> gizmo [OPTIONS] <PERK> [RANK] [PERK_TWO] [RANK_TWO]`
+Usage: `perk_solver --type <GIZMO_TYPE> --level <INVENTION_LEVEL> gizmo [OPTIONS] <PERK> [RANK] [PERK_TWO] [RANK_TWO]`
 
 | Argument     | Description                                                                                                                                               | Required |
 |--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|:--------:|
@@ -38,7 +38,7 @@ Options:
 |       | `--price-file <PRICE FILE>` | Prices file name. If the file already exist prices are loaded form the file; if not, they are loaded from the wiki. Set to `false` to disable. When disabled prices are always loaded from the wiki [default: `prices.txt`] |    No    |
 
 ### Material intput command
-Usage: `perk_solver.exe --type <GIZMO_TYPE> --level <INVENTION_LEVEL> material-input <MATS>...`
+Usage: `perk_solver --type <GIZMO_TYPE> --level <INVENTION_LEVEL> material-input <MATS>...`
 
 | Argument | Description                                                                                                                        | Required |
 |----------|------------------------------------------------------------------------------------------------------------------------------------|:--------:|
