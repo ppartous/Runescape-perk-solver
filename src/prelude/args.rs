@@ -146,7 +146,7 @@ impl Args {
 
             let perk = match PerkName::from_str(perk) {
                 Ok(perk) => perk,
-                Err(_) => return Err(format!("Perk '{}' does not exist.", &perk))
+                Err(_) => return Err(format!("Perk '{}' does not exist.", perk.to_string().yellow()))
             };
 
             let perk_two = if let Some(perk) = perk_two.as_ref() {
@@ -156,7 +156,7 @@ impl Args {
                 } else {
                     match PerkName::from_str(perk) {
                         Ok(perk) => perk,
-                        Err(_) => return Err(format!("Perk '{}' does not exist.", &perk))
+                        Err(_) => return Err(format!("Perk '{}' does not exist.", perk.to_string().yellow()))
                     }
                 }
             } else {
@@ -168,7 +168,7 @@ impl Args {
             let exclude = exclude.iter().filter_map(|x| {
                 let mat = MaterialName::iter().filter(|mat| {
                     mat.to_string().to_lowercase().contains(x)
-            }).collect_vec();
+                }).collect_vec();
                 if mat.is_empty() {
                     print_warning(format!("Ignoring exclude filter '{}' because it does not match with any material", x.yellow()).as_str());
                     None

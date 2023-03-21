@@ -186,7 +186,7 @@ pub fn print_result(best_per_level: &Vec<Vec<ResultLine>>, args: &Args) {
                 args.perk, args.rank, args.perk_two, args.rank_two, best_wanted.prob_gizmo * 100.0);
         }
     } else {
-        println!("No material combination found that can produce these perks.");
+        println!("No material combination found that can produce this gizmo.");
     }
 }
 
@@ -201,7 +201,7 @@ pub fn write_best_mats_to_file(best_per_level: &Vec<Vec<ResultLine>>, args: &Arg
     let str = format!("Level, Prob gizmo (%), Prob attemp (%), Price, Materials\n{}", str);
     let res = fs::write(&args.out_file, str);
     if let Err(err) = res {
-        print_warning(format!("Unable to write result to file: \"{}\"", err).as_str());
+        print_warning(format!("Unable to write result to file: {}", err).as_str());
     }
 }
 

@@ -24,18 +24,32 @@ fn main() {
                     Err(err) => utils::print_error(format!("{err} '{mat_str}'").as_str())
                 }
             }
+            if (!cli.ancient && materials.len() > 5) || materials.len() > 9 {
+                utils::print_error("Too many materials")
+            }
+            if cli.invention_level[0] == 0 || cli.invention_level[0] > 137 {
+                utils::print_error("Invalid invention level")
+            }
             let budget = Budget::create(cli.invention_level[0] as usize, cli.ancient);
             let gizmos = calc_gizmo_probabilities(&data, &budget, &materials, cli.gizmo_type, cli.ancient);
 
             for gizmo in gizmos {
                 let prob_str = format!("{}", gizmo.probability);
                 let zeros = prob_str.find(['1', '2', '3', '4', '5', '6', '7', '8', '9']).unwrap_or(2) - 2;
-                println!("{:<20} {:<20}: {:.*}", format!("{} {},", gizmo.perks.0.name, gizmo.perks.0.rank),
-                    format!("{} {},", gizmo.perks.1.name, gizmo.perks.1.rank), zeros + 4, gizmo.probability);
+                println!("{:<20} {:<20}: {:.*}", perk_to_string(&data, gizmo.perks.0.name, gizmo.perks.0.rank),
+                    perk_to_string(&data, gizmo.perks.1.name, gizmo.perks.1.rank), zeros + 4, gizmo.probability);
             }
         }
     }
 
     #[cfg(feature="precise-time")]
     println!("\n{:?}", timer.elapsed());
+}
+
+fn perk_to_string(data: &Data, perk: PerkName, rank: u8) -> String {
+    if data.perks[perk].ranks.len() <= 2 {
+        perk.to_string()
+    } else {
+        format!("{} {}", perk, rank)
+    }
 }

@@ -121,6 +121,7 @@ use std::{cmp, cmp::{Ord, PartialOrd}, sync::{Arc, atomic::{self, Ordering::Rela
 use indicatif::{ProgressBar, ProgressStyle};
 use threadpool::ThreadPool;
 use smallvec::{SmallVec, smallvec};
+use colored::Colorize;
 
 pub fn perk_solver(args: Args, data: Data) {
     let s = setup(args, &data).unwrap_or_else(|err| utils::print_error(err.as_str()));
@@ -304,30 +305,30 @@ pub fn calc_gizmo_probabilities(data: &Data, budget: &Budget, input_materials: &
 
 fn validate_input(args: &Args, wanted_gizmo: Gizmo, data: &Data) -> Result<(), String> {
     if data.perks[wanted_gizmo.perks.0.name].doubleslot && wanted_gizmo.perks.1.name != PerkName::Empty {
-        return Err(format!("Perk '{}' can't be combined with another perk as it uses both slots.", wanted_gizmo.perks.0.name))
+        return Err(format!("Perk '{}' can't be combined with another perk as it uses both slots.", wanted_gizmo.perks.0.name.to_string().yellow()))
     }
     if data.perks[wanted_gizmo.perks.1.name].doubleslot {
-        return Err(format!("Perk '{}' can't be combined with another perk as it uses both slots.", wanted_gizmo.perks.1.name))
+        return Err(format!("Perk '{}' can't be combined with another perk as it uses both slots.", wanted_gizmo.perks.1.name.to_string().yellow()))
     }
 
     if wanted_gizmo.perks.0.rank as usize >= data.perks[wanted_gizmo.perks.0.name].ranks.len() {
         return Err(format!("Perk '{}' only goes up to rank {}.",
-            &wanted_gizmo.perks.0.name,
-            data.perks[wanted_gizmo.perks.0.name].ranks.len() - 1))
+            wanted_gizmo.perks.0.name.to_string().yellow(),
+            (data.perks[wanted_gizmo.perks.0.name].ranks.len() - 1).to_string().yellow()))
     }
 
     if wanted_gizmo.perks.1.name != PerkName::Empty && wanted_gizmo.perks.1.rank as usize >= data.perks[wanted_gizmo.perks.1.name].ranks.len() {
         return Err(format!("Perk '{}' only goes up to rank {}.",
-            &wanted_gizmo.perks.1.name,
-            data.perks[wanted_gizmo.perks.1.name].ranks.len() - 1))
+            wanted_gizmo.perks.1.name.to_string().yellow(),
+            (data.perks[wanted_gizmo.perks.1.name].ranks.len() - 1).to_string().yellow()))
     }
 
     if wanted_gizmo.perks.0.rank == 0 {
-        return Err(format!("Perk '{}' must have a rank greater than zero.", &wanted_gizmo.perks.0.name));
+        return Err(format!("Perk '{}' must have a rank greater than zero.", wanted_gizmo.perks.0.name.to_string().yellow()));
     }
 
     if wanted_gizmo.perks.1.name != PerkName::Empty && wanted_gizmo.perks.1.rank == 0 {
-        return Err(format!("Perk '{}' must have a rank greater than zero.", &wanted_gizmo.perks.1.name));
+        return Err(format!("Perk '{}' must have a rank greater than zero.", wanted_gizmo.perks.1.name.to_string().yellow()));
     }
 
     match args.invention_level {
@@ -452,7 +453,7 @@ fn get_materials(args: &Args, data: &Data, wanted_gizmo: Gizmo) -> Result<Vec<Ma
     }).copied().collect_vec();
 
     if possible_materials.is_empty() {
-        return Err("No materials found that can produce this perk.".to_string())
+        return Err("No materials found that can produce these perks. Is the gizmo type correct?".to_string())
     }
 
     Ok(possible_materials)

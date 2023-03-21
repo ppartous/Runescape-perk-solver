@@ -84,6 +84,8 @@ pub unsafe extern "C" fn perk_solver_ctypes(args: FfiArgs) -> Response {
         }
     };
 
+    colored::control::set_override(false); // Disable colored messages
+
     let data = Data::load();
     let args = match Args::create(&cli) {
         Ok(args) => args,
