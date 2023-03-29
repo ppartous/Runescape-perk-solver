@@ -1,6 +1,8 @@
 /target
+.vscode
 
 temp.lua
+temp.py
 test.bat
 test.sh
 bench.sh
@@ -13,7 +15,4 @@ callgrind.out*
 xtmemory.out*
 heaptrack*
 
-perk_solver
-perk_solver.so
-perk_solver.exe
-perk_solver.dll
+perk_solver*

@@ -7,10 +7,14 @@ authors = ["Pieter Partous <pieter.partous@outlook.com>"]
 description = "Finds optimal material combination for a given gizmo"
 repository = "https://github.com/CephHunter/Runescape-perk-solver"
 license = "GPL-3.0-or-later"
+default-run = "perk_solver_cli"
 
 [lib]
-# crate-type = ["rlib"]
-crate-type = ["rlib", "dylib"]
+crate-type = ["rlib", "cdylib"]
+
+[[bin]]
+name = "perk_solver_cli"
+path = "src/main.rs"
 
 [dependencies]
 clap = { version = "4.0.23", features = ["derive"] }
