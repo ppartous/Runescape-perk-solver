@@ -555,7 +555,6 @@ mod tests {
         use super::*;
 
         fn assert_gizmo_vec_eq(actual: &Vec<Gizmo>, expected: &Vec<Gizmo>) {
-            PerkName::using_full_names();
             check_len(actual, expected);
 
             for (i, (acc, exp)) in actual.iter().zip(expected).enumerate() {

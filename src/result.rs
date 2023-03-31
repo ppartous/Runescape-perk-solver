@@ -134,7 +134,7 @@ pub fn print_result(best_per_level: &Vec<Vec<ResultLine>>, args: &Args) {
             SortType::Gizmo => format!("{}%", format_float(best_per_level[best_wanted_index][0].prob_gizmo)),
             SortType::Attempt => format!("{}%", format_float(best_per_level[best_wanted_index][0].prob_attempt)),
         };
-        println!("Best combination at level {}:\n {:<10}: {}", best_wanted.level, val, MaterialName::vec_to_string_colored(best_wanted.mat_combination.as_ref()));
+        println!("Best combination at level {}:\n {:<10}: {}", best_wanted.level, val, MaterialName::vec_to_string(best_wanted.mat_combination.as_ref()));
 
         if args.result_depth > 1 {
             println!("\nAlts:");
@@ -145,7 +145,7 @@ pub fn print_result(best_per_level: &Vec<Vec<ResultLine>>, args: &Args) {
                         SortType::Gizmo => format!("{}%", format_float(alt.prob_gizmo)),
                         SortType::Attempt => format!("{}%", format_float(alt.prob_attempt)),
                     };
-                    println!(" {:<10}: {}", val, MaterialName::vec_to_string_colored(alt.mat_combination.as_ref()));
+                    println!(" {:<10}: {}", val, MaterialName::vec_to_string(alt.mat_combination.as_ref()));
                 }
             }
         }
@@ -195,11 +195,13 @@ pub fn write_best_mats_to_file(best_per_level: &Vec<Vec<ResultLine>>, args: &Arg
         return;
     }
 
+    colored::control::set_override(false);
     let str = best_per_level.iter().cloned().flatten().filter(|x| x.prob_gizmo > 0.0).map(|x| {
         format!("{}, {:.3e}, {:.3e}, {:.3e}, {}", x.level, x.prob_gizmo * 100.0, x.prob_attempt * 100.0, x.price, MaterialName::vec_to_string(x.mat_combination.as_ref()))
     }).join("\n");
     let str = format!("Level, Prob gizmo (%), Prob attemp (%), Price, Materials\n{}", str);
     let res = fs::write(&args.out_file, str);
+    colored::control::unset_override();
     if let Err(err) = res {
         print_warning(format!("Unable to write result to file: {}", err).as_str());
     }

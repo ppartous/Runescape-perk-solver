@@ -1,11 +1,11 @@
-use std::{fmt, str::FromStr, sync::atomic::AtomicBool};
 use strum::{EnumIter, Display};
 use strum_macros::{EnumCount, EnumVariantNames, EnumString, IntoStaticStr};
 
-#[derive(Debug, Display, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash, EnumCount, EnumIter, EnumVariantNames, EnumString, IntoStaticStr)]
-#[strum(serialize_all = "title_case")]
-#[strum(ascii_case_insensitive)]
+#[derive(Debug, Display, Default, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash)]
+#[derive(EnumCount, EnumIter, EnumVariantNames, EnumString, IntoStaticStr)]
+#[strum(serialize_all = "title_case", ascii_case_insensitive, use_phf)]
 pub enum PerkName {
+    #[default]
     Empty,
     Absorbative,
     Aftershock,
@@ -85,42 +85,22 @@ pub enum PerkName {
     Wise,
 }
 
-static mut USE_SIMPLE_PRINT_STYLE: AtomicBool = AtomicBool::new(false);
-
 impl PerkName {
     pub const A: PerkName = PerkName::Absorbative;
-    pub const B: PerkName = PerkName::Aftershock;
-    pub const C: PerkName = PerkName::Antitheism;
-    pub const D: PerkName = PerkName::Biting;
-    pub const E: PerkName = PerkName::Blunted;
-    pub const F: PerkName = PerkName::Brassican;
-    pub const G: PerkName = PerkName::Breakdown;
-    pub const H: PerkName = PerkName::BriefRespite;
-    pub const I: PerkName = PerkName::Bulwark;
-    pub const J: PerkName = PerkName::Butterfingers;
-    pub const K: PerkName = PerkName::Caroming;
-
-    pub fn using_simplified_names() {
-        unsafe {
-            *USE_SIMPLE_PRINT_STYLE.get_mut() = true;
-        }
-    }
-
-    pub fn using_full_names() {
-        unsafe {
-            *USE_SIMPLE_PRINT_STYLE.get_mut() = false;
-        }
-    }
+    pub const B: PerkName = PerkName::Biting;
+    pub const C: PerkName = PerkName::Caroming;
+    pub const D: PerkName = PerkName::DemonBait;
+    pub const E: PerkName = PerkName::Efficient;
+    pub const F: PerkName = PerkName::Fatiguing;
+    pub const G: PerkName = PerkName::Genocidal;
+    pub const H: PerkName = PerkName::Hallucinogenic;
+    pub const I: PerkName = PerkName::Impatient;
+    pub const J: PerkName = PerkName::JunkFood;
+    pub const L: PerkName = PerkName::Looting;
 }
 
 impl From<PerkName> for usize {
     fn from(value: PerkName) -> Self {
         value as usize
-    }
-}
-
-impl std::default::Default for PerkName {
-    fn default() -> Self {
-        PerkName::Empty
     }
 }

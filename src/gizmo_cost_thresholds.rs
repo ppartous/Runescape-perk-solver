@@ -355,7 +355,6 @@ mod tests {
     use crate::utils::{check_len_result, check_index_result};
 
     fn assert_gcth_eq_result(actual: &[Gizmo], expected: &[Gizmo]) -> Result<(), String> {
-        PerkName::using_simplified_names();
         check_len_result(actual, expected)?;
 
         for (i, (acc, exp)) in actual.iter().zip(expected).enumerate() {
@@ -1014,7 +1013,7 @@ mod tests {
             fn two_consecutive_plus_one() {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { name: PerkName::K, rank: 1, cost: 5, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::L, rank: 1, cost: 5, doubleslot: true, ..Default::default() },
                         PerkRankValues { name: PerkName::A, rank: 1, cost: 10, doubleslot: true, ..Default::default() },
                         PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
                         PerkRankValues { name: PerkName::C, rank: 1, cost: 30, doubleslot: true, ..Default::default() },
@@ -1048,7 +1047,7 @@ mod tests {
                         PerkRankValues { name: PerkName::H, rank: 1, cost: 700, doubleslot: true, ..Default::default() },
                         PerkRankValues { name: PerkName::I, rank: 1, cost: 1400, ..Default::default() },
                         PerkRankValues { name: PerkName::J, rank: 1, cost: 2800, ..Default::default() },
-                        PerkRankValues { name: PerkName::K, rank: 1, cost: 6000, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::L, rank: 1, cost: 6000, doubleslot: true, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
@@ -1079,7 +1078,7 @@ mod tests {
                         PerkRankValues { name: PerkName::H, rank: 1, cost: 700, doubleslot: true, ..Default::default() },
                         PerkRankValues { name: PerkName::I, rank: 1, cost: 1400, doubleslot: true, ..Default::default() },
                         PerkRankValues { name: PerkName::J, rank: 1, cost: 2800, ..Default::default() },
-                        PerkRankValues { name: PerkName::K, rank: 1, cost: 6000, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::L, rank: 1, cost: 6000, doubleslot: true, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
@@ -1090,7 +1089,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 2830, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { name: PerkName::E, rank: 1 }), cost: 2860, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 3150, ..Default::default() },
-                    Gizmo { perks: (Perk { name: PerkName::K, rank: 1 }, Perk { ..Default::default() }), cost: 6000, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::L, rank: 1 }, Perk { ..Default::default() }), cost: 6000, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 10000, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);

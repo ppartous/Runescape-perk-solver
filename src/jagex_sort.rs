@@ -35,7 +35,6 @@ mod tests {
     use crate::{PerkName, PerkRankValues, utils::check_index};
 
     fn assert_rankcombination_eq(actual: &RankCombination, expected: &RankCombination) {
-        PerkName::using_simplified_names();
         for (i, (acc, exp)) in actual.ranks.iter().zip(expected.ranks.iter()).enumerate() {
             check_index(acc.name, exp.name, i, "perk", actual, expected);
             check_index(acc.cost, exp.cost, i, "cost", actual, expected);

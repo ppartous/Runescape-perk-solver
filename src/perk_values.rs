@@ -331,7 +331,6 @@ mod tests {
     use crate::utils::{check_len, check_index, check_index_relative};
 
     fn assert_partial_perk_values_eq(actual: &PartialPerkValuesVec, expected: &PartialPerkValuesVec) {
-        PerkName::using_full_names();
         check_len(actual, expected);
 
         for (i, (acc, exp)) in actual.iter().zip(expected).enumerate() {
@@ -345,7 +344,6 @@ mod tests {
     }
 
     fn assert_perk_values_eq(actual: &PerkValuesVec, expected: &PerkValuesVec) {
-        PerkName::using_full_names();
         check_len(actual, expected);
 
         for (i, (acc, exp)) in actual.iter().zip(expected).enumerate() {
@@ -1139,7 +1137,6 @@ mod tests {
         use smallvec::smallvec;
 
         fn assert_rank_combination_eq(actual: &Vec<RankCombination>, expected: &Vec<RankCombination>) {
-            PerkName::using_full_names();
             check_len(actual, expected);
 
             for x in expected {

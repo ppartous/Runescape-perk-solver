@@ -1,9 +1,12 @@
-use std::{fmt, str::FromStr};
+use std::str::FromStr;
 use itertools::Itertools;
 use colored::*;
-use strum_macros::{EnumIter, EnumCount};
+use strum::{EnumIter, Display};
+use strum_macros::{EnumCount, EnumVariantNames, IntoStaticStr};
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash, EnumIter, EnumCount)]
+#[derive(Debug, Display, Default, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash)]
+#[derive(EnumCount, EnumIter, EnumVariantNames, IntoStaticStr)]
+#[strum(serialize_all = "title_case", ascii_case_insensitive, use_phf)]
 pub enum MaterialName {
     ArmadylComponents,
     AscendedComponents,
@@ -42,6 +45,7 @@ pub enum MaterialName {
     HistoricComponents,
     IlujankanComponents,
     ImbuedComponents,
+    #[default]
     Junk,
     KnightlyComponents,
     LightComponents,
@@ -78,6 +82,7 @@ pub enum MaterialName {
     SubtleComponents,
     SwiftComponents,
     TensileParts,
+    #[strum(serialize = "Third-age components")]
     ThirdAgeComponents,
     TimewornComponents,
     UndeadComponents,
@@ -92,14 +97,6 @@ impl MaterialName {
         let counts = v.iter().counts();
         v.iter().unique().map(|x| {
             let count = *counts.get(x).unwrap();
-            format!("{} × {}", count, x)
-        }).join(", ")
-    }
-
-    pub fn vec_to_string_colored(v: &[MaterialName]) -> String {
-        let counts = v.iter().counts();
-        v.iter().unique().map(|x| {
-            let count = *counts.get(x).unwrap();
             format!("{} × {}", count, x.to_string().cyan())
         }).join(", ")
     }
@@ -110,93 +107,6 @@ impl serde::Serialize for MaterialName {
         where
             S: serde::Serializer {
         serializer.collect_str(&self)
-    }
-}
-
-impl fmt::Display for MaterialName {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            MaterialName::ArmadylComponents => write!(f, "Armadyl components"),
-            MaterialName::AscendedComponents => write!(f, "Ascended components"),
-            MaterialName::AvernicComponents => write!(f, "Avernic components"),
-            MaterialName::BandosComponents => write!(f, "Bandos components"),
-            MaterialName::BaseParts => write!(f, "Base parts"),
-            MaterialName::BladeParts => write!(f, "Blade parts"),
-            MaterialName::BrassicanComponents => write!(f, "Brassican components"),
-            MaterialName::ClassicComponents => write!(f, "Classic components"),
-            MaterialName::ClearParts => write!(f, "Clear parts"),
-            MaterialName::ClockworkComponents => write!(f, "Clockwork components"),
-            MaterialName::ConnectorParts => write!(f, "Connector parts"),
-            MaterialName::CorporealComponents => write!(f, "Corporeal components"),
-            MaterialName::CoverParts => write!(f, "Cover parts"),
-            MaterialName::CraftedParts => write!(f, "Crafted parts"),
-            MaterialName::CrystalParts => write!(f, "Crystal parts"),
-            MaterialName::CulinaryComponents => write!(f, "Culinary components"),
-            MaterialName::CywirComponents => write!(f, "Cywir components"),
-            MaterialName::DeflectingParts => write!(f, "Deflecting parts"),
-            MaterialName::DelicateParts => write!(f, "Delicate parts"),
-            MaterialName::DextrousComponents => write!(f, "Dextrous components"),
-            MaterialName::DirectComponents => write!(f, "Direct components"),
-            MaterialName::DragonfireComponents => write!(f, "Dragonfire components"),
-            MaterialName::EnhancingComponents => write!(f, "Enhancing components"),
-            MaterialName::EtherealComponents => write!(f, "Ethereal components"),
-            MaterialName::EvasiveComponents => write!(f, "Evasive components"),
-            MaterialName::ExplosiveComponents => write!(f, "Explosive components"),
-            MaterialName::FacetedComponents => write!(f, "Faceted components"),
-            MaterialName::FlexibleParts => write!(f, "Flexible parts"),
-            MaterialName::FortunateComponents => write!(f, "Fortunate components"),
-            MaterialName::FungalComponents => write!(f, "Fungal components"),
-            MaterialName::HarnessedComponents => write!(f, "Harnessed components"),
-            MaterialName::HeadParts => write!(f, "Head parts"),
-            MaterialName::HealthyComponents => write!(f, "Healthy components"),
-            MaterialName::HeavyComponents => write!(f, "Heavy components"),
-            MaterialName::HistoricComponents => write!(f, "Historic components"),
-            MaterialName::IlujankanComponents => write!(f, "Ilujankan components"),
-            MaterialName::ImbuedComponents => write!(f, "Imbued components"),
-            MaterialName::Junk => write!(f, "Junk"),
-            MaterialName::KnightlyComponents => write!(f, "Knightly components"),
-            MaterialName::LightComponents => write!(f, "Light components"),
-            MaterialName::LivingComponents => write!(f, "Living components"),
-            MaterialName::MagicParts => write!(f, "Magic parts"),
-            MaterialName::MetallicParts => write!(f, "Metallic parts"),
-            MaterialName::NoxiousComponents => write!(f, "Noxious components"),
-            MaterialName::OceanicComponents => write!(f, "Oceanic components"),
-            MaterialName::OrganicParts => write!(f, "Organic parts"),
-            MaterialName::PaddedParts => write!(f, "Padded parts"),
-            MaterialName::PestiferousComponents => write!(f, "Pestiferous components"),
-            MaterialName::PiousComponents => write!(f, "Pious components"),
-            MaterialName::PlatedParts => write!(f, "Plated parts"),
-            MaterialName::PowerfulComponents => write!(f, "Powerful components"),
-            MaterialName::PreciousComponents => write!(f, "Precious components"),
-            MaterialName::PreciseComponents => write!(f, "Precise components"),
-            MaterialName::ProtectiveComponents => write!(f, "Protective components"),
-            MaterialName::RefinedComponents => write!(f, "Refined components"),
-            MaterialName::ResilientComponents => write!(f, "Resilient components"),
-            MaterialName::RumblingComponents => write!(f, "Rumbling components"),
-            MaterialName::SaradominComponents => write!(f, "Saradomin components"),
-            MaterialName::SerenComponents => write!(f, "Seren components"),
-            MaterialName::ShadowComponents => write!(f, "Shadow components"),
-            MaterialName::SharpComponents => write!(f, "Sharp components"),
-            MaterialName::ShiftingComponents => write!(f, "Shifting components"),
-            MaterialName::SilentComponents => write!(f, "Silent components"),
-            MaterialName::SimpleParts => write!(f, "Simple parts"),
-            MaterialName::SmoothParts => write!(f, "Smooth parts"),
-            MaterialName::SpikedParts => write!(f, "Spiked parts"),
-            MaterialName::SpiritualParts => write!(f, "Spiritual parts"),
-            MaterialName::StaveParts => write!(f, "Stave parts"),
-            MaterialName::StrongComponents => write!(f, "Strong components"),
-            MaterialName::StunningComponents => write!(f, "Stunning components"),
-            MaterialName::SubtleComponents => write!(f, "Subtle components"),
-            MaterialName::SwiftComponents => write!(f, "Swift components"),
-            MaterialName::TensileParts => write!(f, "Tensile parts"),
-            MaterialName::ThirdAgeComponents => write!(f, "Third-age components"),
-            MaterialName::TimewornComponents => write!(f, "Timeworn components"),
-            MaterialName::UndeadComponents => write!(f, "Undead components"),
-            MaterialName::VariableComponents => write!(f, "Variable components"),
-            MaterialName::VintageComponents => write!(f, "Vintage components"),
-            MaterialName::ZamorakComponents => write!(f, "Zamorak components"),
-            MaterialName::ZarosComponents => write!(f, "Zaros components"),
-        }
     }
 }
 
@@ -304,11 +214,5 @@ impl FromStr for MaterialName {
 impl From<MaterialName> for usize {
     fn from(value: MaterialName) -> Self {
         value as usize
-    }
-}
-
-impl std::default::Default for MaterialName {
-    fn default() -> Self {
-        MaterialName::Junk
     }
 }
