@@ -4435,19 +4435,6 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Empty").unwrap() => PerkRanksData {
-                    doubleslot: false,
-                    ranks: StackVec::new(&[
-                        PerkRankValues {
-                            name: PerkName::from_str("Empty").unwrap(),
-                            rank: 0,
-                            cost: 0,
-                            threshold: 0,
-                            ancient_only: false,
-                            doubleslot: false
-                        },
-                    ])
-                },
                 PerkName::from_str("Energising").unwrap() => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
