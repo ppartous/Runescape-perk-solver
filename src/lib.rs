@@ -117,7 +117,12 @@ use gizmo_cost_thresholds::*;
 use perk_values::*;
 use component_prices::load_component_prices;
 use itertools::Itertools;
-use std::{cmp, cmp::{Ord, PartialOrd}, sync::{Arc, atomic::{self, Ordering::Relaxed}, mpsc}, time::Duration, thread};
+use std::cmp::{self, Ord, PartialOrd};
+use std::sync::{Arc, mpsc};
+use std::sync::atomic::{self, Ordering::Relaxed};
+use std::time::Duration;
+use std::thread;
+use std::cell::RefCell;
 use indicatif::{ProgressBar, ProgressStyle};
 use threadpool::ThreadPool;
 use smallvec::{SmallVec, smallvec};
@@ -148,7 +153,7 @@ pub fn perk_solver(args: Args, data: Data) {
         }
     });
 
-    perk_solver_core(s.args.clone(), data, s.wanted_gizmo, s.materials, s.bar_progress, s.total_combination_count, s.result_tx);
+    perk_solver_core(data, &s);
 
     bar_handler.join().ok();
     println!("\n");
@@ -163,9 +168,10 @@ struct Setup {
     materials: Arc<SplitMaterials>,
     bar_progress: Arc<atomic::AtomicU64>,
     total_combination_count: usize,
-    result_tx: mpsc::SyncSender<Vec<ResultLine>>,
+    result_tx: RefCell<Option<mpsc::SyncSender<Vec<ResultLine>>>>,
     result_handler: thread::JoinHandle<Vec<Vec<ResultLine>>>,
-    args: Arc<Args>
+    args: Arc<Args>,
+    cancel_signal: Arc<atomic::AtomicBool>
 }
 
 fn setup(args: Args, data: &Data) -> Result<Setup, String> {
@@ -184,38 +190,44 @@ fn setup(args: Args, data: &Data) -> Result<Setup, String> {
     let (result_tx, result_rx) = mpsc::sync_channel::<Vec<ResultLine>>(1000);
     let args = Arc::new(args);
     let result_handler = result::result_handler(args.clone(), result_rx);
+    let cancel_signal = Arc::new(atomic::AtomicBool::new(false));
 
     Ok(Setup {
         wanted_gizmo,
         materials,
         bar_progress,
         total_combination_count,
-        result_tx,
+        result_tx: RefCell::new(Some(result_tx)),
         result_handler,
-        args
+        args,
+        cancel_signal
     })
 }
 
-fn perk_solver_core(args: Arc<Args>, data: Data, wanted_gizmo: Gizmo, materials: Arc<SplitMaterials>,
-    bar_progress: Arc<atomic::AtomicU64>, total_combination_count: usize, result_tx: mpsc::SyncSender<Vec<ResultLine>>)
-{
+fn perk_solver_core(data: Data, setup: &Setup) {
     let data = Arc::new(data);
-    let budgets = Arc::new(generate_budgets(&args.invention_level, args.ancient));
-    let slot_count = if args.ancient { 9 } else { 5 };
+    let budgets = Arc::new(generate_budgets(&setup.args.invention_level, setup.args.ancient));
+    let slot_count = if setup.args.ancient { 9 } else { 5 };
     let pool = ThreadPool::new(num_cpus::get() * 2);
     let ten_millis = Duration::from_millis(10);
+    let materials = &setup.materials;
+    let wanted_gizmo = setup.wanted_gizmo;
 
-    for n_mats_used in 1 ..= slot_count {
+    'cancel: for n_mats_used in 1 ..= slot_count {
         {
-            let tx = result_tx.clone();
+            let tx = setup.result_tx.borrow().as_ref().unwrap().clone();
             let data = data.clone();
-            let args = args.clone();
+            let args = setup.args.clone();
             let budgets = budgets.clone();
-            let bar_progress = bar_progress.clone();
-            let materials = materials.clone();
+            let bar_progress = setup.bar_progress.clone();
+            let materials = setup.materials.clone();
+            let cancel_signal = setup.cancel_signal.clone();
             pool.execute(move || {
                 // Order does no matter when none of the materials used have a cost conflict with the wanted perks
                 for mat_combination in materials.no_conflict.iter().copied().combinations_with_replacement(n_mats_used) {
+                    if cancel_signal.load(Relaxed) {
+                        break;
+                    }
                     let lines = calc_wanted_gizmo_probabilities(&data, &args, &budgets, mat_combination, wanted_gizmo, &mut None);
                     bar_progress.fetch_add(1, Relaxed);
                     if lines.len() > 0 {
@@ -233,18 +245,25 @@ fn perk_solver_core(args: Arc<Args>, data: Data, wanted_gizmo: Gizmo, materials:
                         mats.extend_from_slice(&conflict_mats);
                         let mats = Arc::new(mats);
                         for unordered_mats in mats.iter().copied().combinations_with_replacement(n_mats_used - n_conflict_mats - n_noconflict_mats) {
-                            let tx = result_tx.clone();
+                            let tx = setup.result_tx.borrow().as_ref().unwrap().clone();
                             let data = data.clone();
-                            let args = args.clone();
+                            let args = setup.args.clone();
                             let budgets = budgets.clone();
-                            let bar_progress = bar_progress.clone();
+                            let bar_progress = setup.bar_progress.clone();
                             let mats = mats.clone();
+                            let cancel_signal = setup.cancel_signal.clone();
                             while pool.queued_count() > 100000 {
                                 std::thread::sleep(ten_millis);
+                            }
+                            if cancel_signal.load(Relaxed) {
+                                break 'cancel;
                             }
                             pool.execute(move || {
                                 let mut has_conflict = None;
                                 for ordered_mats in mats.iter().copied().permutations(n_conflict_mats + n_noconflict_mats) {
+                                    if cancel_signal.load(Relaxed) {
+                                        break;
+                                    }
                                     if has_conflict.is_none() || (has_conflict.unwrap() == true) {
                                         let mut mat_combination = ordered_mats;
                                         mat_combination.extend_from_slice(&unordered_mats);
@@ -264,9 +283,9 @@ fn perk_solver_core(args: Arc<Args>, data: Data, wanted_gizmo: Gizmo, materials:
     }
 
     pool.join();
-    drop(result_tx);
+    setup.result_tx.borrow_mut().take();
 
-    bar_progress.store(total_combination_count as u64, Relaxed);
+    setup.bar_progress.store(setup.total_combination_count as u64, Relaxed);
 }
 
 /// Returns a vector of all possible gizmos and their probabilities

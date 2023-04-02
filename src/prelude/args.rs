@@ -166,6 +166,9 @@ impl Args {
             let rank_two = if perk_two == PerkName::Empty { 0 } else { *rank_two };
 
             let exclude = exclude.iter().filter_map(|x| {
+                if x.is_empty() {
+                    return None;
+                }
                 let mat = MaterialName::iter().filter(|mat| {
                     mat.to_string().to_lowercase().contains(x)
                 }).collect_vec();
