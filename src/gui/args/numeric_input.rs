@@ -105,9 +105,9 @@ where
             .padding(5)
             .width(50),
             column![
-                button(iced_native::svg::Handle::from_memory(include_bytes!("./../../images/up arrow.svg").as_ref()), Event::IncrementPressed),
+                button(iced_native::svg::Handle::from_memory(include_bytes!("../../../images/up arrow.svg").as_ref()), Event::IncrementPressed),
                 vertical_space(1),
-                button(iced_native::svg::Handle::from_memory(include_bytes!("./../../images/down arrow.svg").as_ref()), Event::DecrementPressed),
+                button(iced_native::svg::Handle::from_memory(include_bytes!("../../../images/down arrow.svg").as_ref()), Event::DecrementPressed),
             ],
         ]
         .align_items(Alignment::Center)
