@@ -103,6 +103,7 @@
 //! (`loop_index % 2` has the same effect) to make the comparison `< 0` and `< 1`.
 
 pub mod prelude;
+pub mod ffi;
 mod utils;
 mod dice;
 mod perk_values;
@@ -110,182 +111,190 @@ mod gizmo_cost_thresholds;
 mod jagex_sort;
 mod component_prices;
 mod result;
-pub mod ffi;
 
 pub use prelude::*;
+use component_prices::load_component_prices;
 use gizmo_cost_thresholds::*;
 use perk_values::*;
-use component_prices::load_component_prices;
 use itertools::Itertools;
 use std::cmp::{self, Ord, PartialOrd};
 use std::sync::{Arc, mpsc};
 use std::sync::atomic::{self, Ordering::Relaxed};
 use std::time::Duration;
 use std::thread;
-use std::cell::RefCell;
 use indicatif::{ProgressBar, ProgressStyle};
 use threadpool::ThreadPool;
 use smallvec::{SmallVec, smallvec};
 use colored::Colorize;
 
-pub fn perk_solver(args: Args, data: Data) {
-    let s = setup(args, &data).unwrap_or_else(|err| utils::print_error(err.as_str()));
-    println!("{}\n", s.args.clone());
-    println!("{}\n", s.materials);
+#[derive(Clone)]
+pub struct SolverMetadata {
+    pub materials: Arc<SplitMaterials>,
+    pub bar_progress: Arc<atomic::AtomicU64>,
+    pub total_combination_count: u64,
+    pub args: Arc<Args>,
+    pub cancel_signal: Arc<atomic::AtomicBool>
+}
 
-    if let Err(err) = load_component_prices(&s.args) {
-        utils::print_error(err.as_str());
+pub struct Solver {
+    wanted_gizmo: Gizmo,
+    result_tx: Option<mpsc::SyncSender<Vec<ResultLine>>>,
+    result_handler: thread::JoinHandle<Vec<Vec<ResultLine>>>,
+    data: Arc<Data>,
+    pub meta: SolverMetadata
+}
+
+impl Solver {
+    pub fn new(args: Args, data: Data) -> Result<Solver, String> {
+        let args = Arc::new(args);
+        let data = Arc::new(data);
+        let wanted_gizmo = Gizmo {
+            perks: (
+                Perk { name: args.perk, rank: args.rank },
+                Perk { name: args.perk_two, rank: args.rank_two }
+            ),
+            ..Default::default()
+        };
+        validate_input(&args, wanted_gizmo, &data)?;
+        load_component_prices(&args)?;
+        let materials = get_materials(&args, &data, wanted_gizmo)?;
+        let materials = Arc::new(split_materials(&args, &data, wanted_gizmo, materials));
+        let total_combination_count = calc_combination_count(materials.conflict.len(), materials.no_conflict.len(), args.ancient);
+        let bar_progress = Arc::new(atomic::AtomicU64::new(0));
+        let (result_tx, result_rx) = mpsc::sync_channel::<Vec<ResultLine>>(1000);
+        let result_handler = result::result_handler(args.clone(), result_rx);
+        let cancel_signal = Arc::new(atomic::AtomicBool::new(false));
+
+        Ok(Solver {
+            wanted_gizmo,
+            result_tx: Some(result_tx),
+            result_handler,
+            data,
+            meta: SolverMetadata {
+                materials,
+                bar_progress,
+                total_combination_count,
+                args,
+                cancel_signal
+            }
+        })
     }
 
-    let x = s.bar_progress.clone();
+    pub fn run(self) -> thread::JoinHandle<Vec<Vec<ResultLine>>> {
+        let budgets = Arc::new(generate_budgets(&self.meta.args.invention_level, self.meta.args.ancient));
+        let slot_count = if self.meta.args.ancient { 9 } else { 5 };
+        let pool = ThreadPool::new(num_cpus::get() * 2);
+        let ten_millis = Duration::from_millis(10);
+        let materials = &self.meta.materials;
+        let wanted_gizmo = self.wanted_gizmo;
+
+        'cancel: for n_mats_used in 1 ..= slot_count {
+            {
+                let tx = self.result_tx.as_ref().unwrap().clone();
+                let data = self.data.clone();
+                let args = self.meta.args.clone();
+                let budgets = budgets.clone();
+                let bar_progress = self.meta.bar_progress.clone();
+                let materials = self.meta.materials.clone();
+                let cancel_signal = self.meta.cancel_signal.clone();
+                pool.execute(move || {
+                    // Order does no matter when none of the materials used have a cost conflict with the wanted perks
+                    for mat_combination in materials.no_conflict.iter().copied().combinations_with_replacement(n_mats_used) {
+                        if cancel_signal.load(Relaxed) {
+                            break;
+                        }
+                        let lines = calc_wanted_gizmo_probabilities(&data, &args, &budgets, mat_combination, wanted_gizmo, &mut None);
+                        bar_progress.fetch_add(1, Relaxed);
+                        if lines.len() > 0 {
+                            tx.send(lines).ok();
+                        }
+                    }
+                });
+            }
+
+            for n_conflict_mats in 1 ..= usize::min(n_mats_used, materials.conflict.len()) {
+                for conflict_mats in materials.conflict.iter().copied().combinations(n_conflict_mats) {
+                    for n_noconflict_mats in 0 ..= usize::min(n_mats_used - n_conflict_mats, materials.no_conflict.len()) {
+                        for no_conflict_mats in materials.no_conflict.iter().copied().combinations(n_noconflict_mats) {
+                            let mut mats = no_conflict_mats;
+                            mats.extend_from_slice(&conflict_mats);
+                            let mats = Arc::new(mats);
+                            for unordered_mats in mats.iter().copied().combinations_with_replacement(n_mats_used - n_conflict_mats - n_noconflict_mats) {
+                                let tx = self.result_tx.as_ref().unwrap().clone();
+                                let data = self.data.clone();
+                                let args = self.meta.args.clone();
+                                let budgets = budgets.clone();
+                                let bar_progress = self.meta.bar_progress.clone();
+                                let mats = mats.clone();
+                                let cancel_signal = self.meta.cancel_signal.clone();
+                                while pool.queued_count() > 100000 {
+                                    std::thread::sleep(ten_millis);
+                                }
+                                if cancel_signal.load(Relaxed) {
+                                    break 'cancel;
+                                }
+                                pool.execute(move || {
+                                    let mut has_conflict = None;
+                                    for ordered_mats in mats.iter().copied().permutations(n_conflict_mats + n_noconflict_mats) {
+                                        if cancel_signal.load(Relaxed) {
+                                            break;
+                                        }
+                                        if has_conflict.is_none() || (has_conflict.unwrap() == true) {
+                                            let mut mat_combination = ordered_mats;
+                                            mat_combination.extend_from_slice(&unordered_mats);
+                                            let lines = calc_wanted_gizmo_probabilities(&data, &args, &budgets, mat_combination, wanted_gizmo, &mut has_conflict);
+                                            if lines.len() > 0 {
+                                                tx.send(lines).ok();
+                                            }
+                                        }
+                                        bar_progress.fetch_add(1, Relaxed);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        pool.join();
+
+        self.meta.bar_progress.store(self.meta.total_combination_count as u64, Relaxed);
+        self.result_handler
+    }
+}
+
+pub fn perk_solver(args: Args) {
+    let data = Data::load();
+    let solver = Solver::new(args, data).unwrap_or_else(|err| utils::print_error(err.as_str()));
+    let meta = solver.meta.clone();
+    println!("{}\n", meta.args.as_ref());
+    println!("{}\n", meta.materials);
+
+    // let x = setupData.bar_progress.clone();
     let bar_handler = thread::spawn(move || {
-        let bar = ProgressBar::new(s.total_combination_count as u64);
+        let bar = ProgressBar::new(meta.total_combination_count);
         bar.set_style(ProgressStyle::with_template("[{elapsed_precise}] {bar:60} {human_pos}/{human_len} ({percent}%)").unwrap());
         let interval = Duration::from_millis(100);
 
         loop {
             std::thread::sleep(interval);
-            bar.set_position(x.load(Relaxed));
-            if x.load(Relaxed) == s.total_combination_count as u64 {
+            bar.set_position(meta.bar_progress.load(Relaxed));
+            if meta.bar_progress.load(Relaxed) == meta.total_combination_count {
                 bar.finish();
                 break;
             }
         }
     });
 
-    perk_solver_core(data, &s);
+    let result_handler = solver.run();
 
     bar_handler.join().ok();
     println!("\n");
 
-    let best_per_level = s.result_handler.join().unwrap();
-    result::print_result(&best_per_level, &s.args);
-    result::write_best_mats_to_file(&best_per_level, &s.args);
-}
-
-struct Setup {
-    wanted_gizmo: Gizmo,
-    materials: Arc<SplitMaterials>,
-    bar_progress: Arc<atomic::AtomicU64>,
-    total_combination_count: usize,
-    result_tx: RefCell<Option<mpsc::SyncSender<Vec<ResultLine>>>>,
-    result_handler: thread::JoinHandle<Vec<Vec<ResultLine>>>,
-    args: Arc<Args>,
-    cancel_signal: Arc<atomic::AtomicBool>
-}
-
-fn setup(args: Args, data: &Data) -> Result<Setup, String> {
-    let wanted_gizmo = Gizmo {
-        perks: (
-            Perk { name: args.perk, rank: args.rank },
-            Perk { name: args.perk_two, rank: args.rank_two }
-        ),
-        ..Default::default()
-    };
-    validate_input(&args, wanted_gizmo, &data)?;
-    let materials = get_materials(&args, &data, wanted_gizmo)?;
-    let materials = Arc::new(split_materials(&args, &data, wanted_gizmo, materials));
-    let total_combination_count = calc_combination_count(materials.conflict.len(), materials.no_conflict.len(), args.ancient);
-    let bar_progress = Arc::new(atomic::AtomicU64::new(0));
-    let (result_tx, result_rx) = mpsc::sync_channel::<Vec<ResultLine>>(1000);
-    let args = Arc::new(args);
-    let result_handler = result::result_handler(args.clone(), result_rx);
-    let cancel_signal = Arc::new(atomic::AtomicBool::new(false));
-
-    Ok(Setup {
-        wanted_gizmo,
-        materials,
-        bar_progress,
-        total_combination_count,
-        result_tx: RefCell::new(Some(result_tx)),
-        result_handler,
-        args,
-        cancel_signal
-    })
-}
-
-fn perk_solver_core(data: Data, setup: &Setup) {
-    let data = Arc::new(data);
-    let budgets = Arc::new(generate_budgets(&setup.args.invention_level, setup.args.ancient));
-    let slot_count = if setup.args.ancient { 9 } else { 5 };
-    let pool = ThreadPool::new(num_cpus::get() * 2);
-    let ten_millis = Duration::from_millis(10);
-    let materials = &setup.materials;
-    let wanted_gizmo = setup.wanted_gizmo;
-
-    'cancel: for n_mats_used in 1 ..= slot_count {
-        {
-            let tx = setup.result_tx.borrow().as_ref().unwrap().clone();
-            let data = data.clone();
-            let args = setup.args.clone();
-            let budgets = budgets.clone();
-            let bar_progress = setup.bar_progress.clone();
-            let materials = setup.materials.clone();
-            let cancel_signal = setup.cancel_signal.clone();
-            pool.execute(move || {
-                // Order does no matter when none of the materials used have a cost conflict with the wanted perks
-                for mat_combination in materials.no_conflict.iter().copied().combinations_with_replacement(n_mats_used) {
-                    if cancel_signal.load(Relaxed) {
-                        break;
-                    }
-                    let lines = calc_wanted_gizmo_probabilities(&data, &args, &budgets, mat_combination, wanted_gizmo, &mut None);
-                    bar_progress.fetch_add(1, Relaxed);
-                    if lines.len() > 0 {
-                        tx.send(lines).ok();
-                    }
-                }
-            });
-        }
-
-        for n_conflict_mats in 1 ..= usize::min(n_mats_used, materials.conflict.len()) {
-            for conflict_mats in materials.conflict.iter().copied().combinations(n_conflict_mats) {
-                for n_noconflict_mats in 0 ..= usize::min(n_mats_used - n_conflict_mats, materials.no_conflict.len()) {
-                    for no_conflict_mats in materials.no_conflict.iter().copied().combinations(n_noconflict_mats) {
-                        let mut mats = no_conflict_mats;
-                        mats.extend_from_slice(&conflict_mats);
-                        let mats = Arc::new(mats);
-                        for unordered_mats in mats.iter().copied().combinations_with_replacement(n_mats_used - n_conflict_mats - n_noconflict_mats) {
-                            let tx = setup.result_tx.borrow().as_ref().unwrap().clone();
-                            let data = data.clone();
-                            let args = setup.args.clone();
-                            let budgets = budgets.clone();
-                            let bar_progress = setup.bar_progress.clone();
-                            let mats = mats.clone();
-                            let cancel_signal = setup.cancel_signal.clone();
-                            while pool.queued_count() > 100000 {
-                                std::thread::sleep(ten_millis);
-                            }
-                            if cancel_signal.load(Relaxed) {
-                                break 'cancel;
-                            }
-                            pool.execute(move || {
-                                let mut has_conflict = None;
-                                for ordered_mats in mats.iter().copied().permutations(n_conflict_mats + n_noconflict_mats) {
-                                    if cancel_signal.load(Relaxed) {
-                                        break;
-                                    }
-                                    if has_conflict.is_none() || (has_conflict.unwrap() == true) {
-                                        let mut mat_combination = ordered_mats;
-                                        mat_combination.extend_from_slice(&unordered_mats);
-                                        let lines = calc_wanted_gizmo_probabilities(&data, &args, &budgets, mat_combination, wanted_gizmo, &mut has_conflict);
-                                        if lines.len() > 0 {
-                                            tx.send(lines).ok();
-                                        }
-                                    }
-                                    bar_progress.fetch_add(1, Relaxed);
-                                }
-                            });
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    pool.join();
-    setup.result_tx.borrow_mut().take();
-
-    setup.bar_progress.store(setup.total_combination_count as u64, Relaxed);
+    let best_per_level = result_handler.join().unwrap();
+    result::print_result(&best_per_level, &meta.args);
+    result::write_best_mats_to_file(&best_per_level, &meta.args);
 }
 
 /// Returns a vector of all possible gizmos and their probabilities
@@ -323,6 +332,10 @@ pub fn calc_gizmo_probabilities(data: &Data, budget: &Budget, input_materials: &
 }
 
 fn validate_input(args: &Args, wanted_gizmo: Gizmo, data: &Data) -> Result<(), String> {
+    if wanted_gizmo.perks.0.name == PerkName::Empty {
+        return Err("First perk can't be empty.".to_string());
+    }
+
     if data.perks[wanted_gizmo.perks.0.name].doubleslot && wanted_gizmo.perks.1.name != PerkName::Empty {
         return Err(format!("Perk '{}' can't be combined with another perk as it uses both slots.", wanted_gizmo.perks.0.name.to_string().yellow()))
     }
@@ -542,7 +555,7 @@ fn generate_budgets(invention_level: &InventionLevel, ancient: bool) -> Vec<Budg
 /// soon as the combination contains at least one conflict material then we can't be certain that order doesn't matter
 /// so we have to check every order. But it's only the order of first occurrence that matters so the pattern abbc is the
 /// same as abcb. The order of the repeated materials also doesn't matter so abcbc is the same as abccb.
-fn calc_combination_count(conflict_size: usize, no_conflict_size: usize, is_ancient: bool) -> usize {
+fn calc_combination_count(conflict_size: usize, no_conflict_size: usize, is_ancient: bool) -> u64 {
     let slot_count = if is_ancient { 9 } else { 5 };
     let mut count = 0.0;
 
@@ -559,7 +572,7 @@ fn calc_combination_count(conflict_size: usize, no_conflict_size: usize, is_anci
         }
     }
 
-    (count + 0.5) as usize
+    (count + 0.5) as u64
 }
 
 #[cfg(test)]

@@ -1,4 +1,4 @@
-use crate::{prelude::*, result::gizmo_combination_sort, component_prices::load_component_prices};
+use crate::{prelude::*, result::gizmo_combination_sort, Solver};
 use std::ffi::{c_char, CStr, CString};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Mutex, Arc, Condvar};
@@ -26,7 +26,7 @@ pub struct FfiArgs {
 
 #[repr(C)]
 pub struct Response {
-    total_combination_count: usize,
+    total_combination_count: u64,
     bar_progress: *const u64,
     materials: *const c_char,
     result: *const c_char,
@@ -94,18 +94,16 @@ pub unsafe extern "C" fn perk_solver_ctypes(args: FfiArgs) -> Response {
         Ok(args) => args,
         Err(err) => return Response::from(err)
     };
-    let s = match crate::setup(args, &data) {
+    let solver = match Solver::new(args, data) {
         Ok(s) => s,
         Err(err) => return Response::from(err)
     };
-    if let Err(err) = load_component_prices(&s.args) {
-        return Response::from(err);
-    }
+    let meta = solver.meta.clone();
 
-    let bar_progress = Arc::into_raw(s.bar_progress.clone()) as *const u64;
-    let materials = CString::new(s.materials.to_json()).unwrap();
-    let total_combination_count = s.total_combination_count;
-    let cancel_signal = Arc::into_raw(s.cancel_signal.clone());
+    let bar_progress = Arc::into_raw(meta.bar_progress.clone()) as *const u64;
+    let materials = CString::new(meta.materials.to_json()).unwrap();
+    let total_combination_count = meta.total_combination_count;
+    let cancel_signal = Arc::into_raw(meta.cancel_signal.clone());
     let has_started = Arc::new((Mutex::new(false), Condvar::new()));
     let has_started2 = Arc::clone(&has_started);
 
@@ -117,8 +115,8 @@ pub unsafe extern "C" fn perk_solver_ctypes(args: FfiArgs) -> Response {
             cvar.notify_one();
         }
 
-        crate::perk_solver_core(data, &s);
-        let mut best_per_level = s.result_handler.join().unwrap()
+        let result_handler = solver.run();
+        let mut best_per_level = result_handler.join().unwrap()
             .into_iter().map(|x| x.into_iter().filter(|y| y.prob_gizmo > 0.0).collect_vec()).collect_vec();
         for x in best_per_level.iter_mut() {
             for y in x.iter_mut() {

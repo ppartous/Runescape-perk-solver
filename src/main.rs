@@ -8,14 +8,14 @@ fn main() {
     let timer = howlong::HighResolutionTimer::new();
 
     let cli = Cli::parse();
-    let data = Data::load();
 
     match cli.command {
         Commands::Gizmo {..} => {
             let args = Args::create(&cli).unwrap_or_else(|err| utils::print_error(err.as_str()));
-            perk_solver(args, data);
+            perk_solver(args);
         },
         Commands::MaterialInput { mats } => {
+            let data = Data::load();
             let mut materials = vec![];
             for mat_str in mats {
                 let mat = MaterialName::from_str(&mat_str);

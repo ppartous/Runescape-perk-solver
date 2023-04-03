@@ -1,11 +1,10 @@
 mod numeric_input;
 
-use crate::{PerkName, GizmoType, SortType};
+use crate::{PerkName, GizmoType, SortType, Cli};
 use numeric_input::numeric_input;
 
 use derivative::Derivative;
 use strum::VariantNames;
-use std::str::FromStr;
 use iced::{Element, Length, alignment::*};
 use iced::widget::{
     column,
@@ -23,10 +22,10 @@ use iced::widget::{
 
 #[derive(Derivative, Debug)]
 #[derivative(Default)]
-pub struct Args {
-    perk: Option<PerkName>,
+pub struct AppArgs {
+    perk: Option<&'static str>,
     rank: Option<u32>,
-    perk_two: Option<PerkName>,
+    perk_two: Option<&'static str>,
     rank_two: Option<u32>,
     #[derivative(Default(value = "[Some(1), Some(137)]"))]
     invention_level: [Option<u32>; 2],
@@ -56,13 +55,13 @@ pub enum ArgsMessage {
     SortTypeChanged(SortType)
 }
 
-impl Args {
+impl AppArgs {
     pub fn update(&mut self, message: ArgsMessage) {
         match message {
-            ArgsMessage::PerkChanged(x) => self.perk = Some(PerkName::from_str(x).unwrap_or_default()),
+            ArgsMessage::PerkChanged(x) => self.perk = Some(x),
             ArgsMessage::RankChanged(x) => self.rank = x,
             ArgsMessage::PerkTwoChanged(x) => {
-                self.perk_two = Some(PerkName::from_str(x).unwrap_or_default());
+                self.perk_two = Some(x);
                 self.fuzzy = x == "Any";
             },
             ArgsMessage::RankTwoChanged(x) => self.rank_two = x,
@@ -84,7 +83,7 @@ impl Args {
                 column![
                     row![
                         text("First perk:").width(Length::Fixed(100.0)),
-                        pick_list(&PerkName::VARIANTS[1..], self.perk.map(|x| x.into()), ArgsMessage::PerkChanged)
+                        pick_list(&PerkName::VARIANTS[1..], self.perk, ArgsMessage::PerkChanged)
                             .placeholder("Pick one"),
                         horizontal_space(10),
                         numeric_input(self.rank, |x| ArgsMessage::RankChanged(x.map(|y| y.min(6).max(1))))
@@ -93,7 +92,7 @@ impl Args {
                     .align_items(Alignment::Center),
                     row![
                         text("Second perk:").width(Length::Fixed(100.0)),
-                        pick_list([&["Any"], PerkName::VARIANTS].concat(), self.perk_two.map(|x| if self.fuzzy {"Any"} else {x.into()}), ArgsMessage::PerkTwoChanged)
+                        pick_list([&["Any"], PerkName::VARIANTS].concat(), self.perk_two, ArgsMessage::PerkTwoChanged)
                             .placeholder("Pick one"),
                         horizontal_space(10),
                         numeric_input(self.rank_two, |x| ArgsMessage::RankTwoChanged(x.map(|y| y.min(6).max(1))))
@@ -158,5 +157,25 @@ impl Args {
             ],
         ]
         .into()
+    }
+
+    pub fn to_cli(&self) -> Cli {
+        Cli {
+            gizmo_type: self.gizmo_type,
+            ancient: self.ancient,
+            invention_level: self.invention_level.map(|x| x.unwrap_or(0) as u8).to_vec(),
+            command: perk_solver::Commands::Gizmo {
+                perk: self.perk.unwrap_or("Empty").to_string(),
+                rank: self.rank.unwrap_or(1) as u8,
+                perk_two: self.perk_two.map(String::from),
+                rank_two: self.rank_two.unwrap_or(1) as u8,
+                fuzzy: self.fuzzy,
+                exclude: self.exclude.replace(", ", ",").split(",").map(|x| x.to_string()).collect(),
+                sort_type: self.sort_type,
+                out_file: perk_solver::Args::default().out_file,
+                price_file: perk_solver::Args::default().price_file,
+                alt_count: self.alts.unwrap_or(0) as u8
+            }
+        }
     }
 }
