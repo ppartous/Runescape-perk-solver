@@ -7,11 +7,11 @@ mod utils;
 
 use args::{AppArgs, ArgsMessage};
 use derivative::Derivative;
-use perk_solver::{Solver, SolverMetadata, };
+use perk_solver::{Solver, SolverMetadata};
 use prelude::*;
 
-use iced::widget::{button, column, row, progress_bar, text};
-use iced::{theme, Alignment, Element, Length, Application, Settings, Theme, Command};
+use iced::widget::{button, column, progress_bar, row, text};
+use iced::{theme, Alignment, Application, Command, Element, Length, Settings, Theme};
 
 use std::sync::atomic::Ordering;
 
@@ -26,7 +26,7 @@ struct App {
     args: AppArgs,
     solver: Option<SolverMetadata>,
     solver_result: Option<std::thread::JoinHandle<Vec<Vec<ResultLine>>>>,
-    error_text: Option<String>
+    error_text: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -37,6 +37,7 @@ enum AppMessage {
     ProgressUpdateMessage(()),
 }
 
+#[rustfmt::skip::macros(column, row)]
 impl Application for App {
     type Message = AppMessage;
     type Theme = Theme;
@@ -45,10 +46,7 @@ impl Application for App {
 
     fn new(_flags: ()) -> (Self, Command<AppMessage>) {
         colored::control::set_override(false);
-        (
-            Self::default(),
-            Command::none()
-        )
+        (Self::default(), Command::none())
     }
 
     fn title(&self) -> String {
@@ -70,10 +68,11 @@ impl Application for App {
                 };
                 self.error_text.take();
                 self.solver = Some(solver.meta.clone());
-                self.solver_result = Some(std::thread::spawn(move || {
-                    solver.run().join().unwrap()
-                }));
-                return Command::perform(App::progress_bar_update_timer(), AppMessage::ProgressUpdateMessage)
+                self.solver_result = Some(std::thread::spawn(move || solver.run().join().unwrap()));
+                return Command::perform(
+                    App::progress_bar_update_timer(),
+                    AppMessage::ProgressUpdateMessage,
+                );
             }
             AppMessage::CancelMessage => {
                 if let Some(solver) = self.solver.as_ref() {
@@ -84,12 +83,15 @@ impl Application for App {
                 }
                 self.solver.take();
                 self.progress = 0;
-            },
+            }
             AppMessage::ProgressUpdateMessage(_) => {
                 if let Some(solver) = self.solver.as_ref() {
                     if self.progress < solver.total_combination_count {
                         self.progress = solver.bar_progress.load(Ordering::Relaxed);
-                        return Command::perform(App::progress_bar_update_timer(), AppMessage::ProgressUpdateMessage)
+                        return Command::perform(
+                            App::progress_bar_update_timer(),
+                            AppMessage::ProgressUpdateMessage,
+                        );
                     }
                 }
             }
@@ -117,7 +119,11 @@ impl Application for App {
                     .padding(20)
                     .spacing(10)
                     .align_items(Alignment::Center),
-                    text(format!("{} / {}", utils::format_int(self.progress as i64), utils::format_int(solver.total_combination_count as i64)))
+                    text(format!(
+                        "{} / {}",
+                        utils::format_int(self.progress as i64),
+                        utils::format_int(solver.total_combination_count as i64)
+                    ))
                 ]
                 .align_items(Alignment::Center)
                 .width(Length::Fill)

@@ -1,10 +1,10 @@
-use crate::{Perk, PerkRankValues, PerkName};
+use crate::{Perk, PerkName, PerkRankValues};
 
 #[derive(Clone, Copy)]
 pub struct Gizmo {
     pub perks: (Perk, Perk),
     pub cost: i16,
-    pub probability: f64
+    pub probability: f64,
 }
 
 impl Default for Gizmo {
@@ -12,7 +12,7 @@ impl Default for Gizmo {
         Gizmo {
             perks: (Perk::default(), Perk::default()),
             cost: 0,
-            probability: 0.0
+            probability: 0.0,
         }
     }
 }
@@ -21,7 +21,7 @@ impl Gizmo {
     /// Check if both contain the same perks and ranks but different order is allowed
     pub fn same(&self, other: &Self) -> bool {
         ((self.perks.0 == other.perks.0) & (self.perks.1 == other.perks.1))
-        | ((self.perks.1 == other.perks.0) & (self.perks.0 == other.perks.1))
+            | ((self.perks.1 == other.perks.0) & (self.perks.0 == other.perks.1))
     }
 
     /// Check if a certain perk-rank combo is present in self
@@ -34,19 +34,21 @@ impl Gizmo {
             perks: (
                 Perk {
                     name: x.name,
-                    rank: x.rank
+                    rank: x.rank,
                 },
                 if let Some(y) = y {
                     Perk {
                         name: y.name,
-                        rank: y.rank
+                        rank: y.rank,
                     }
                 } else {
-                    Perk { ..Default::default() }
-                }
+                    Perk {
+                        ..Default::default()
+                    }
+                },
             ),
             cost: (x.cost + if let Some(y) = y { y.cost } else { 0 }) as i16,
-            probability: 0.0
+            probability: 0.0,
         }
     }
 
@@ -55,12 +57,14 @@ impl Gizmo {
             perks: (
                 Perk {
                     name: x.name,
-                    rank: x.rank
+                    rank: x.rank,
                 },
-                Perk { ..Default::default() }
+                Perk {
+                    ..Default::default()
+                },
             ),
             cost: (x.cost + if let Some(y) = y { y.cost } else { 0 }) as i16,
-            probability: 0.0
+            probability: 0.0,
         }
     }
 }
@@ -82,15 +86,22 @@ impl std::fmt::Debug for Gizmo {
 impl std::fmt::Display for Gizmo {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.perks.1.name == PerkName::Empty {
-            write!(f, "Gizmo {{ {{ name: {}, rank: {} }}, {{ Empty }} }}",
-                self.perks.0.name, self.perks.0.rank)
+            write!(
+                f,
+                "Gizmo {{ {{ name: {}, rank: {} }}, {{ Empty }} }}",
+                self.perks.0.name, self.perks.0.rank
+            )
         } else {
-            write!(f, "Gizmo {{ {{ name: {}, rank: {} }}, {{ name: {}, rank: {} }} }}",
-                self.perks.0.name, self.perks.0.rank, self.perks.1.name, self.perks.1.rank)
+            write!(
+                f,
+                "Gizmo {{ {{ name: {}, rank: {} }}, {{ name: {}, rank: {} }} }}",
+                self.perks.0.name, self.perks.0.rank, self.perks.1.name, self.perks.1.rank
+            )
         }
     }
 }
 
+#[rustfmt::skip]
 #[cfg(test)]
 mod test {
     use super::*;

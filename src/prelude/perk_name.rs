@@ -1,8 +1,23 @@
-use strum::{EnumIter, Display};
-use strum_macros::{EnumCount, EnumVariantNames, EnumString, IntoStaticStr};
+use strum::{Display, EnumIter};
+use strum_macros::{EnumCount, EnumString, EnumVariantNames, IntoStaticStr};
 
-#[derive(Debug, Display, Default, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash)]
-#[derive(EnumCount, EnumIter, EnumVariantNames, EnumString, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Default,
+    PartialEq,
+    Eq,
+    Clone,
+    Copy,
+    PartialOrd,
+    Ord,
+    Hash,
+    EnumCount,
+    EnumIter,
+    EnumVariantNames,
+    EnumString,
+    IntoStaticStr,
+)]
 #[strum(serialize_all = "title_case", ascii_case_insensitive, use_phf)]
 pub enum PerkName {
     #[default]
@@ -75,7 +90,11 @@ pub enum PerkName {
     Talking,
     Taunting,
     Tinker,
-    #[strum(serialize = "Trophy-taker's", serialize = "Trophy-taker", serialize = "Trophy taker")]
+    #[strum(
+        serialize = "Trophy-taker's",
+        serialize = "Trophy-taker",
+        serialize = "Trophy taker"
+    )]
     TrophyTaker,
     Turtling,
     Ultimatums,

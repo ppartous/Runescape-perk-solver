@@ -1,22 +1,22 @@
 pub mod prelude;
 pub mod stack_map;
 
-use std::str::FromStr;
-use crate::{PerkName, MaterialName};
-pub use stack_map::*;
+use crate::{MaterialName, PerkName};
 pub use prelude::*;
+pub use stack_map::*;
+use std::str::FromStr;
 use strum::EnumCount;
 
 #[derive(Debug)]
 pub struct Data {
-    pub comps: StackMap<MaterialName, CompPerksPerGizmoType, {MaterialName::COUNT}>,
-    pub perks: StackMap<PerkName, PerkRanksData, {PerkName::COUNT}>
+    pub comps: StackMap<MaterialName, CompPerksPerGizmoType, { MaterialName::COUNT }>,
+    pub perks: StackMap<PerkName, PerkRanksData, { PerkName::COUNT }>,
 }
 
 impl Data {
     pub fn load() -> Data {
         Data {
-            comps: stack_map!{
+            comps: stack_map! {
                 MaterialName::from_str("Armadyl components").unwrap() => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
@@ -3467,12 +3467,8 @@ impl Data {
                         },
                     ])
                 },
-
-
-
-
             },
-            perks: stack_map!{
+            perks: stack_map! {
                 PerkName::from_str("Empty").unwrap() => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
@@ -6429,7 +6425,7 @@ impl Data {
                         },
                     ])
                 },
-            }
+            },
         }
     }
 }

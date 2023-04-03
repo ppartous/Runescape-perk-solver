@@ -1,11 +1,25 @@
-use std::str::FromStr;
-use itertools::Itertools;
 use colored::*;
-use strum::{EnumIter, Display};
+use itertools::Itertools;
+use std::str::FromStr;
+use strum::{Display, EnumIter};
 use strum_macros::{EnumCount, EnumVariantNames, IntoStaticStr};
 
-#[derive(Debug, Display, Default, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash)]
-#[derive(EnumCount, EnumIter, EnumVariantNames, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Default,
+    PartialEq,
+    Eq,
+    Clone,
+    Copy,
+    PartialOrd,
+    Ord,
+    Hash,
+    EnumCount,
+    EnumIter,
+    EnumVariantNames,
+    IntoStaticStr,
+)]
 #[strum(serialize_all = "title_case", ascii_case_insensitive, use_phf)]
 pub enum MaterialName {
     ArmadylComponents,
@@ -95,17 +109,21 @@ pub enum MaterialName {
 impl MaterialName {
     pub fn vec_to_string(v: &[MaterialName]) -> String {
         let counts = v.iter().counts();
-        v.iter().unique().map(|x| {
-            let count = *counts.get(x).unwrap();
-            format!("{} × {}", count, x.to_string().cyan())
-        }).join(", ")
+        v.iter()
+            .unique()
+            .map(|x| {
+                let count = *counts.get(x).unwrap();
+                format!("{} × {}", count, x.to_string().cyan())
+            })
+            .join(", ")
     }
 }
 
 impl serde::Serialize for MaterialName {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer {
+    where
+        S: serde::Serializer,
+    {
         serializer.collect_str(&self)
     }
 }
@@ -196,7 +214,7 @@ impl FromStr for MaterialName {
                 "vintage components" => Ok(MaterialName::VintageComponents),
                 "zamorak components" => Ok(MaterialName::ZamorakComponents),
                 "zaros components" => Ok(MaterialName::ZarosComponents),
-                _ => Err("Unknown material name")
+                _ => Err("Unknown material name"),
             }
         }
 

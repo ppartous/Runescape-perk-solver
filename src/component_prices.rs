@@ -1,9 +1,9 @@
+use crate::{prelude::*, utils::print_warning};
 use itertools::Itertools;
-use serde_json::{self, Value};
-use crate::{utils::print_warning, prelude::*};
-use std::{str::FromStr, fs, sync::RwLock};
-use regex::Regex;
 use once_cell::sync::OnceCell;
+use regex::Regex;
+use serde_json::{self, Value};
+use std::{fs, str::FromStr, sync::RwLock};
 use strum::{EnumCount, IntoEnumIterator};
 
 static APP_USER_AGENT: &str = concat!(
@@ -14,7 +14,7 @@ static APP_USER_AGENT: &str = concat!(
     env!("CARGO_PKG_REPOSITORY")
 );
 
-type PriceMap = StackMap<MaterialName, f64, {MaterialName::COUNT}>;
+type PriceMap = StackMap<MaterialName, f64, { MaterialName::COUNT }>;
 
 static PRICES: OnceCell<PriceMap> = OnceCell::new();
 static SHELL_PRICE: RwLock<f64> = RwLock::new(0.0);
@@ -22,9 +22,10 @@ static SHELL_PRICE: RwLock<f64> = RwLock::new(0.0);
 pub fn calc_gizmo_price(mat_combination: &[MaterialName], prob_gizmo: f64) -> f64 {
     let shell_price = *SHELL_PRICE.read().unwrap();
     let prices = PRICES.get_or_init(|| StackMap::new());
-    let price = shell_price + mat_combination.iter().fold(0.0, |acc, x| {
-        acc + prices.get(*x)
-    });
+    let price = shell_price
+        + mat_combination
+            .iter()
+            .fold(0.0, |acc, x| acc + prices.get(*x));
 
     price / prob_gizmo
 }
@@ -33,7 +34,7 @@ pub fn load_component_prices(args: &Args) -> Result<(), String> {
     // Don't need to set prices again if the calc is invoked multiple times thourgh the ffi
     if let Some(prices) = PRICES.get() {
         *SHELL_PRICE.write().unwrap() = calc_shell_price(args, prices);
-        return Ok(())
+        return Ok(());
     }
 
     let mut text = String::new();
@@ -41,7 +42,7 @@ pub fn load_component_prices(args: &Args) -> Result<(), String> {
     if args.price_file != "false" && std::path::Path::new(&args.price_file).exists() {
         match fs::read_to_string(&args.price_file) {
             Ok(file) => text = file,
-            Err(err) => return Err(format!("Failed to read {}: {}", args.price_file, err))
+            Err(err) => return Err(format!("Failed to read {}: {}", args.price_file, err)),
         }
     } else {
         if let Ok(response) = lookup_on_wiki() {
@@ -61,7 +62,11 @@ pub fn load_component_prices(args: &Args) -> Result<(), String> {
     }
 
     if args.price_file != "false" {
-        text = prices.iter().map(|(name, value)| format!("{}: {},", name, value)).sorted().join("\n");
+        text = prices
+            .iter()
+            .map(|(name, value)| format!("{}: {},", name, value))
+            .sorted()
+            .join("\n");
         fs::write(&args.price_file, text).unwrap_or_else(|err| {
             print_warning(format!("Failed to save {}: {}", args.price_file, err).as_str());
         });
@@ -75,14 +80,41 @@ pub fn load_component_prices(args: &Args) -> Result<(), String> {
 fn calc_shell_price(args: &Args, prices: &PriceMap) -> f64 {
     match args.ancient {
         true => match args.gizmo_type {
-            GizmoType::Armour => 20.0 * prices.get(MaterialName::DeflectingParts) + 20.0 * prices.get(MaterialName::HistoricComponents) + 2.0 * prices.get(MaterialName::ClassicComponents) + 2.0 * prices.get(MaterialName::ProtectiveComponents),
-            GizmoType::Weapon => 20.0 * prices.get(MaterialName::BladeParts) + 20.0 * prices.get(MaterialName::HistoricComponents) + 2.0 * prices.get(MaterialName::ClassicComponents) + 2.0 * prices.get(MaterialName::StrongComponents),
-            GizmoType::Tool => 20.0 * prices.get(MaterialName::HeadParts) + 20.0 * prices.get(MaterialName::HistoricComponents) + 2.0 * prices.get(MaterialName::ClassicComponents) + 2.0 * prices.get(MaterialName::PreciseComponents),
+            GizmoType::Armour => {
+                20.0 * prices.get(MaterialName::DeflectingParts)
+                    + 20.0 * prices.get(MaterialName::HistoricComponents)
+                    + 2.0 * prices.get(MaterialName::ClassicComponents)
+                    + 2.0 * prices.get(MaterialName::ProtectiveComponents)
+            }
+            GizmoType::Weapon => {
+                20.0 * prices.get(MaterialName::BladeParts)
+                    + 20.0 * prices.get(MaterialName::HistoricComponents)
+                    + 2.0 * prices.get(MaterialName::ClassicComponents)
+                    + 2.0 * prices.get(MaterialName::StrongComponents)
+            }
+            GizmoType::Tool => {
+                20.0 * prices.get(MaterialName::HeadParts)
+                    + 20.0 * prices.get(MaterialName::HistoricComponents)
+                    + 2.0 * prices.get(MaterialName::ClassicComponents)
+                    + 2.0 * prices.get(MaterialName::PreciseComponents)
+            }
         },
         false => match args.gizmo_type {
-            GizmoType::Armour => 10.0 * prices.get(MaterialName::DeflectingParts) + 5.0 * prices.get(MaterialName::CraftedParts) + 2.0 * prices.get(MaterialName::ProtectiveComponents),
-            GizmoType::Weapon => 10.0 * prices.get(MaterialName::BladeParts) + 5.0 * prices.get(MaterialName::CraftedParts) + 2.0 * prices.get(MaterialName::StrongComponents),
-            GizmoType::Tool => 10.0 * prices.get(MaterialName::HeadParts) + 5.0 * prices.get(MaterialName::CraftedParts) + 2.0 * prices.get(MaterialName::PreciseComponents),
+            GizmoType::Armour => {
+                10.0 * prices.get(MaterialName::DeflectingParts)
+                    + 5.0 * prices.get(MaterialName::CraftedParts)
+                    + 2.0 * prices.get(MaterialName::ProtectiveComponents)
+            }
+            GizmoType::Weapon => {
+                10.0 * prices.get(MaterialName::BladeParts)
+                    + 5.0 * prices.get(MaterialName::CraftedParts)
+                    + 2.0 * prices.get(MaterialName::StrongComponents)
+            }
+            GizmoType::Tool => {
+                10.0 * prices.get(MaterialName::HeadParts)
+                    + 5.0 * prices.get(MaterialName::CraftedParts)
+                    + 2.0 * prices.get(MaterialName::PreciseComponents)
+            }
         },
     }
 }
@@ -102,7 +134,7 @@ fn lookup_on_wiki() -> Result<String, reqwest::Error> {
 
 fn extract_from_response(response: &str) -> Result<String, String> {
     let json: Value = serde_json::from_str(response).unwrap_or_default();
-    let text= &json["parse"]["text"];
+    let text = &json["parse"]["text"];
 
     if let Value::String(text) = text {
         let re = Regex::new(r"^.+?<p>((.|\n)+?)</p>").unwrap();

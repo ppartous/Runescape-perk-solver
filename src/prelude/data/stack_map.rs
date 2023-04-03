@@ -1,4 +1,4 @@
-use std::{default::Default, fmt::Debug, marker::PhantomData, iter::Zip, slice::Iter, ops::Index};
+use std::{default::Default, fmt::Debug, iter::Zip, marker::PhantomData, ops::Index, slice::Iter};
 use strum::IntoEnumIterator;
 
 #[derive(Debug)]
@@ -6,22 +6,22 @@ pub struct StackMap<K, V, const N: usize>
 where
     K: Default + Copy,
     V: Default + Copy,
-    usize: From<K>
+    usize: From<K>,
 {
     data: [V; N],
-    phantom: PhantomData<K>
+    phantom: PhantomData<K>,
 }
 
 impl<K, V, const N: usize> StackMap<K, V, N>
 where
     V: Default + Copy,
     K: Default + Copy,
-    usize: From<K>
+    usize: From<K>,
 {
     pub fn new() -> Self {
         StackMap {
             data: [V::default(); N],
-            phantom: PhantomData
+            phantom: PhantomData,
         }
     }
 
@@ -33,22 +33,18 @@ where
     pub fn get(&self, key: K) -> &V {
         let index = usize::from(key);
         debug_assert!(index < N);
-        unsafe {
-            self.data.get_unchecked(index)
-        }
+        unsafe { self.data.get_unchecked(index) }
     }
 
     pub fn get_mut(&mut self, key: K) -> &mut V {
         let index = usize::from(key);
         debug_assert!(index < N);
-        unsafe {
-            self.data.get_unchecked_mut(index)
-        }
+        unsafe { self.data.get_unchecked_mut(index) }
     }
 
     pub fn iter(&self) -> Zip<<K as IntoEnumIterator>::Iterator, Iter<'_, V>>
     where
-        K: IntoEnumIterator
+        K: IntoEnumIterator,
     {
         K::iter().zip(self.data.iter())
     }
@@ -58,7 +54,7 @@ impl<K, V, const N: usize> Index<K> for StackMap<K, V, N>
 where
     V: Default + Copy,
     K: Default + Copy,
-    usize: From<K>
+    usize: From<K>,
 {
     type Output = V;
 
@@ -71,7 +67,7 @@ impl<K, V, const N: usize> Default for StackMap<K, V, N>
 where
     V: Default + Copy,
     K: Default + Copy,
-    usize: From<K>
+    usize: From<K>,
 {
     fn default() -> Self {
         Self::new()

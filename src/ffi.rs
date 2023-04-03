@@ -1,8 +1,8 @@
 use crate::{prelude::*, result::gizmo_combination_sort, Solver};
+use itertools::Itertools;
 use std::ffi::{c_char, CStr, CString};
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Mutex, Arc, Condvar};
-use itertools::Itertools;
+use std::sync::{Arc, Condvar, Mutex};
 
 static CHANNEL: Mutex<Option<CString>> = Mutex::new(None);
 
@@ -21,7 +21,7 @@ pub struct FfiArgs {
     pub sort_type: SortType,
     pub out_file: *const c_char,
     pub price_file: *const c_char,
-    pub alt_count: u8
+    pub alt_count: u8,
 }
 
 #[repr(C)]
@@ -30,7 +30,7 @@ pub struct Response {
     bar_progress: *const u64,
     materials: *const c_char,
     result: *const c_char,
-    cancel_signal: *const AtomicBool
+    cancel_signal: *const AtomicBool,
 }
 
 impl From<String> for Response {
@@ -40,7 +40,7 @@ impl From<String> for Response {
             bar_progress: std::ptr::null(),
             materials: std::ptr::null(),
             result: CString::new(value).unwrap().into_raw() as *const c_char,
-            cancel_signal: std::ptr::null()
+            cancel_signal: std::ptr::null(),
         }
     }
 }
@@ -63,10 +63,18 @@ pub unsafe extern "C" fn perk_solver_ctypes(args: FfiArgs) -> Response {
         out_file = CStr::from_ptr(args.out_file).to_str().unwrap().to_string();
     }
     if !args.price_file.is_null() {
-        price_file = CStr::from_ptr(args.price_file).to_str().unwrap().to_string();
+        price_file = CStr::from_ptr(args.price_file)
+            .to_str()
+            .unwrap()
+            .to_string();
     }
     if !args.exclude.is_null() {
-        exclude = CStr::from_ptr(args.exclude).to_str().unwrap().split(",").map(|x| x.to_string()).collect_vec();
+        exclude = CStr::from_ptr(args.exclude)
+            .to_str()
+            .unwrap()
+            .split(",")
+            .map(|x| x.to_string())
+            .collect_vec();
     }
 
     let cli = Cli {
@@ -76,15 +84,19 @@ pub unsafe extern "C" fn perk_solver_ctypes(args: FfiArgs) -> Response {
         command: Commands::Gizmo {
             perk,
             rank: args.rank,
-            perk_two: if perk_two.is_empty() { None } else { Some(perk_two) },
+            perk_two: if perk_two.is_empty() {
+                None
+            } else {
+                Some(perk_two)
+            },
             rank_two: args.rank_two,
             fuzzy: args.fuzzy,
             exclude,
             sort_type: args.sort_type,
             out_file,
             price_file,
-            alt_count: args.alt_count
-        }
+            alt_count: args.alt_count,
+        },
     };
 
     colored::control::set_override(false); // Disable colored messages
@@ -92,11 +104,11 @@ pub unsafe extern "C" fn perk_solver_ctypes(args: FfiArgs) -> Response {
     let data = Data::load();
     let args = match Args::create(&cli) {
         Ok(args) => args,
-        Err(err) => return Response::from(err)
+        Err(err) => return Response::from(err),
     };
     let solver = match Solver::new(args, data) {
         Ok(s) => s,
-        Err(err) => return Response::from(err)
+        Err(err) => return Response::from(err),
     };
     let meta = solver.meta.clone();
 
@@ -116,8 +128,12 @@ pub unsafe extern "C" fn perk_solver_ctypes(args: FfiArgs) -> Response {
         }
 
         let result_handler = solver.run();
-        let mut best_per_level = result_handler.join().unwrap()
-            .into_iter().map(|x| x.into_iter().filter(|y| y.prob_gizmo > 0.0).collect_vec()).collect_vec();
+        let mut best_per_level = result_handler
+            .join()
+            .unwrap()
+            .into_iter()
+            .map(|x| x.into_iter().filter(|y| y.prob_gizmo > 0.0).collect_vec())
+            .collect_vec();
         for x in best_per_level.iter_mut() {
             for y in x.iter_mut() {
                 y.mat_combination = Arc::new(gizmo_combination_sort(&y.mat_combination));
@@ -139,7 +155,7 @@ pub unsafe extern "C" fn perk_solver_ctypes(args: FfiArgs) -> Response {
         bar_progress,
         materials: materials.into_raw(),
         result: std::ptr::null(),
-        cancel_signal
+        cancel_signal,
     }
 }
 

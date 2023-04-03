@@ -28,6 +28,7 @@ pub fn jagex_quicksort(rank_combination: &mut RankCombination) {
     f(rank_combination, 0, rank_combination.ranks.len() - 1);
 }
 
+#[rustfmt::skip]
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -1,24 +1,15 @@
 mod numeric_input;
 
-use crate::{PerkName, GizmoType, SortType, Cli};
+use crate::{Cli, GizmoType, PerkName, SortType};
 use numeric_input::numeric_input;
 
 use derivative::Derivative;
-use strum::VariantNames;
-use iced::{Element, Length, alignment::*};
 use iced::widget::{
-    column,
-    row,
-    text_input,
-    text,
-    checkbox,
-    radio,
-    container,
-    horizontal_space,
-    vertical_space,
-    pick_list,
-    vertical_rule
+    checkbox, column, container, horizontal_space, pick_list, radio, row, text, text_input,
+    vertical_rule, vertical_space,
 };
+use iced::{alignment::*, Element, Length};
+use strum::VariantNames;
 
 #[derive(Derivative, Debug)]
 #[derivative(Default)]
@@ -38,7 +29,7 @@ pub struct AppArgs {
     #[derivative(Default(value = "GizmoType::Weapon"))]
     gizmo_type: GizmoType,
     #[derivative(Default(value = "SortType::Price"))]
-    sort_type: SortType
+    sort_type: SortType,
 }
 
 #[derive(Debug, Clone)]
@@ -52,9 +43,10 @@ pub enum ArgsMessage {
     ExcludeChanged(String),
     AltsChanged(Option<u32>),
     GizmoTypeChanged(GizmoType),
-    SortTypeChanged(SortType)
+    SortTypeChanged(SortType),
 }
 
+#[rustfmt::skip::macros(column, row)]
 impl AppArgs {
     pub fn update(&mut self, message: ArgsMessage) {
         match message {
@@ -63,15 +55,19 @@ impl AppArgs {
             ArgsMessage::PerkTwoChanged(x) => {
                 self.perk_two = Some(x);
                 self.fuzzy = x == "Any";
-            },
+            }
             ArgsMessage::RankTwoChanged(x) => self.rank_two = x,
-            ArgsMessage::InventionLevelChanged(x) =>
-                self.invention_level = [x[0].or(self.invention_level[0]), x[1].or(self.invention_level[1])],
+            ArgsMessage::InventionLevelChanged(x) => {
+                self.invention_level = [
+                    x[0].or(self.invention_level[0]),
+                    x[1].or(self.invention_level[1]),
+                ]
+            }
             ArgsMessage::AltsChanged(x) => self.alts = x,
             ArgsMessage::AncientChanged(x) => self.ancient = x,
             ArgsMessage::ExcludeChanged(x) => self.exclude = x,
             ArgsMessage::GizmoTypeChanged(x) => self.gizmo_type = x,
-            ArgsMessage::SortTypeChanged(x) => self.sort_type = x
+            ArgsMessage::SortTypeChanged(x) => self.sort_type = x,
         }
     }
 
@@ -170,12 +166,17 @@ impl AppArgs {
                 perk_two: self.perk_two.map(String::from),
                 rank_two: self.rank_two.unwrap_or(1) as u8,
                 fuzzy: self.fuzzy,
-                exclude: self.exclude.replace(", ", ",").split(",").map(|x| x.to_string()).collect(),
+                exclude: self
+                    .exclude
+                    .replace(", ", ",")
+                    .split(",")
+                    .map(|x| x.to_string())
+                    .collect(),
                 sort_type: self.sort_type,
                 out_file: perk_solver::Args::default().out_file,
                 price_file: perk_solver::Args::default().price_file,
-                alt_count: self.alts.unwrap_or(0) as u8
-            }
+                alt_count: self.alts.unwrap_or(0) as u8,
+            },
         }
     }
 }

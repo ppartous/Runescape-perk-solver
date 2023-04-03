@@ -19,12 +19,12 @@ pub use gizmo::*;
 pub mod budget;
 pub use budget::*;
 
+use crate::component_prices::calc_gizmo_price;
+use colored::Colorize;
+use itertools::Itertools;
+use serde::Serialize;
 use smallvec::SmallVec;
 use std::sync::Arc;
-use colored::Colorize;
-use serde::Serialize;
-use itertools::Itertools;
-use crate::component_prices::calc_gizmo_price;
 
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -39,8 +39,10 @@ pub type PRVPC = PerkRankValuesProbabilityContainer;
 impl Default for PerkRankValuesProbabilityContainer {
     fn default() -> Self {
         PerkRankValuesProbabilityContainer {
-            values: PerkRankValues { ..Default::default() },
-            probability: 0.0
+            values: PerkRankValues {
+                ..Default::default()
+            },
+            probability: 0.0,
         }
     }
 }
@@ -50,7 +52,7 @@ impl Default for PerkRankValuesProbabilityContainer {
 #[derive(Debug, PartialEq)]
 pub struct RankCombination {
     pub ranks: SmallVec<[PerkRankValues; 12]>,
-    pub probability: f64
+    pub probability: f64,
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -74,7 +76,7 @@ pub type PerkValuesVec = SmallVec<[PerkValues; 10]>;
 pub struct PartialPerkValues {
     pub name: PerkName,
     pub base: u16,
-    pub rolls: StackVec<u8, 9>
+    pub rolls: StackVec<u8, 9>,
 }
 
 pub type PartialPerkValuesVec = SmallVec<[PartialPerkValues; 10]>;
@@ -84,13 +86,21 @@ pub type PartialPerkValuesVec = SmallVec<[PartialPerkValues; 10]>;
 #[derive(Debug, Clone)]
 pub struct SplitMaterials {
     pub conflict: Vec<MaterialName>,
-    pub no_conflict: Vec<MaterialName>
+    pub no_conflict: Vec<MaterialName>,
 }
 
 impl SplitMaterials {
     pub fn to_json(&self) -> String {
-        let conflict = self.conflict.iter().map(|x| format!("\"{}\"", x.to_string())).join(", ");
-        let no_conflict = self.no_conflict.iter().map(|x| format!("\"{}\"", x.to_string())).join(", ");
+        let conflict = self
+            .conflict
+            .iter()
+            .map(|x| format!("\"{}\"", x.to_string()))
+            .join(", ");
+        let no_conflict = self
+            .no_conflict
+            .iter()
+            .map(|x| format!("\"{}\"", x.to_string()))
+            .join(", ");
         format!("{{\"conflict\": [{conflict}], \"no_conflict\": [{no_conflict}]}}")
     }
 }
@@ -126,19 +136,28 @@ pub struct ResultLine {
     pub prob_gizmo: f64,
     pub prob_attempt: f64,
     pub price: f64,
-    pub mat_combination: Arc<Vec<MaterialName>>
+    pub mat_combination: Arc<Vec<MaterialName>>,
 }
 
 impl ResultLine {
-    pub fn create(level: u8, prob_attempt: f64, prob_empty: f64, mat_combination: Arc<Vec<MaterialName>>) -> ResultLine {
-        let prob_gizmo = if prob_empty == 1.0 { 0.0 } else { prob_attempt / (1.0 - prob_empty) };
+    pub fn create(
+        level: u8,
+        prob_attempt: f64,
+        prob_empty: f64,
+        mat_combination: Arc<Vec<MaterialName>>,
+    ) -> ResultLine {
+        let prob_gizmo = if prob_empty == 1.0 {
+            0.0
+        } else {
+            prob_attempt / (1.0 - prob_empty)
+        };
         let price = calc_gizmo_price(&mat_combination, prob_gizmo);
         ResultLine {
             level,
             prob_gizmo,
             prob_attempt,
             price,
-            mat_combination
+            mat_combination,
         }
     }
 }
@@ -150,7 +169,7 @@ impl Default for ResultLine {
             prob_gizmo: 0.0,
             prob_attempt: 0.0,
             price: f64::MAX,
-            mat_combination: Arc::new(vec![])
+            mat_combination: Arc::new(vec![]),
         }
     }
 }

@@ -1,10 +1,10 @@
-use std::str::FromStr;
-use clap::{Parser, ValueEnum, Subcommand};
-use derive_more::Display;
+use crate::{utils::*, MaterialName, PerkName};
+use clap::{Parser, Subcommand, ValueEnum};
 use colored::*;
+use derive_more::Display;
 use itertools::Itertools;
+use std::str::FromStr;
 use strum::IntoEnumIterator;
-use crate::{PerkName, MaterialName, utils::*};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
@@ -13,7 +13,13 @@ pub struct Cli {
     pub gizmo_type: GizmoType,
 
     /// Invention level. Use two values separated by a comma to search in a range
-    #[arg(short('l'), long("level"), required(true), use_value_delimiter = true, value_delimiter = ',')]
+    #[arg(
+        short('l'),
+        long("level"),
+        required(true),
+        use_value_delimiter = true,
+        value_delimiter = ','
+    )]
     pub invention_level: Vec<u8>,
 
     /// Is ancient gizmo
@@ -22,7 +28,7 @@ pub struct Cli {
 
     /// Show the gizmo probabilities related to a given set of materials
     #[command(subcommand)]
-    pub command: Commands
+    pub command: Commands,
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -68,14 +74,14 @@ pub enum Commands {
 
         /// Amount of alternative combinations to show
         #[arg(long = "alt-count", short = 'A', default_value_t = 0, value_parser = clap::value_parser!(u8).range(..=254))]
-        alt_count: u8
+        alt_count: u8,
     },
     /// Show the gizmo probabilities for a given material combination
     MaterialInput {
         /// Comma separated list of materials. Shorter names are accepted (e.g. 'precise' instead of 'Precise components')
         #[arg(required(true), use_value_delimiter = true, value_delimiter = ',')]
-        mats: Vec<String>
-    }
+        mats: Vec<String>,
+    },
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -89,7 +95,7 @@ pub enum GizmoType {
     #[value(alias("a"))]
     Armour,
     #[value(alias("t"))]
-    Tool
+    Tool,
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -103,15 +109,15 @@ pub enum SortType {
     #[value(alias("a"))]
     Attempt,
     #[value(alias("p"))]
-    Price
+    Price,
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum InventionLevel {
-    Single (u8),
-    Range (u8, u8)
+    Single(u8),
+    Range(u8, u8),
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -130,23 +136,40 @@ pub struct Args {
     pub sort_type: SortType,
     pub out_file: String,
     pub price_file: String,
-    pub result_depth: u8
+    pub result_depth: u8,
 }
 
 impl Args {
     pub fn create(cli: &Cli) -> Result<Args, String> {
-        if let Commands::Gizmo { perk, rank, perk_two, rank_two, fuzzy, exclude, sort_type, out_file, price_file, alt_count } = &cli.command {
+        if let Commands::Gizmo {
+            perk,
+            rank,
+            perk_two,
+            rank_two,
+            fuzzy,
+            exclude,
+            sort_type,
+            out_file,
+            price_file,
+            alt_count,
+        } = &cli.command
+        {
             let invention_level = match cli.invention_level.len() {
                 0 => return Err("Missing invention level".to_string()),
                 1 => InventionLevel::Single(cli.invention_level[0]),
-                _ => InventionLevel::Range(cli.invention_level[0], cli.invention_level[1])
+                _ => InventionLevel::Range(cli.invention_level[0], cli.invention_level[1]),
             };
 
             let mut fuzzy = *fuzzy;
 
             let perk = match PerkName::from_str(perk) {
                 Ok(perk) => perk,
-                Err(_) => return Err(format!("Perk '{}' does not exist.", perk.to_string().yellow()))
+                Err(_) => {
+                    return Err(format!(
+                        "Perk '{}' does not exist.",
+                        perk.to_string().yellow()
+                    ))
+                }
             };
 
             let perk_two = if let Some(perk) = perk_two.as_ref() {
@@ -156,14 +179,23 @@ impl Args {
                 } else {
                     match PerkName::from_str(perk) {
                         Ok(perk) => perk,
-                        Err(_) => return Err(format!("Perk '{}' does not exist.", perk.to_string().yellow()))
+                        Err(_) => {
+                            return Err(format!(
+                                "Perk '{}' does not exist.",
+                                perk.to_string().yellow()
+                            ))
+                        }
                     }
                 }
             } else {
                 PerkName::Empty
             };
 
-            let rank_two = if perk_two == PerkName::Empty { 0 } else { *rank_two };
+            let rank_two = if perk_two == PerkName::Empty {
+                0
+            } else {
+                *rank_two
+            };
 
             let exclude = exclude.iter().filter_map(|x| {
                 if x.is_empty() {
@@ -193,7 +225,7 @@ impl Args {
                 exclude,
                 out_file: out_file.clone(),
                 price_file: price_file.clone(),
-                result_depth: *alt_count + 1
+                result_depth: *alt_count + 1,
             })
         } else {
             Err("Bad command".to_string())
@@ -216,7 +248,7 @@ impl Default for Args {
             sort_type: SortType::Price,
             out_file: String::from("out.csv"),
             price_file: String::from("prices.txt"),
-            result_depth: 1
+            result_depth: 1,
         }
     }
 }
@@ -225,18 +257,40 @@ impl std::fmt::Display for Args {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "{}", "Settings".underline().bright_green())?;
         match self.invention_level {
-            InventionLevel::Single(x) => writeln!(f, " - Invention level: {}", x.to_string().cyan())?,
-            InventionLevel::Range(x, y) => writeln!(f, " - Invention level: {}-{}", x.to_string().cyan(), y.to_string().cyan())?
+            InventionLevel::Single(x) => {
+                writeln!(f, " - Invention level: {}", x.to_string().cyan())?
+            }
+            InventionLevel::Range(x, y) => writeln!(
+                f,
+                " - Invention level: {}-{}",
+                x.to_string().cyan(),
+                y.to_string().cyan()
+            )?,
         }
         writeln!(f, " - Gizmo type: {}", self.gizmo_type.to_string().cyan())?;
         writeln!(f, " - Ancient gimzo: {}", self.ancient.to_string().cyan())?;
         if self.fuzzy {
-            writeln!(f, " - Perk one: {} {}", self.perk.to_string().cyan(), self.rank.to_string().cyan())?;
+            writeln!(
+                f,
+                " - Perk one: {} {}",
+                self.perk.to_string().cyan(),
+                self.rank.to_string().cyan()
+            )?;
             writeln!(f, " - Perk two: {}", "Any".cyan())?;
         } else {
-            writeln!(f, " - Perk one: {} {}", self.perk.to_string().cyan(), self.rank.to_string().cyan())?;
+            writeln!(
+                f,
+                " - Perk one: {} {}",
+                self.perk.to_string().cyan(),
+                self.rank.to_string().cyan()
+            )?;
             if self.perk_two != PerkName::Empty {
-                writeln!(f, " - Perk two: {} {}", self.perk_two.to_string().cyan(), self.rank_two.to_string().cyan())?;
+                writeln!(
+                    f,
+                    " - Perk two: {} {}",
+                    self.perk_two.to_string().cyan(),
+                    self.rank_two.to_string().cyan()
+                )?;
             } else {
                 writeln!(f, " - Perk two: {}", "Empty".cyan())?;
             }
@@ -247,8 +301,12 @@ impl std::fmt::Display for Args {
             SortType::Price => "estimated price",
         };
         write!(f, " - Sort on {}", sort_type.cyan())?;
-        if !self.exclude.is_empty()  {
-            write!(f, "\n - Excluded materials: {}", self.exclude.iter().map(|x| x.to_string().cyan()).join(", "))?;
+        if !self.exclude.is_empty() {
+            write!(
+                f,
+                "\n - Excluded materials: {}",
+                self.exclude.iter().map(|x| x.to_string().cyan()).join(", ")
+            )?;
         }
         Ok(())
     }

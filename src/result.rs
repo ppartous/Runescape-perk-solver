@@ -1,18 +1,42 @@
-use crate::{utils::print_warning, prelude::*};
+use crate::{prelude::*, utils::print_warning};
 use colored::*;
-use std::{collections::HashMap, fs, sync::{Arc, mpsc::Receiver}, thread::JoinHandle};
 use itertools::Itertools;
+use std::{
+    collections::HashMap,
+    fs,
+    sync::{mpsc::Receiver, Arc},
+    thread::JoinHandle,
+};
 
-pub fn result_handler(args: Arc<Args>, rx: Receiver<Vec<ResultLine>>) -> JoinHandle<Vec<Vec<ResultLine>>> {
+pub fn result_handler(
+    args: Arc<Args>,
+    rx: Receiver<Vec<ResultLine>>,
+) -> JoinHandle<Vec<Vec<ResultLine>>> {
     let handler = std::thread::spawn(move || {
         let mut best_per_level = HashMap::new();
         match args.invention_level {
             InventionLevel::Single(x) => {
-                best_per_level.insert(x, vec![ResultLine { ..Default::default() }; args.result_depth as usize]);
-            },
+                best_per_level.insert(
+                    x,
+                    vec![
+                        ResultLine {
+                            ..Default::default()
+                        };
+                        args.result_depth as usize
+                    ],
+                );
+            }
             InventionLevel::Range(x, y) => {
                 for lvl in (x..=y).step_by(2) {
-                    best_per_level.insert(lvl, vec![ResultLine { ..Default::default() }; args.result_depth as usize]);
+                    best_per_level.insert(
+                        lvl,
+                        vec![
+                            ResultLine {
+                                ..Default::default()
+                            };
+                            args.result_depth as usize
+                        ],
+                    );
                 }
             }
         }
@@ -25,11 +49,12 @@ pub fn result_handler(args: Arc<Args>, rx: Receiver<Vec<ResultLine>>) -> JoinHan
                     let (curr, new) = match args.sort_type {
                         SortType::Price => (1.0 / x.price, 1.0 / line.price),
                         SortType::Gizmo => (x.prob_gizmo, line.prob_gizmo),
-                        SortType::Attempt => (x.prob_attempt, line.prob_attempt)
+                        SortType::Attempt => (x.prob_attempt, line.prob_attempt),
                     };
                     if curr == new {
                         if line.mat_combination.len() == x.mat_combination.len() {
-                            line.mat_combination.iter().counts() == x.mat_combination.iter().counts() // Let combinations with same materials but different order overwrite each other so they don't take up another slot
+                            line.mat_combination.iter().counts()
+                                == x.mat_combination.iter().counts() // Let combinations with same materials but different order overwrite each other so they don't take up another slot
                         } else {
                             line.mat_combination.len() < x.mat_combination.len()
                         }
@@ -45,8 +70,11 @@ pub fn result_handler(args: Arc<Args>, rx: Receiver<Vec<ResultLine>>) -> JoinHan
             }
         }
 
-        best_per_level.into_values().sorted_by(|x, y| x[0].level.cmp(&y[0].level))
-            .filter(|x| x[0].prob_gizmo > 0.0).collect_vec()
+        best_per_level
+            .into_values()
+            .sorted_by(|x, y| x[0].level.cmp(&y[0].level))
+            .filter(|x| x[0].prob_gizmo > 0.0)
+            .collect_vec()
     });
 
     handler
@@ -97,9 +125,15 @@ fn get_color(ratio: f64) -> (u8, u8, u8) {
 
 pub fn print_result(best_per_level: &Vec<Vec<ResultLine>>, args: &Args) {
     let best_wanted_index = match args.sort_type {
-        SortType::Price => best_per_level.iter().position_min_by(|a, b| a[0].price.partial_cmp(&b[0].price).unwrap()),
-        SortType::Gizmo => best_per_level.iter().position_max_by(|a, b| a[0].prob_gizmo.partial_cmp(&b[0].prob_gizmo).unwrap()),
-        SortType::Attempt => best_per_level.iter().position_max_by(|a, b| a[0].prob_attempt.partial_cmp(&b[0].prob_attempt).unwrap()),
+        SortType::Price => best_per_level
+            .iter()
+            .position_min_by(|a, b| a[0].price.partial_cmp(&b[0].price).unwrap()),
+        SortType::Gizmo => best_per_level
+            .iter()
+            .position_max_by(|a, b| a[0].prob_gizmo.partial_cmp(&b[0].prob_gizmo).unwrap()),
+        SortType::Attempt => best_per_level
+            .iter()
+            .position_max_by(|a, b| a[0].prob_attempt.partial_cmp(&b[0].prob_attempt).unwrap()),
     };
 
     if let Some(best_wanted_index) = best_wanted_index {
@@ -110,31 +144,61 @@ pub fn print_result(best_per_level: &Vec<Vec<ResultLine>>, args: &Args) {
         println!("|-------|---------------------------|-----------|");
 
         let best_wanted = &best_per_level[best_wanted_index][0];
-        let best_gizmo = best_per_level.iter().map(|x| x[0].prob_gizmo).reduce(f64::max).unwrap();
-        let best_attempt = best_per_level.iter().map(|x| x[0].prob_attempt).reduce(f64::max).unwrap();
-        let best_price = best_per_level.iter().map(|x| x[0].price).reduce(f64::min).unwrap();
+        let best_gizmo = best_per_level
+            .iter()
+            .map(|x| x[0].prob_gizmo)
+            .reduce(f64::max)
+            .unwrap();
+        let best_attempt = best_per_level
+            .iter()
+            .map(|x| x[0].prob_attempt)
+            .reduce(f64::max)
+            .unwrap();
+        let best_price = best_per_level
+            .iter()
+            .map(|x| x[0].price)
+            .reduce(f64::min)
+            .unwrap();
 
         for (i, line) in best_per_level.iter().enumerate() {
             let (r1, g1, b1) = get_color(line[0].prob_gizmo / best_gizmo);
             let (r2, g2, b2) = get_color(line[0].prob_attempt / best_attempt);
             let (r3, g3, b3) = get_color(best_price / line[0].price);
 
-            print!("| {:>4}  |  {:>9}  |  {:>9}  | {:>9} |", line[0].level,
+            print!(
+                "| {:>4}  |  {:>9}  |  {:>9}  | {:>9} |",
+                line[0].level,
                 format_float(line[0].prob_gizmo).truecolor(r1, g1, b1),
                 format_float(line[0].prob_attempt).truecolor(r2, g2, b2),
-                format_price(line[0].price).truecolor(r3, g3, b3));
+                format_price(line[0].price).truecolor(r3, g3, b3)
+            );
 
-            if i == best_wanted_index { println!(" <====") } else { println!() }
+            if i == best_wanted_index {
+                println!(" <====")
+            } else {
+                println!()
+            }
         }
 
         println!("|-------|---------------------------|-----------|\n");
 
         let val = match args.sort_type {
             SortType::Price => format_price(best_per_level[best_wanted_index][0].price),
-            SortType::Gizmo => format!("{}%", format_float(best_per_level[best_wanted_index][0].prob_gizmo)),
-            SortType::Attempt => format!("{}%", format_float(best_per_level[best_wanted_index][0].prob_attempt)),
+            SortType::Gizmo => format!(
+                "{}%",
+                format_float(best_per_level[best_wanted_index][0].prob_gizmo)
+            ),
+            SortType::Attempt => format!(
+                "{}%",
+                format_float(best_per_level[best_wanted_index][0].prob_attempt)
+            ),
         };
-        println!("Best combination at level {}:\n {:<10}: {}", best_wanted.level, val, MaterialName::vec_to_string(best_wanted.mat_combination.as_ref()));
+        println!(
+            "Best combination at level {}:\n {:<10}: {}",
+            best_wanted.level,
+            val,
+            MaterialName::vec_to_string(best_wanted.mat_combination.as_ref())
+        );
 
         if args.result_depth > 1 {
             println!("\nAlts:");
@@ -145,17 +209,22 @@ pub fn print_result(best_per_level: &Vec<Vec<ResultLine>>, args: &Args) {
                         SortType::Gizmo => format!("{}%", format_float(alt.prob_gizmo)),
                         SortType::Attempt => format!("{}%", format_float(alt.prob_attempt)),
                     };
-                    println!(" {:<10}: {}", val, MaterialName::vec_to_string(alt.mat_combination.as_ref()));
+                    println!(
+                        " {:<10}: {}",
+                        val,
+                        MaterialName::vec_to_string(alt.mat_combination.as_ref())
+                    );
                 }
             }
         }
 
-        #[cfg(feature="wiki-template")]
+        #[cfg(feature = "wiki-template")]
         {
             let counts = best_wanted.mat_combination.iter().counts();
             let mut mats = vec![];
             for mat in best_wanted.mat_combination.iter().unique() {
-                let s = mat.to_string()
+                let s = mat
+                    .to_string()
                     .replace(" parts", "")
                     .replace(" components", "");
                 for _ in 0..counts[mat] {
@@ -179,7 +248,7 @@ pub fn print_result(best_per_level: &Vec<Vec<ResultLine>>, args: &Args) {
                 ..=120 => ((best_wanted.level / 2) * 2, "none"),
                 121..=123 => (120, "normal"),
                 124..=125 => (120, "super"),
-                126.. => (120, "extreme")
+                126.. => (120, "extreme"),
             };
             println!("[[File:{gizmo_image} gizmo.png|link=]] {{{{Perk calclink|{mats}|gizmo={gizmo_type}|level={level}|potion={potion}|text='''Probability: {:.2}%'''}}}}", best_wanted.prob_gizmo * 100.0);
             println!("{{{{Perk calclink|{mats}|gizmo={gizmo_type}|level={level}|potion={potion}|text={} {}, {} {}}}}} ({:.2}%)",
@@ -196,10 +265,26 @@ pub fn write_best_mats_to_file(best_per_level: &Vec<Vec<ResultLine>>, args: &Arg
     }
 
     colored::control::set_override(false);
-    let str = best_per_level.iter().cloned().flatten().filter(|x| x.prob_gizmo > 0.0).map(|x| {
-        format!("{}, {:.3e}, {:.3e}, {:.3e}, {}", x.level, x.prob_gizmo * 100.0, x.prob_attempt * 100.0, x.price, MaterialName::vec_to_string(x.mat_combination.as_ref()))
-    }).join("\n");
-    let str = format!("Level, Prob gizmo (%), Prob attemp (%), Price, Materials\n{}", str);
+    let str = best_per_level
+        .iter()
+        .cloned()
+        .flatten()
+        .filter(|x| x.prob_gizmo > 0.0)
+        .map(|x| {
+            format!(
+                "{}, {:.3e}, {:.3e}, {:.3e}, {}",
+                x.level,
+                x.prob_gizmo * 100.0,
+                x.prob_attempt * 100.0,
+                x.price,
+                MaterialName::vec_to_string(x.mat_combination.as_ref())
+            )
+        })
+        .join("\n");
+    let str = format!(
+        "Level, Prob gizmo (%), Prob attemp (%), Price, Materials\n{}",
+        str
+    );
     let res = fs::write(&args.out_file, str);
     colored::control::unset_override();
     if let Err(err) = res {
@@ -209,8 +294,13 @@ pub fn write_best_mats_to_file(best_per_level: &Vec<Vec<ResultLine>>, args: &Arg
 
 pub fn gizmo_combination_sort(v: &[MaterialName]) -> Vec<MaterialName> {
     let counts = v.iter().counts();
-    v.iter().copied().unique().map(|x| {
-        let count = *counts.get(&x).unwrap();
-        vec![x; count]
-    }).flatten().collect_vec()
+    v.iter()
+        .copied()
+        .unique()
+        .map(|x| {
+            let count = *counts.get(&x).unwrap();
+            vec![x; count]
+        })
+        .flatten()
+        .collect_vec()
 }
