@@ -3,17 +3,19 @@
 
 mod args;
 mod prelude;
-mod utils;
 
 use args::{AppArgs, ArgsMessage};
 use derivative::Derivative;
+use indicatif::HumanCount;
 use perk_solver::{Solver, SolverMetadata};
 use prelude::*;
+use itertools::Itertools;
 
-use iced::widget::{button, column, progress_bar, row, text};
-use iced::{theme, Alignment, Application, Command, Element, Length, Settings, Theme};
+use iced::widget::{button, column, progress_bar, row, text, horizontal_space};
+use iced::{theme, Alignment, Application, Command, Element, Length, Settings, Theme, Padding};
 
 use std::sync::atomic::Ordering;
+use std::time::Instant;
 
 pub fn main() -> iced::Result {
     App::run(Settings::default())
@@ -25,7 +27,9 @@ struct App {
     progress: u64,
     args: AppArgs,
     solver: Option<SolverMetadata>,
-    solver_result: Option<std::thread::JoinHandle<Vec<Vec<ResultLine>>>>,
+    solver_result: SolverResult,
+    #[derivative(Default(value = "Instant::now()"))]
+    start_time: Instant,
     error_text: Option<String>,
 }
 
@@ -57,29 +61,33 @@ impl Application for App {
         match message {
             AppMessage::ArgsMessage(message) => self.args.update(message),
             AppMessage::StartMessage => {
-                self.solver.take();
                 self.progress = 0;
-                let solver = match setup(&self.args) {
-                    Ok(solver) => solver,
+                match setup(&self.args) {
+                    Ok(solver) => {
+                        self.error_text.take();
+                        self.solver = Some(solver.meta.clone());
+                        self.solver_result = SolverResult::Future(std::thread::spawn(move || {
+                            solver.run().join().unwrap()
+                        }));
+                        self.start_time = Instant::now();
+                        return Command::perform(
+                            App::progress_bar_update_timer(),
+                            AppMessage::ProgressUpdateMessage,
+                        );
+                    }
                     Err(err) => {
                         self.error_text = Some(err);
-                        return Command::none();
+                        self.solver.take();
+                        self.solver_result.take();
                     }
                 };
-                self.error_text.take();
-                self.solver = Some(solver.meta.clone());
-                self.solver_result = Some(std::thread::spawn(move || solver.run().join().unwrap()));
-                return Command::perform(
-                    App::progress_bar_update_timer(),
-                    AppMessage::ProgressUpdateMessage,
-                );
             }
             AppMessage::CancelMessage => {
                 if let Some(solver) = self.solver.as_ref() {
                     solver.cancel_signal.store(true, Ordering::SeqCst);
                 }
-                if let Some(res) = self.solver_result.take() {
-                    res.join().ok();
+                if let SolverResult::Future(fut) = self.solver_result.take() {
+                    fut.join().ok();
                 }
                 self.solver.take();
                 self.progress = 0;
@@ -92,6 +100,10 @@ impl Application for App {
                             App::progress_bar_update_timer(),
                             AppMessage::ProgressUpdateMessage,
                         );
+                    } else {
+                        if let SolverResult::Future(fut) = self.solver_result.take_fut() {
+                            self.solver_result = SolverResult::Done(fut.join().unwrap());
+                        }
                     }
                 }
             }
@@ -103,9 +115,11 @@ impl Application for App {
         column![
             self.args.view().map(AppMessage::ArgsMessage),
             if let Some(solver) = self.solver.as_ref() {
-                let progress = 100.0 * self.progress as f32 / solver.total_combination_count as f32;
+                let progress_percent = 100.0 * self.progress as f32 / solver.total_combination_count as f32;
+                let dur = self.start_time.elapsed().as_secs();
+
                 column![
-                    if progress == 100.0  {
+                    if progress_percent == 100.0  {
                         button("Start!").on_press(AppMessage::StartMessage)
                     } else {
                         button("Cancel")
@@ -113,17 +127,54 @@ impl Application for App {
                             .style(theme::Button::Destructive)
                     },
                     row![
-                        progress_bar(0.0..=100.0, progress),
-                        text(format!("({} %)", progress as usize)).width(70.0)
+                        text(
+                            format!(
+                                "[{:02}:{:02}:{:02}]",
+                                dur / 3600,
+                                (dur % 3600) / 60,
+                                (dur % 60)
+                            )
+                        ),
+                        progress_bar(0.0..=100.0, progress_percent),
+                        text(
+                            format!(
+                                "{} / {} ({} %)",
+                                HumanCount(self.progress),
+                                HumanCount(solver.total_combination_count),
+                                progress_percent as u64
+                            )
+                        )
                     ]
                     .padding(20)
                     .spacing(10)
                     .align_items(Alignment::Center),
-                    text(format!(
-                        "{} / {}",
-                        utils::format_int(self.progress as i64),
-                        utils::format_int(solver.total_combination_count as i64)
-                    ))
+                    row![
+                        text("Possible materials:").font(fonts::bold::Roboto),
+                        horizontal_space(5.0),
+                        text(
+                            solver.materials.conflict
+                                .iter()
+                                .chain(&solver.materials.no_conflict)
+                                .map(|x| x.to_string())
+                                .join(", ")
+                        )
+                    ]
+                    .padding(Padding::from([0, 20])),
+                    if !solver.args.exclude.is_empty() {
+                        row![
+                            text("Excluded materials:").font(fonts::bold::Roboto),
+                            horizontal_space(5.0),
+                            text(
+                                solver.args.exclude
+                                    .iter()
+                                    .map(|x| x.to_string())
+                                    .join(", ")
+                            )
+                        ]
+                        .padding(Padding::from([0, 20]))
+                    } else {
+                        row![]
+                    }
                 ]
                 .align_items(Alignment::Center)
                 .width(Length::Fill)
@@ -131,7 +182,7 @@ impl Application for App {
                 column![
                     button("Start!").on_press(AppMessage::StartMessage),
                     if let Some(err) = self.error_text.as_ref() {
-                        text(format!("Error: {}", err))
+                        text(err)
                     } else {
                         text("").height(0.0)
                     }
@@ -161,4 +212,25 @@ fn setup(appargs: &AppArgs) -> Result<Solver, String> {
     let data = Data::load();
     let solver = perk_solver::Solver::new(args, data)?;
     Ok(solver)
+}
+
+#[derive(Default)]
+enum SolverResult {
+    #[default]
+    None,
+    Future(std::thread::JoinHandle<Vec<Vec<ResultLine>>>),
+    Done(Vec<Vec<ResultLine>>),
+}
+
+impl SolverResult {
+    fn take(&mut self) -> Self {
+        std::mem::take(self)
+    }
+
+    fn take_fut(&mut self) -> Self {
+        match self {
+            SolverResult::Future(_) => self.take(),
+            _ => SolverResult::None,
+        }
+    }
 }

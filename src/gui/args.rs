@@ -1,6 +1,6 @@
 mod numeric_input;
 
-use crate::{Cli, GizmoType, PerkName, SortType};
+use crate::{Cli, GizmoType, PerkName, SortType, fonts};
 use numeric_input::numeric_input;
 
 use derivative::Derivative;
@@ -14,22 +14,22 @@ use strum::VariantNames;
 #[derive(Derivative, Debug)]
 #[derivative(Default)]
 pub struct AppArgs {
-    perk: Option<&'static str>,
-    rank: Option<u32>,
-    perk_two: Option<&'static str>,
-    rank_two: Option<u32>,
+    pub perk: Option<&'static str>,
+    pub rank: Option<u32>,
+    pub perk_two: Option<&'static str>,
+    pub rank_two: Option<u32>,
     #[derivative(Default(value = "[Some(1), Some(137)]"))]
-    invention_level: [Option<u32>; 2],
-    fuzzy: bool,
+    pub invention_level: [Option<u32>; 2],
+    pub fuzzy: bool,
     #[derivative(Default(value = "true"))]
-    ancient: bool,
-    exclude: String,
+    pub ancient: bool,
+    pub exclude: String,
     #[derivative(Default(value = "Some(5)"))]
-    alts: Option<u32>,
+    pub alts: Option<u32>,
     #[derivative(Default(value = "GizmoType::Weapon"))]
-    gizmo_type: GizmoType,
+    pub gizmo_type: GizmoType,
     #[derivative(Default(value = "SortType::Price"))]
-    sort_type: SortType,
+    pub sort_type: SortType,
 }
 
 #[derive(Debug, Clone)]
@@ -110,7 +110,7 @@ impl AppArgs {
                 separator(),
 
                 column![
-                    text("Gizmo type").font(crate::ROBOTO_BOLD),
+                    text("Gizmo type").font(fonts::bold::Roboto),
                     radio("Weapon", GizmoType::Weapon, Some(self.gizmo_type), ArgsMessage::GizmoTypeChanged),
                     radio("Armour", GizmoType::Armour, Some(self.gizmo_type), ArgsMessage::GizmoTypeChanged),
                     radio("Tool", GizmoType::Tool, Some(self.gizmo_type), ArgsMessage::GizmoTypeChanged),
@@ -121,7 +121,7 @@ impl AppArgs {
                 separator(),
 
                 column![
-                    text("Sort style").font(crate::ROBOTO_BOLD),
+                    text("Sort style").font(fonts::bold::Roboto),
                     radio("Price", SortType::Price, Some(self.sort_type), ArgsMessage::SortTypeChanged),
                     radio("Gizmo", SortType::Gizmo, Some(self.sort_type), ArgsMessage::SortTypeChanged),
                     radio("Attempt", SortType::Attempt, Some(self.sort_type), ArgsMessage::SortTypeChanged),
