@@ -160,6 +160,35 @@ impl ResultLine {
             mat_combination,
         }
     }
+
+    pub fn is_better(&self, other: &Self, sort_type: SortType) -> bool {
+        let (x, y) = match sort_type {
+            SortType::Price => (1.0 / self.price, 1.0 / other.price),
+            SortType::Gizmo => (self.prob_gizmo, other.prob_gizmo),
+            SortType::Attempt => (self.prob_attempt, other.prob_attempt),
+        };
+        if x == y {
+            if other.mat_combination.len() == self.mat_combination.len() {
+                // Let combinations with same materials but different order overwrite each other
+                other.mat_combination.iter().counts() == self.mat_combination.iter().counts()
+            } else {
+                self.mat_combination.len() < other.mat_combination.len()
+            }
+        } else {
+            x > y
+        }
+    }
+
+    pub fn eq(&self, other: &Self, sort_type: SortType) -> bool {
+        let (x, y) = match sort_type {
+            SortType::Price => (1.0 / self.price, 1.0 / other.price),
+            SortType::Gizmo => (self.prob_gizmo, other.prob_gizmo),
+            SortType::Attempt => (self.prob_attempt, other.prob_attempt),
+        };
+        (x == y)
+            && (self.mat_combination.len() == other.mat_combination.len())
+            && (self.mat_combination.iter().counts() == other.mat_combination.iter().counts())
+    }
 }
 
 impl Default for ResultLine {
