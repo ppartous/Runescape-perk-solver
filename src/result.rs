@@ -67,7 +67,7 @@ pub fn result_handler(
     handler
 }
 
-fn format_float(num: f64) -> String {
+pub fn format_float(num: f64) -> String {
     let num = num.min(1.0) * 100.0;
     if num > 1e-2 {
         format!("{:.5}", num)
@@ -80,7 +80,7 @@ fn format_float(num: f64) -> String {
     }
 }
 
-fn format_price(num: f64) -> String {
+pub fn format_price(num: f64) -> String {
     if num < 1e4 {
         format!("{}", num as usize)
     } else if num < 1e7 {
@@ -94,7 +94,7 @@ fn format_price(num: f64) -> String {
     }
 }
 
-fn get_color(ratio: f64) -> (u8, u8, u8) {
+pub fn get_color(ratio: f64) -> (u8, u8, u8) {
     if ratio > 0.98 {
         (44, 186, 0) // Green
     } else if ratio > 0.95 {
@@ -125,11 +125,11 @@ pub fn print_result(best_per_level: &Vec<Vec<ResultLine>>, args: &Args) {
         let best_attempt_prob = best_per_level[best_attempt_index][0].prob_attempt;
         let best_price = best_per_level[best_price_index][0].price;
 
-        println!("|-------|---------------------------|-----------|");
-        println!("|       |      Probability (%)      |           |");
-        println!("| Level |---------------------------|   Price   |");
-        println!("|       |    Gizmo    |   Attempt   |           |");
-        println!("|-------|---------------------------|-----------|");
+        println!("┌───────┬───────────────────────────┬───────────┐");
+        println!("│       │      Probability (%)      │           │");
+        println!("│ Level ├─────────────┬─────────────┤   Price   │");
+        println!("│       │    Gizmo    │   Attempt   │           │");
+        println!("├───────┼─────────────┼─────────────┼───────────┤");
 
         for (i, line) in best_per_level.iter().enumerate() {
             let (r1, g1, b1) = get_color(line[0].prob_gizmo / best_gizmo_prob);
@@ -137,7 +137,7 @@ pub fn print_result(best_per_level: &Vec<Vec<ResultLine>>, args: &Args) {
             let (r3, g3, b3) = get_color(best_price / line[0].price);
 
             print!(
-                "| {:>4}  |  {:>9}  |  {:>9}  | {:>9} |",
+                "│ {:>4}  │  {:>9}  │  {:>9}  │ {:>9} │",
                 line[0].level,
                 format_float(line[0].prob_gizmo).truecolor(r1, g1, b1),
                 format_float(line[0].prob_attempt).truecolor(r2, g2, b2),
@@ -151,7 +151,7 @@ pub fn print_result(best_per_level: &Vec<Vec<ResultLine>>, args: &Args) {
             }
         }
 
-        println!("|-------|---------------------------|-----------|\n");
+        println!("└───────┴─────────────┴─────────────┴───────────┘\n");
 
         let val = match args.sort_type {
             SortType::Price => format_price(best_per_level[best_wanted_index][0].price),

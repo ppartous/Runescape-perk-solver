@@ -1,6 +1,6 @@
 mod numeric_input;
 
-use crate::{Cli, GizmoType, PerkName, SortType, fonts};
+use crate::{fonts, Cli, GizmoType, PerkName, SortType};
 use numeric_input::numeric_input;
 
 use derivative::Derivative;

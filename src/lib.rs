@@ -109,7 +109,7 @@ mod gizmo_cost_thresholds;
 mod jagex_sort;
 mod perk_values;
 pub mod prelude;
-mod result;
+pub mod result;
 mod utils;
 
 use colored::Colorize;
