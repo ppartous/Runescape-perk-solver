@@ -585,32 +585,46 @@ fn get_materials(
     data: &Data,
     wanted_gizmo: Gizmo,
 ) -> Result<Vec<MaterialName>, String> {
-    let mut possible_materials = Vec::new();
+    let get_mats = |perk| {
+        let mut possible_materials = Vec::new();
 
-    for (mat_name, mat_data) in data.comps.iter() {
-        for comp_values in mat_data[args.gizmo_type].iter() {
-            if (comp_values.perk == wanted_gizmo.perks.0.name
-                || comp_values.perk == wanted_gizmo.perks.1.name)
-                && (args.ancient || !mat_data.ancient_only)
-            {
-                possible_materials.push(mat_name);
+        for (mat_name, mat_data) in data.comps.iter() {
+            for comp_values in mat_data[args.gizmo_type].iter() {
+                if (comp_values.perk == perk) && (args.ancient || !mat_data.ancient_only) {
+                    possible_materials.push(mat_name);
+                }
             }
         }
+
+        possible_materials
+    };
+
+    let perk_one_mats = get_mats(wanted_gizmo.perks.0.name);
+    let perk_two_mats = get_mats(wanted_gizmo.perks.1.name);
+
+    if perk_one_mats.is_empty() {
+        return Err(format!(
+            "No materials found that can produce {}. Is the gizmo type correct?",
+            wanted_gizmo.perks.0.name
+        ));
+    }
+    if !wanted_gizmo.perks.1.is_empty() && perk_two_mats.is_empty() {
+        return Err(format!(
+            "No materials found that can produce {}. Is the gizmo type correct?",
+            wanted_gizmo.perks.1.name
+        ));
     }
 
-    let possible_materials = possible_materials
-        .iter()
+    let possible_materials = perk_one_mats
+        .into_iter()
+        .chain(perk_two_mats)
         .unique()
         .sorted()
         .filter(|x| !args.exclude.iter().contains(x))
-        .copied()
         .collect_vec();
 
     if possible_materials.is_empty() {
-        return Err(
-            "No materials found that can produce these perks. Is the gizmo type correct?"
-                .to_string(),
-        );
+        return Err("No materials left after filtering.".to_string());
     }
 
     Ok(possible_materials)
