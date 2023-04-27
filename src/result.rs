@@ -12,7 +12,7 @@ pub fn result_handler(
     args: Arc<Args>,
     rx: Receiver<Vec<ResultLine>>,
 ) -> JoinHandle<Vec<Vec<ResultLine>>> {
-    let handler = std::thread::spawn(move || {
+    std::thread::spawn(move || {
         let mut best_per_level = HashMap::new();
         match args.invention_level {
             InventionLevel::Single(x) => {
@@ -62,9 +62,7 @@ pub fn result_handler(
             .sorted_by(|x, y| x[0].level.cmp(&y[0].level))
             .filter(|x| x[0].prob_gizmo > 0.0)
             .collect_vec()
-    });
-
-    handler
+    })
 }
 
 pub fn format_float(num: f64) -> String {

@@ -1,0 +1,12 @@
+#ArgsForm table {
+    display: inline-table;
+}
+
+#ArgsForm table td,
+#ArgsForm table th {
+    text-align: left;
+}
+
+body {
+    font-family: 'IBM Plex Sans', 'Helvetica Neue', 'Arial', sans-serif;
+}

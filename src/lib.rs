@@ -605,13 +605,13 @@ fn get_materials(
     if perk_one_mats.is_empty() {
         return Err(format!(
             "No materials found that can produce {}. Is the gizmo type correct?",
-            wanted_gizmo.perks.0.name
+            wanted_gizmo.perks.0.name.to_string().yellow()
         ));
     }
     if !wanted_gizmo.perks.1.is_empty() && perk_two_mats.is_empty() {
         return Err(format!(
             "No materials found that can produce {}. Is the gizmo type correct?",
-            wanted_gizmo.perks.1.name
+            wanted_gizmo.perks.1.name.to_string().yellow()
         ));
     }
 
