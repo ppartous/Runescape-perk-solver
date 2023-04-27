@@ -122,21 +122,15 @@ fn MaterialsList<'a>(cx: Scope<'a>, solver: &'a SolverMetadata) -> Element<'a> {
 fn ArgsForm<'a>(cx: Scope, on_submit: EventHandler<'a, FormEvent>, is_running: bool) -> Element {
     cx.render(rsx!(
         form {
-            class: "form-inline m-2",
             id: "ArgsForm",
             onsubmit: move |ev| on_submit.call(ev),
             div {
-                class: "col",
-                div {
-                    class: "row",
-                    div {
-                        class: "form-col",
-                        div {
-                            class: "form-group",
-                            label { r#for: "perk one", "Perk one:" }
+                table {
+                    tr {
+                        th { "Perk one:" }
+                        td {
                             select {
                                 name: "perk one",
-                                id: "perk one",
                                 class: "form-control",
                                 for &x in PerkName::VARIANTS.iter() {
                                     option { value: x, x }
@@ -144,12 +138,12 @@ fn ArgsForm<'a>(cx: Scope, on_submit: EventHandler<'a, FormEvent>, is_running: b
                             }
                             input { r#type: "number", name: "rank one", placeholder: "Rank", min: "1", max: "6", class: "form-control" }
                         }
-                        div {
-                            class: "form-group",
-                            label { r#for: "perk two", "Perk two:" }
+                    }
+                    tr {
+                        th { "Perk two:" }
+                        td {
                             select {
                                 name: "perk two",
-                                id: "perk two",
                                 class: "form-control",
                                 for &x in ["Any"].iter().chain(PerkName::VARIANTS) {
                                     option { value: x, x }
@@ -157,77 +151,77 @@ fn ArgsForm<'a>(cx: Scope, on_submit: EventHandler<'a, FormEvent>, is_running: b
                             }
                             input { r#type: "number", name: "rank two", placeholder: "Rank", min: "1", max: "6", class: "form-control" }
                         }
-                        div {
-                            class: "form-group",
-                            label { r#for: "invention level low", "Invention level:" }
-                            input {
-                                r#type: "number",
-                                name: "invention level low",
-                                id: "invention level low",
-                                min: "1",
-                                max: "137",
-                                value: "1",
-                                class: "form-control"
-                            }
+                    }
+                    tr {
+                        th { "Invention level:" }
+                        td {
+                            input { r#type: "number", name: "invention level low", min: "1", max: "137", value: "1", class: "form-control" }
                             span { "—" }
                             input { r#type: "number", name: "invention level heigh", min: "1", max: "137", value: "137", class: "form-control" }
                         }
-                        div {
-                            class: "form-group",
-                            label { r#for: "ancient", "Ancient:" }
-                            input { r#type: "checkbox", name: "ancient", id: "ancient", class: "form-control" }
+                    }
+                    tr {
+                        th { "Ancient:" }
+                        td {
+                            input { r#type: "checkbox", name: "ancient", class: "form-control" }
                         }
                     }
-                    div {
-                        class: "form-col",
-                        legend { class: "col-form-label pt-0", "Gizmo type:" }
-                        for x in ["Weapon", "Armour", "Tool"] {
-                            div {
-                                class: "form-group",
-                                input { r#type: "radio", name: "gizmo type", class: "form-check-input", id: x, value: x }
-                                label { r#for: x, class: "form-check-label", x }
+                }
+                table {
+                    tr {
+                        th {
+                            colspan: "2",
+                            "Gizmo type:"
+                        }
+                    }
+                    for x in ["Weapon", "Armour", "Tool"] {
+                        tr {
+                            td {
+                                colspan: "2",
+                                input { r#type: "radio", name: "gizmo type", id: x, value: x, class: "form-control" }
+                                label { r#for: x, x }
                             }
                         }
-                        div {
-                            class: "form-group",
-                            label { r#for: "alt count", "Alt count:" }
-                            input { r#type: "number", name: "alt count", id: "alt count", min: "0", max: "254", value: "5", class: "form-control" }
+                    }
+                    tr {
+                        th { "Alt count:" }
+                        td {
+                            input { r#type: "number", name: "alt count", min: "0", max: "254", value: "5", class: "form-control" }
                         }
                     }
-                    div {
-                        class: "form-col",
-                        legend { class: "col-form-label pt-0", "Sort on:" }
-                        for x in ["Lowest price", "Best gizmo chance", "Best attempt chance"] {
-                            div {
-                                class: "form-group",
+
+                }
+                table {
+                    tr {
+                        th { "Sort on:" }
+                    }
+                    for x in ["Lowest price", "Best gizmo chance", "Best attempt chance"] {
+                        tr {
+                            td {
                                 input {
                                     r#type: "radio",
                                     name: "sort type",
                                     id: x,
                                     value: x,
                                     checked: if x == "Lowest price" { "true" } else { "false" },
-                                    class: "form-check-input"
+                                    class: "form-control"
                                 }
-                                label { r#for: x, class: "form-check-label", x }
+                                label { r#for: x, x }
                             }
                         }
-                        legend { class: "col-form-label pt-0", "Exclude filter:" }
-                        input { r#type: "text", name: "exclude filter", placeholder: "e.g.: noxious, direct", class: "form-control" }
                     }
-                }
-                div {
-                    class: "row",
-                    if *is_running {
-                        rsx!(
-                            button { r#type: "submit", value: "Submit", class: "btn btn-danger", "Cancel" }
-                        )
-                    } else {
-                        rsx!(
-                            button { r#type: "submit", value: "Submit", class: "btn btn-primary", "Start!" }
-                        )
+                    tr {
+                        th { "Exclude filter:" }
+                    }
+                    tr {
+                        td {
+                            input { r#type: "text", name: "exclude filter", placeholder: "e.g.: noxious, direct", class: "form-control" }
+                        }
                     }
                 }
             }
+
+            button { r#type: "submit", value: "Submit", class: "form-control", if *is_running { "Cancel" } else { "Start!" } }
         }
     ))
 }
