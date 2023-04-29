@@ -162,8 +162,8 @@ impl Solver {
             ..Default::default()
         };
         validate_input(&args, wanted_gizmo, &data)?;
-        load_component_prices(&args)?;
         let materials = get_materials(&args, &data, wanted_gizmo)?;
+        load_component_prices(&args)?;
         let materials = Arc::new(split_materials(&args, &data, wanted_gizmo, materials));
         let total_combination_count = calc_combination_count(
             materials.conflict.len(),
@@ -190,7 +190,7 @@ impl Solver {
         })
     }
 
-    pub fn run(self) -> thread::JoinHandle<Vec<Vec<ResultLine>>> {
+    pub fn run(mut self) -> Vec<Vec<ResultLine>> {
         let budgets = Arc::new(generate_budgets(
             &self.meta.args.invention_level,
             self.meta.args.ancient,
@@ -315,7 +315,8 @@ impl Solver {
         self.meta
             .bar_progress
             .store(self.meta.total_combination_count as u64, Relaxed);
-        self.result_handler
+        self.result_tx.take();
+        self.result_handler.join().unwrap()
     }
 }
 
@@ -347,12 +348,11 @@ pub fn perk_solver(args: Args) {
         }
     });
 
-    let result_handler = solver.run();
+    let best_per_level = solver.run();
 
     bar_handler.join().ok();
     println!("\n");
 
-    let best_per_level = result_handler.join().unwrap();
     result::print_result(&best_per_level, &meta.args);
     result::write_best_mats_to_file(&best_per_level, &meta.args);
 }

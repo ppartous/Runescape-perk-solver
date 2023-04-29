@@ -1,14 +1,17 @@
 #![allow(non_snake_case)]
 use std::collections::HashMap;
 use std::sync::atomic::Ordering;
+use std::time::Duration;
 
-use clap::ValueEnum;
 use dioxus::prelude::*;
 use dioxus_desktop::{Config, WindowBuilder};
 
+use clap::ValueEnum;
+use indicatif::HumanCount;
 use itertools::Itertools;
 use perk_solver::{prelude::*, Solver, SolverMetadata};
 use strum::VariantNames;
+use tokio::time;
 
 fn main() {
     colored::control::set_override(false); // Disable colored messages
@@ -23,49 +26,76 @@ fn main() {
 }
 
 fn App(cx: Scope) -> Element {
-    let solver = use_state(cx, || None::<SolverMetadata>);
+    let solver = use_ref(cx, || None::<SolverMetadata>);
     let error = use_state(cx, || None);
-    let result = use_state(cx, || None);
+    let result = use_ref(cx, || None);
+    let progress = use_state(cx, || 0);
 
-    cx.render(rsx!(
-        style { include_str!("./css/bootstrap.min.css") },
-        style { include_str!("./css/common.css") },
-        ArgsForm {
-            on_submit: move |ev: FormEvent| {
-                println!("Sumitted: {:?}", ev.values);
-                if let Some(s) = solver.get() {
-                    s.cancel_signal.store(true, Ordering::Relaxed);
-                    solver.set(None);
-                } else {
-                    match form_to_args(&ev.values) {
-                        Ok(args) => {
-                            match Solver::new(args, Data::load()) {
-                                Ok(s) => {
-                                    error.set(None);
-                                    result.set(None);
-                                    solver.set(Some(s.meta.clone()));
+    let on_submit = move |ev: FormEvent| {
+        println!("Sumitted: {:?}", ev.values);
+        if solver.read().is_some() && result.read().is_none() {
+            solver
+                .write()
+                .as_ref()
+                .unwrap()
+                .cancel_signal
+                .store(true, Ordering::Relaxed);
+            println!("Canceling");
+        } else {
+            *result.write() = None;
+            match form_to_args(&ev.values) {
+                Ok(args) => {
+                    error.set(None);
+                    match Solver::new(args, Data::load()) {
+                        Ok(s) => {
+                            *solver.write() = Some(s.meta.clone());
 
-                                    cx.spawn({
-                                        let result = result.to_owned();
-                                        async move {
-                                            result.set(Some(s.run().join().unwrap()));
+                            cx.spawn({
+                                to_owned![result];
+                                async move {
+                                    let res = tokio::task::spawn_blocking(move || s.run()).await;
+                                    *result.write() = Some(res.unwrap());
+                                }
+                            });
+
+                            cx.spawn({
+                                to_owned![progress, solver, result];
+                                async move {
+                                    let mut interval = time::interval(Duration::from_millis(200));
+                                    loop {
+                                        interval.tick().await;
+                                        if result.read().is_some() {
+                                            break;
+                                        } else if let Some(solver) = solver.read().as_ref() {
+                                            let val = solver.bar_progress.load(Ordering::Relaxed);
+                                            progress.set(val);
+                                            if val == solver.total_combination_count {
+                                                break;
+                                            }
+                                        } else {
+                                            break;
                                         }
-                                    });
+                                    }
                                 }
-                                Err(err) => {
-                                    error.set(Some(err));
-                                    result.set(None);
-                                }
-                            }
+                            })
                         }
                         Err(err) => {
                             error.set(Some(err));
-                            result.set(None);
                         }
                     }
                 }
-            },
-            is_running: solver.get().is_some() && result.get().is_none()
+                Err(err) => {
+                    error.set(Some(err));
+                }
+            }
+        }
+    };
+
+    cx.render(rsx!(
+        style { include_str!("./css/common.css") },
+        ArgsForm {
+            on_submit: on_submit,
+            is_running: solver.read().is_some() && result.read().is_none()
         },
         if let Some(err) = error.get() {
             rsx!(
@@ -76,16 +106,50 @@ fn App(cx: Scope) -> Element {
                 }
             )
         }
-        if let Some(solver) = solver.get() {
+        if let Some(solver) = solver.read().as_ref() {
             rsx!(
                 MaterialsList(cx, solver),
-
+                ProgressBar {
+                    val: *progress.get(),
+                    max: solver.total_combination_count
+                }
+            )
+        }
+        if let Some(result) = result.read().as_ref() {
+            rsx!(
+                div {
+                    format!("{result:?}")
+                }
             )
         }
     ))
 }
 
-fn MaterialsList<'a>(cx: Scope<'a>, solver: &'a SolverMetadata) -> Element<'a> {
+#[inline_props]
+fn ProgressBar(cx: Scope, val: u64, max: u64) -> Element {
+    let width_val = *val as f64 / *max as f64 * 100.0;
+    let val = HumanCount(*val);
+    let max = HumanCount(*max);
+
+    cx.render(rsx!(
+        div {
+            class: "progressbar-wrapper",
+            div {
+                class: "progressbar",
+                div {
+                    class: "progressbar-bg",
+                    width: "{width_val}%",
+                }
+            }
+            div {
+                class: "progressbar-text",
+                "{val} / {max} ({width_val:.0}%)"
+            }
+        }
+    ))
+}
+
+fn MaterialsList<'a>(cx: Scope<'a>, solver: &SolverMetadata) -> Element<'a> {
     cx.render(rsx!(
         div {
             class: "materials",
@@ -105,10 +169,8 @@ fn MaterialsList<'a>(cx: Scope<'a>, solver: &'a SolverMetadata) -> Element<'a> {
                     class: "excluded-materials",
                     b { "Excluded materials: " }
                     span {
-                        solver.materials.conflict
+                        solver.args.exclude
                             .iter()
-                            .chain(&solver.materials.no_conflict)
-                            .sorted()
                             .map(|x| x.to_string())
                             .join(", ")
                     }
@@ -131,12 +193,12 @@ fn ArgsForm<'a>(cx: Scope, on_submit: EventHandler<'a, FormEvent>, is_running: b
                         td {
                             select {
                                 name: "perk one",
-                                class: "form-control",
+                                margin_right: "3px",
                                 for &x in PerkName::VARIANTS.iter() {
                                     option { value: x, x }
                                 }
                             }
-                            input { r#type: "number", name: "rank one", placeholder: "Rank", min: "1", max: "6", class: "form-control" }
+                            input { r#type: "number", name: "rank one", placeholder: "Rank", min: "1", max: "6" }
                         }
                     }
                     tr {
@@ -144,26 +206,32 @@ fn ArgsForm<'a>(cx: Scope, on_submit: EventHandler<'a, FormEvent>, is_running: b
                         td {
                             select {
                                 name: "perk two",
-                                class: "form-control",
+                                margin_right: "3px",
                                 for &x in ["Any"].iter().chain(PerkName::VARIANTS) {
                                     option { value: x, x }
                                 }
                             }
-                            input { r#type: "number", name: "rank two", placeholder: "Rank", min: "1", max: "6", class: "form-control" }
+                            input { r#type: "number", name: "rank two", placeholder: "Rank", min: "1", max: "6" }
                         }
                     }
                     tr {
                         th { "Invention level:" }
                         td {
-                            input { r#type: "number", name: "invention level low", min: "1", max: "137", value: "1", class: "form-control" }
+                            input { r#type: "number", name: "invention level low", min: "1", max: "137", value: "1", margin_right: "3px" }
                             span { "—" }
-                            input { r#type: "number", name: "invention level heigh", min: "1", max: "137", value: "137", class: "form-control" }
+                            input { r#type: "number", name: "invention level heigh", min: "1", max: "137", value: "137", margin_left: "3px" }
                         }
                     }
                     tr {
                         th { "Ancient:" }
                         td {
-                            input { r#type: "checkbox", name: "ancient", class: "form-control" }
+                            input { r#type: "checkbox", name: "ancient", checked: "true" }
+                        }
+                    }
+                    tr {
+                        th { "Exclude filter:" }
+                        td {
+                            input { r#type: "text", name: "exclude filter", placeholder: "e.g.: noxious, direct" }
                         }
                     }
                 }
@@ -178,7 +246,7 @@ fn ArgsForm<'a>(cx: Scope, on_submit: EventHandler<'a, FormEvent>, is_running: b
                         tr {
                             td {
                                 colspan: "2",
-                                input { r#type: "radio", name: "gizmo type", id: x, value: x, class: "form-control" }
+                                input { r#type: "radio", name: "gizmo type", id: x, value: x, class: "form-check-input" }
                                 label { r#for: x, x }
                             }
                         }
@@ -186,7 +254,7 @@ fn ArgsForm<'a>(cx: Scope, on_submit: EventHandler<'a, FormEvent>, is_running: b
                     tr {
                         th { "Alt count:" }
                         td {
-                            input { r#type: "number", name: "alt count", min: "0", max: "254", value: "5", class: "form-control" }
+                            input { r#type: "number", name: "alt count", min: "0", max: "254", value: "5" }
                         }
                     }
 
@@ -195,33 +263,31 @@ fn ArgsForm<'a>(cx: Scope, on_submit: EventHandler<'a, FormEvent>, is_running: b
                     tr {
                         th { "Sort on:" }
                     }
-                    for x in ["Lowest price", "Best gizmo chance", "Best attempt chance"] {
+                    for x in [("Lowest price", "Price"), ("Best gizmo chance", "Gizmo"), ("Best attempt chance", "Attempt")] {
                         tr {
                             td {
                                 input {
                                     r#type: "radio",
                                     name: "sort type",
-                                    id: x,
-                                    value: x,
-                                    checked: if x == "Lowest price" { "true" } else { "false" },
-                                    class: "form-control"
+                                    id: x.0,
+                                    value: x.1,
+                                    checked: if x.1 == "Price" { "true" } else { "false" },
                                 }
-                                label { r#for: x, x }
+                                label { r#for: x.0, x.0 }
                             }
-                        }
-                    }
-                    tr {
-                        th { "Exclude filter:" }
-                    }
-                    tr {
-                        td {
-                            input { r#type: "text", name: "exclude filter", placeholder: "e.g.: noxious, direct", class: "form-control" }
                         }
                     }
                 }
             }
-
-            button { r#type: "submit", value: "Submit", class: "form-control", if *is_running { "Cancel" } else { "Start!" } }
+            if *is_running {
+                rsx!(
+                    button { r#type: "submit", value: "Submit", class: "btn-danger" , "Cancel" }
+                )
+            } else {
+                rsx!(
+                    button { r#type: "submit", value: "Submit", class: "btn-primary", "Start!" }
+                )
+            }
         }
     ))
 }
@@ -279,8 +345,8 @@ fn form_to_args(values: &HashMap<String, String>) -> Result<Args, String> {
             fuzzy: false,
             exclude,
             sort_type,
-            out_file: String::new(),
-            price_file: String::new(),
+            out_file: String::from("false"),
+            price_file: String::from("false"),
             alt_count,
         },
     };

@@ -127,10 +127,8 @@ pub unsafe extern "C" fn perk_solver_ctypes(args: FfiArgs) -> Response {
             cvar.notify_one();
         }
 
-        let result_handler = solver.run();
-        let mut best_per_level = result_handler
-            .join()
-            .unwrap()
+        let mut best_per_level = solver
+            .run()
             .into_iter()
             .map(|x| x.into_iter().filter(|y| y.prob_gizmo > 0.0).collect_vec())
             .collect_vec();
