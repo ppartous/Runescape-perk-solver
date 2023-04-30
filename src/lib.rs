@@ -102,7 +102,7 @@
 //! the comparison alternates with loop_index between `< 0` and `<= 0`, which we emulate by the bitwise AND
 //! (`loop_index % 2` has the same effect) to make the comparison `< 0` and `< 1`.
 
-mod component_prices;
+pub mod component_prices;
 mod dice;
 pub mod ffi;
 mod gizmo_cost_thresholds;
@@ -113,7 +113,7 @@ pub mod result;
 mod utils;
 
 use colored::Colorize;
-use component_prices::load_component_prices;
+use component_prices::{load_component_prices, set_shell_price};
 use gizmo_cost_thresholds::*;
 use indicatif::{ProgressBar, ProgressStyle};
 use itertools::Itertools;
@@ -163,7 +163,8 @@ impl Solver {
         };
         validate_input(&args, wanted_gizmo, &data)?;
         let materials = get_materials(&args, &data, wanted_gizmo)?;
-        load_component_prices(&args)?;
+        load_component_prices(&args.price_file)?;
+        set_shell_price(args.gizmo_type, args.ancient);
         let materials = Arc::new(split_materials(&args, &data, wanted_gizmo, materials));
         let total_combination_count = calc_combination_count(
             materials.conflict.len(),
@@ -1126,7 +1127,8 @@ mod tests {
                 fuzzy: false,
                 ..Default::default()
             };
-            load_component_prices(&args).ok();
+            load_component_prices(&args.price_file).ok();
+            set_shell_price(args.gizmo_type, args.ancient);
             let budgets = generate_budgets(&InventionLevel::Range(110, 120), args.ancient);
             let input_materials = vec![
                 MaterialName::ZamorakComponents,

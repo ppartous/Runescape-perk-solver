@@ -10,7 +10,8 @@ use clap::ValueEnum;
 use indicatif::HumanCount;
 use itertools::Itertools;
 use perk_solver::{prelude::*, Solver, SolverMetadata};
-use strum::VariantNames;
+use strum::{EnumIter, IntoEnumIterator, IntoStaticStr, VariantNames};
+use strum_macros::EnumVariantNames;
 use tokio::time;
 
 fn main() {
@@ -32,6 +33,7 @@ fn App(cx: Scope) -> Element {
     let progress = use_state(cx, || 0);
     let start_time = use_state(cx, || None);
     let end_time = use_state(cx, || None);
+    let tab_selection = use_state(cx, || TabSelection::Result);
 
     let on_submit = move |ev: FormEvent| {
         if solver.read().is_some() && result.read().is_none() {
@@ -95,6 +97,10 @@ fn App(cx: Scope) -> Element {
         }
     };
 
+    tokio::task::spawn_blocking(|| {
+        perk_solver::component_prices::load_component_prices("false").ok();
+    });
+
     cx.render(rsx!(
         style { include_str!("./css/common.css") },
         ArgsForm {
@@ -102,38 +108,66 @@ fn App(cx: Scope) -> Element {
             is_running: solver.read().is_some() && result.read().is_none()
         },
         div {
-            id: "content",
-            if let Some(err) = error.get() {
-                rsx!(
-                    div {
-                        class: "error",
-                        b { "Error: " },
-                        err.clone()
-                    }
-                )
+            class: "tabber",
+            for x in TabSelection::iter() {
+                button {
+                    onclick: move |_| tab_selection.set(x),
+                    class: if *tab_selection.get() == x { "tab is-selected"} else { "tab" },
+                    Into::<&'static str>::into(x)
+                }
             }
-            if let Some(solver) = solver.read().as_ref() {
-                rsx!(
-                    MaterialsList(cx, solver),
-                    ProgressBar {
-                        val: *progress.get(),
-                        max: solver.total_combination_count,
-                        is_running: result.read().is_none(),
-                        ellapsed: if let Some(end_t) = end_time.get() {
-                            end_t.duration_since(start_time.get().unwrap())
-                        } else {
-                            start_time.get().unwrap().elapsed()
-                        }
-                    }
-                    if let Some(result) = result.read().as_ref() {
+        }
+        div {
+            id: "content",
+            match tab_selection.get() {
+                TabSelection::Result => rsx!(
+                    if let Some(err) = error.get() {
                         rsx!(
-                            ResultTable(cx, result, &solver.args)
+                            div {
+                                class: "error",
+                                b { "Error: " },
+                                err.clone()
+                            }
                         )
                     }
-                )
+                    if let Some(solver) = solver.read().as_ref() {
+                        rsx!(
+                            MaterialsList(cx, solver),
+                            ProgressBar {
+                                val: *progress.get(),
+                                max: solver.total_combination_count,
+                                is_running: result.read().is_none(),
+                                ellapsed: if let Some(end_t) = end_time.get() {
+                                    end_t.duration_since(start_time.get().unwrap())
+                                } else {
+                                    start_time.get().unwrap().elapsed()
+                                }
+                            }
+                            if let Some(result) = result.read().as_ref() {
+                                rsx!(
+                                    ResultTable(cx, result, &solver.args)
+                                )
+                            }
+                        )
+                    }
+                ),
+                TabSelection::FullResult => rsx!(
+                    if let Some(result) = result.read().as_ref() {
+                        rsx!(FullResultTable(cx, result))
+                    }
+                ),
+                _ => rsx!(None::<Element>)
             }
         }
     ))
+}
+
+#[derive(EnumIter, EnumVariantNames, IntoStaticStr, Clone, Copy, PartialEq, Eq)]
+enum TabSelection {
+    Result,
+    #[strum(serialize = "Full result")]
+    FullResult,
+    Prices,
 }
 
 fn get_color(val: f64) -> (u8, u8, u8) {
@@ -143,6 +177,41 @@ fn get_color(val: f64) -> (u8, u8, u8) {
         (val.clamp(0.0, 0.5) * 2.0 * 190.0) as u8,
         0,
     )
+}
+
+fn FullResultTable<'a>(cx: Scope<'a>, result: &Vec<Vec<ResultLine>>) -> Element<'a> {
+    cx.render(rsx!(
+        table {
+            class: "result-table",
+            tr {
+                th { rowspan: 2, "Level" }
+                th { colspan: 2, "Probability (%)" }
+                th { rowspan: 2, "Price" }
+                th { rowspan: 2, "Material combination" }
+            }
+            tr {
+                th { "Gizmo" }
+                th { "Attempt" }
+            }
+            for lines in result.iter() {
+                tr {
+                    td { rowspan: "{lines.len()}", "{lines[0].level}" }
+                    td { perk_solver::result::format_float(lines[0].prob_gizmo) }
+                    td { perk_solver::result::format_float(lines[0].prob_attempt) }
+                    td { perk_solver::result::format_price(lines[0].price) }
+                    td { MaterialName::vec_to_string(&lines[0].mat_combination) }
+                }
+                for line in lines.iter().skip(1) {
+                    tr {
+                        td { perk_solver::result::format_float(line.prob_gizmo) }
+                        td { perk_solver::result::format_float(line.prob_attempt) }
+                        td { perk_solver::result::format_price(line.price) }
+                        td { MaterialName::vec_to_string(&line.mat_combination) }
+                    }
+                }
+            }
+        }
+    ))
 }
 
 fn ResultTable<'a>(cx: Scope<'a>, result: &Vec<Vec<ResultLine>>, args: &Args) -> Element<'a> {

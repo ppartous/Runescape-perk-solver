@@ -4,7 +4,7 @@
     background-color: #eeeeee;
     padding: 8px 8px 8px 8px;
     box-shadow: 0 3px 8px #dcdcdc;
-    margin-bottom: 1em;
+    margin-bottom: 0;
 }
 
 #ArgsForm>div {
@@ -22,6 +22,7 @@
 body {
     font-family: 'IBM Plex Sans', 'Helvetica Neue', 'Arial', sans-serif;
     margin: 0;
+    color: #202122;
 }
 
 #content {
@@ -97,6 +98,7 @@ body {
 .result-table {
     border-collapse: collapse;
     border: solid 1px #dcdcdc;
+    white-space: nowrap;
 }
 
 .result-table th {
@@ -130,4 +132,34 @@ body {
 .result-alts td:nth-child(2) {
     white-space: nowrap;
     text-align: left;
+}
+
+.tabber {
+    display: flex;
+    gap: 4px;
+    padding-left: 2em;
+    border-bottom: solid 1px #dcdcdc;
+}
+
+.tab {
+    border: solid 1px #dcdcdc;
+    border-bottom: none;
+    padding: 0.5em;
+    font-weight: bold;
+    background-color: #f9fafa;
+    margin-bottom: -1px;
+    transition: 0.2s ease;
+}
+
+.tab:hover {
+    background-color: #f1f3f3;
+    border-color: #dbe3e8;
+}
+
+.tab.is-selected {
+    background-color: white;
+}
+
+.tab.is-selected:hover {
+    color: #000;
 }

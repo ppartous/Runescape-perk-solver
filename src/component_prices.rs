@@ -30,27 +30,24 @@ pub fn calc_gizmo_price(mat_combination: &[MaterialName], prob_gizmo: f64) -> f6
     price / prob_gizmo
 }
 
-pub fn load_component_prices(args: &Args) -> Result<(), String> {
-    // Don't need to set prices again if the calc is invoked multiple times thourgh the ffi
-    if let Some(prices) = PRICES.get() {
-        *SHELL_PRICE.write().unwrap() = calc_shell_price(args, prices);
+pub fn load_component_prices(price_file: &str) -> Result<(), String> {
+    // Don't need to set prices again if the calc is invoked multiple times
+    if PRICES.get().is_some() {
         return Ok(());
     }
 
-    let mut text = String::new();
+    let mut text;
 
-    if args.price_file != "false" && std::path::Path::new(&args.price_file).exists() {
-        match fs::read_to_string(&args.price_file) {
+    if price_file != "false" && std::path::Path::new(&price_file).exists() {
+        match fs::read_to_string(&price_file) {
             Ok(file) => text = file,
-            Err(err) => return Err(format!("Failed to read {}: {}", args.price_file, err)),
+            Err(err) => return Err(format!("Failed to read {}: {}", price_file, err)),
         }
     } else {
         if let Ok(response) = lookup_on_wiki() {
             text = extract_from_response(&response)?;
-        } else if args.sort_type == SortType::Price {
-            return Err("Failed to fetch prices".to_string());
         } else {
-            print_warning("Failed to fetch prices")
+            return Err("Failed to fetch prices".to_string());
         }
     }
 
@@ -61,25 +58,25 @@ pub fn load_component_prices(args: &Args) -> Result<(), String> {
         };
     }
 
-    if args.price_file != "false" {
+    if price_file != "false" {
         text = prices
             .iter()
             .map(|(name, value)| format!("{}: {},", name, value))
             .sorted()
             .join("\n");
-        fs::write(&args.price_file, text).unwrap_or_else(|err| {
-            print_warning(format!("Failed to save {}: {}", args.price_file, err).as_str());
+        fs::write(&price_file, text).unwrap_or_else(|err| {
+            print_warning(format!("Failed to save {}: {}", price_file, err).as_str());
         });
     }
 
-    *SHELL_PRICE.write().unwrap() = calc_shell_price(args, &prices);
     PRICES.set(prices).ok();
     Ok(())
 }
 
-fn calc_shell_price(args: &Args, prices: &PriceMap) -> f64 {
-    match args.ancient {
-        true => match args.gizmo_type {
+pub fn set_shell_price(gizmo_type: GizmoType, ancient: bool) {
+    let prices = PRICES.get().unwrap();
+    let price = match ancient {
+        true => match gizmo_type {
             GizmoType::Armour => {
                 20.0 * prices.get(MaterialName::DeflectingParts)
                     + 20.0 * prices.get(MaterialName::HistoricComponents)
@@ -99,7 +96,7 @@ fn calc_shell_price(args: &Args, prices: &PriceMap) -> f64 {
                     + 2.0 * prices.get(MaterialName::PreciseComponents)
             }
         },
-        false => match args.gizmo_type {
+        false => match gizmo_type {
             GizmoType::Armour => {
                 10.0 * prices.get(MaterialName::DeflectingParts)
                     + 5.0 * prices.get(MaterialName::CraftedParts)
@@ -116,7 +113,8 @@ fn calc_shell_price(args: &Args, prices: &PriceMap) -> f64 {
                     + 2.0 * prices.get(MaterialName::PreciseComponents)
             }
         },
-    }
+    };
+    *SHELL_PRICE.write().unwrap() = price;
 }
 
 fn lookup_on_wiki() -> Result<String, reqwest::Error> {
