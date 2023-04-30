@@ -275,9 +275,22 @@ fn ResultTable<'a>(cx: Scope<'a>, result: &Vec<Vec<ResultLine>>, args: &Args) ->
                     }
                 }
                 div {
-                    div { "Best combination at level {best_wanted.level}:" }
                     table {
-                        class: "result-alts",
+                        class: "result-table result-alts",
+                        tr {
+                            th {
+                                match args.sort_type {
+                                    SortType::Gizmo => "Prob. per gizmo",
+                                    SortType::Attempt => "Prob. per attempt",
+                                    SortType::Price => "Price"
+                                }
+                            }
+                            th { "Level" }
+                            th { "Material combination" }
+                        }
+                        tr {
+                            th { colspan: 3, padding: "0", line_height: "1.5em", "Best" }
+                        }
                         tr {
                             td {
                                 match args.sort_type {
@@ -286,15 +299,14 @@ fn ResultTable<'a>(cx: Scope<'a>, result: &Vec<Vec<ResultLine>>, args: &Args) ->
                                     SortType::Price => perk_solver::result::format_price(best_wanted.price),
                                 }
                             }
-                            td { padding: "0" }
+                            td { "{best_wanted.level}" }
                             td { MaterialName::vec_to_string(&best_wanted.mat_combination) }
                         }
-                    }
-                    if args.result_depth > 1 {
-                        rsx!(
-                            div { "Alts:" }
-                            table {
-                                class: "result-alts",
+                        if args.result_depth > 1 {
+                            rsx!(
+                                tr {
+                                    th { colspan: 3, padding: "0", line_height: "1.5em", "Alts" }
+                                }
                                 for alt in perk_solver::result::find_best_alts(&result, args) {
                                     tr {
                                         td {
@@ -304,12 +316,12 @@ fn ResultTable<'a>(cx: Scope<'a>, result: &Vec<Vec<ResultLine>>, args: &Args) ->
                                                 SortType::Price => perk_solver::result::format_price(alt.price),
                                             }
                                         }
-                                        td { "@lvl {alt.level}" }
+                                        td { "{alt.level}" }
                                         td { MaterialName::vec_to_string(&alt.mat_combination) }
                                     }
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
                 }
             }

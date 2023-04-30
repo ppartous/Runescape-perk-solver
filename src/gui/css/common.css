@@ -114,7 +114,12 @@ body {
     text-align: right;
 }
 
-.result-alts {
+.result-table.result-alts td:nth-child(3) {
+    white-space: normal;
+    text-align: left;
+}
+
+/* .result-alts {
     border-collapse: collapse;
     margin-bottom: 1em;
 }
@@ -132,7 +137,7 @@ body {
 .result-alts td:nth-child(2) {
     white-space: nowrap;
     text-align: left;
-}
+} */
 
 .tabber {
     display: flex;
