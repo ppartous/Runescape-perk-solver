@@ -312,9 +312,6 @@ impl Solver {
 
         pool.join();
 
-        self.meta
-            .bar_progress
-            .store(self.meta.total_combination_count as u64, Relaxed);
         self.result_tx.take();
         self.result_handler.join().unwrap()
     }

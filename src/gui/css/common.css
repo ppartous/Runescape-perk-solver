@@ -1,5 +1,17 @@
-#ArgsForm table {
-    display: inline-table;
+@import url('https://fonts.cdnfonts.com/css/ibm-plex-sans');
+
+#ArgsForm {
+    background-color: #eeeeee;
+    padding: 8px 8px 8px 8px;
+    box-shadow: 0 3px 8px #dcdcdc;
+    margin-bottom: 1em;
+}
+
+#ArgsForm>div {
+    display: flex;
+    align-items: start;
+    flex-wrap: wrap;
+    gap: 1em;
 }
 
 #ArgsForm table td,
@@ -9,27 +21,113 @@
 
 body {
     font-family: 'IBM Plex Sans', 'Helvetica Neue', 'Arial', sans-serif;
+    margin: 0;
+}
+
+#content {
+    margin: 8px;
+}
+
+.btn {
+    padding: 0.25em 0.45em;
+    border-style: outset;
+    border-radius: 3px;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #36c;
+    border-color: #36c;
+}
+
+.btn-danger {
+    color: #fff;
+    background-color: #FF4742;
+    border-color: #FF4742;
 }
 
 .progressbar {
     border: solid 1px black;
-    border-radius: 1e6px;
+    border-radius: 5px;
     overflow: hidden;
-    background-color: rgb(201, 201, 201);
+    background-color: #e9ecef;
     width: 100%;
+    height: 16px;
 }
 
 .progressbar-wrapper {
-    display: flex;
+    margin-top: 1em;
+    margin-bottom: 1em;
 }
 
 .progressbar-bg {
-    background-color: rgb(0, 128, 0);
+    background-color: #28a745;
     height: 100%;
+    background-image: linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+    background-size: 1.5rem 1.5rem;
+}
+
+@keyframes progress-bar-stripes {
+    0% {
+        background-position: 1.5rem 0;
+    }
+
+    100% {
+        background-position: 0 0;
+    }
+}
+
+.progress-bar-animated {
+    animation: progress-bar-stripes 1s linear infinite;
 }
 
 .progressbar-text {
     white-space: nowrap;
-    padding-left: 0.5em;
     font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+}
+
+.result {
+    display: flex;
+    align-items: start;
+    gap: 10px;
+}
+
+.result-table {
+    border-collapse: collapse;
+    border: solid 1px #dcdcdc;
+}
+
+.result-table th {
+    background-color: #eeeeee;
+    border: solid 1px #dcdcdc;
+    padding: 0.4em;
+    line-height: 1.65em;
+}
+
+.result-table td {
+    border: solid 1px #dcdcdc;
+    padding: 0.20em 0.45em;
+    text-align: right;
+}
+
+.result-alts {
+    border-collapse: collapse;
+    margin-bottom: 1em;
+}
+
+.result-alts td {
+    padding: 0.20em 0.45em;
+}
+
+.result-alts td:nth-child(1) {
+    white-space: nowrap;
+    text-align: right;
+    padding-left: 1em;
+}
+
+.result-alts td:nth-child(2) {
+    white-space: nowrap;
+    text-align: left;
 }
