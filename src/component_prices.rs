@@ -127,26 +127,20 @@ fn lookup_on_wiki() -> Result<String, reqwest::Error> {
         .user_agent(APP_USER_AGENT)
         .build()?;
 
-    let body = client.get("https://runescape.wiki/api.php?action=parse&format=json&text=%7B%7B%23dpl%3Anamespace%3D%7Ccategory%3DMaterials%7Cnottitlematch%3DMaterials%7Cformat%3D%2C%25PAGE%25%3A%C2%B2%7Bmatcost%C2%A6%25PAGE%25%C2%A6raw%7D%C2%B2%5Cn%2C%2C%7D%7D&contentmodel=wikitext&formatversion=2")
-        .send()?
-        .text()?;
+    let url = format!("https://runescape.wiki/api.php?action=scribunto-console&format=json&title=sandbox&clear=true&content=&question={}",
+        include_str!("./component_prices.lua")
+    );
+    let body = client.get(url).send()?.text()?;
 
     Ok(body)
 }
 
 fn extract_from_response(response: &str) -> Result<String, String> {
     let json: Value = serde_json::from_str(response).unwrap_or_default();
-    let text = &json["parse"]["text"];
+    let text = &json["print"];
 
     if let Value::String(text) = text {
-        let re = Regex::new(r"^.+?<p>((.|\n)+?)</p>").unwrap();
-        let content = re.captures(text);
-
-        if let Some(content) = content {
-            return Ok(content[1].to_string());
-        } else {
-            return Err("Unexpected response from Runescape.wiki".to_string());
-        }
+        Ok(text.clone())
     } else {
         return Err("Unexpected response from Runescape.wiki".to_string());
     }
