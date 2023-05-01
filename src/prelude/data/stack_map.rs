@@ -1,7 +1,7 @@
 use std::{default::Default, fmt::Debug, iter::Zip, marker::PhantomData, ops::Index, slice::Iter};
 use strum::IntoEnumIterator;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct StackMap<K, V, const N: usize>
 where
     K: Default + Copy,

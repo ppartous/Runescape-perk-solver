@@ -1,4 +1,5 @@
 @import url('https://fonts.cdnfonts.com/css/ibm-plex-sans');
+@import url('https://fonts.cdnfonts.com/css/pt-serif');
 
 #ArgsForm {
     background-color: #eeeeee;
@@ -119,26 +120,6 @@ body {
     text-align: left;
 }
 
-/* .result-alts {
-    border-collapse: collapse;
-    margin-bottom: 1em;
-}
-
-.result-alts td {
-    padding: 0.20em 0.45em;
-}
-
-.result-alts td:nth-child(1) {
-    white-space: nowrap;
-    text-align: right;
-    padding-left: 1em;
-}
-
-.result-alts td:nth-child(2) {
-    white-space: nowrap;
-    text-align: left;
-} */
-
 .tabber {
     display: flex;
     gap: 4px;
@@ -167,4 +148,34 @@ body {
 
 .tab.is-selected:hover {
     color: #000;
+}
+
+.prices-table img {
+    width: 25px;
+    height: 25px;
+    vertical-align: middle;
+    margin-right: 0.25em;
+}
+
+.prices-container {
+    column-count: 2;
+    column-gap: 2em;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #444e5a;
+    font-family: 'PT Serif', 'Palatino', 'Georgia', serif;
+}
+
+h1,
+h2,
+h3 {
+    border-bottom: 1px solid #e4eaee;
+    padding: 0 0 0.15em;
+    margin: 1em 0 0.3em 0;
 }

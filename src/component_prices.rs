@@ -1,6 +1,5 @@
 use crate::{prelude::*, utils::print_warning};
 use itertools::Itertools;
-use once_cell::sync::OnceCell;
 use regex::Regex;
 use serde_json::{self, Value};
 use std::{fs, str::FromStr, sync::RwLock};
@@ -16,12 +15,13 @@ static APP_USER_AGENT: &str = concat!(
 
 type PriceMap = StackMap<MaterialName, f64, { MaterialName::COUNT }>;
 
-static PRICES: OnceCell<PriceMap> = OnceCell::new();
+pub static PRICES: RwLock<Option<PriceMap>> = RwLock::new(None);
 static SHELL_PRICE: RwLock<f64> = RwLock::new(0.0);
 
 pub fn calc_gizmo_price(mat_combination: &[MaterialName], prob_gizmo: f64) -> f64 {
     let shell_price = *SHELL_PRICE.read().unwrap();
-    let prices = PRICES.get_or_init(|| StackMap::new());
+    let prices = PRICES.read().unwrap();
+    let prices = prices.as_ref().unwrap();
     let price = shell_price
         + mat_combination
             .iter()
@@ -32,7 +32,7 @@ pub fn calc_gizmo_price(mat_combination: &[MaterialName], prob_gizmo: f64) -> f6
 
 pub fn load_component_prices(price_file: &str) -> Result<(), String> {
     // Don't need to set prices again if the calc is invoked multiple times
-    if PRICES.get().is_some() {
+    if PRICES.read().unwrap().is_some() {
         return Ok(());
     }
 
@@ -69,13 +69,14 @@ pub fn load_component_prices(price_file: &str) -> Result<(), String> {
         });
     }
 
-    PRICES.set(prices).ok();
+    *PRICES.write().unwrap() = Some(prices);
     Ok(())
 }
 
-pub fn set_shell_price(gizmo_type: GizmoType, ancient: bool) {
-    let prices = PRICES.get().unwrap();
-    let price = match ancient {
+pub fn get_shell_price(gizmo_type: GizmoType, ancient: bool) -> f64 {
+    let prices = PRICES.read().unwrap();
+    let prices = prices.as_ref().unwrap();
+    match ancient {
         true => match gizmo_type {
             GizmoType::Armour => {
                 20.0 * prices.get(MaterialName::DeflectingParts)
@@ -113,8 +114,11 @@ pub fn set_shell_price(gizmo_type: GizmoType, ancient: bool) {
                     + 2.0 * prices.get(MaterialName::PreciseComponents)
             }
         },
-    };
-    *SHELL_PRICE.write().unwrap() = price;
+    }
+}
+
+pub fn set_shell_price(gizmo_type: GizmoType, ancient: bool) {
+    *SHELL_PRICE.write().unwrap() = get_shell_price(gizmo_type, ancient);
 }
 
 fn lookup_on_wiki() -> Result<String, reqwest::Error> {

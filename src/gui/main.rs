@@ -34,6 +34,7 @@ fn App(cx: Scope) -> Element {
     let start_time = use_state(cx, || None);
     let end_time = use_state(cx, || None);
     let tab_selection = use_state(cx, || TabSelection::Result);
+    let prices_status = use_state(cx, || None::<Result<(), String>>);
 
     let on_submit = move |ev: FormEvent| {
         if solver.read().is_some() && result.read().is_none() {
@@ -97,8 +98,15 @@ fn App(cx: Scope) -> Element {
         }
     };
 
-    tokio::task::spawn_blocking(|| {
-        perk_solver::component_prices::load_component_prices("false").ok();
+    use_future(cx, (), |_| {
+        to_owned![prices_status];
+        async move {
+            let res = tokio::task::spawn_blocking(|| {
+                perk_solver::component_prices::load_component_prices("false")
+            })
+            .await;
+            prices_status.set(Some(res.unwrap()));
+        }
     });
 
     cx.render(rsx!(
@@ -156,7 +164,78 @@ fn App(cx: Scope) -> Element {
                         rsx!(FullResultTable(cx, result))
                     }
                 ),
-                _ => rsx!(None::<Element>)
+                TabSelection::Prices => rsx!(
+                    PricesTab(cx, prices_status.get())
+                    // None::<Element>
+                )
+            }
+        }
+    ))
+}
+
+fn PricesTab<'a>(cx: Scope<'a>, prices_status: &Option<Result<(), String>>) -> Element<'a> {
+    cx.render(rsx!(if let Some(status) = prices_status {
+        rsx!(if let Err(err) = status {
+            rsx!("{err}")
+        } else {
+            rsx!(
+                h3 { "Common materials" }
+                div {
+                    class: "prices-container",
+                    table {
+                        class: "prices-table",
+                        for mat in COMMON_MATERIALS.iter() {
+                            PriceTabElement(cx, *mat)
+                        }
+                    }
+                }
+                h3 { "Uncommon materials" }
+                div {
+                    class: "prices-container",
+                    table {
+                        class: "prices-table",
+                        for mat in UNCOMMON_MATERIALS.iter() {
+                            PriceTabElement(cx, *mat)
+                        }
+                    }
+                }
+                h3 { "Rare materials" }
+                div{
+                    class: "prices-container",
+                    table {
+                        class: "prices-table",
+                        for mat in RARE_MATERIALS.iter() {
+                            PriceTabElement(cx, *mat)
+                        }
+                    }
+                }
+            )
+        })
+    } else {
+        rsx!("Fetching component prices from Runescape.wiki...")
+    }))
+}
+
+fn PriceTabElement(cx: Scope, mat: MaterialName) -> Element {
+    cx.render(rsx!(
+        tr {
+            td {
+                img {
+                    src: "https://runescape.wiki/images/{mat.to_string().replace(\" \", \"_\")}.png?00000",
+                }
+                "{mat}:"
+            }
+            td {
+                input {
+                    r#type: "number",
+                    min: "0",
+                    value: *perk_solver::component_prices::PRICES.read().unwrap().as_ref().unwrap().get(mat),
+                    oninput: move |ev| {
+                        if let Some(prices) = perk_solver::component_prices::PRICES.write().unwrap().as_mut() {
+                            *prices.get_mut(mat) = ev.value.parse().unwrap_or(0.0);
+                        }
+                    }
+                }
             }
         }
     ))
