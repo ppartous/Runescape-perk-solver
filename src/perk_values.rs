@@ -1,15 +1,18 @@
+use crate::{dice, prelude::*, utils};
 use itertools::Itertools;
-use smallvec::{SmallVec, smallvec};
-use strum::EnumCount;
-use crate::{prelude::*, dice, utils};
+use smallvec::{smallvec, SmallVec};
 use std::sync::Arc;
+use strum::EnumCount;
 
 /// Calculate the base and roll values for each possible perk based on the input materials and their order.
-pub fn get_perk_values(data: &Data, input_materials: &Vec<MaterialName>, gizmo_type: GizmoType,
-    is_ancient_gizmo: bool) -> PartialPerkValuesVec {
-
+pub fn get_perk_values(
+    data: &Data,
+    input_materials: &Vec<MaterialName>,
+    gizmo_type: GizmoType,
+    is_ancient_gizmo: bool,
+) -> PartialPerkValuesVec {
     let mut perk_values = smallvec![];
-    let mut name_index_map = StackMap::<PerkName, Option<usize>, {PerkName::COUNT}>::new();
+    let mut name_index_map = StackMap::<PerkName, Option<usize>, { PerkName::COUNT }>::new();
 
     for mat in input_materials {
         let mat_data = &data.comps[*mat][gizmo_type];
@@ -29,14 +32,15 @@ pub fn get_perk_values(data: &Data, input_materials: &Vec<MaterialName>, gizmo_t
             }
 
             if let Some(index) = name_index_map.get(component_values.perk) {
-                let mut values: &mut PartialPerkValues = unsafe { perk_values.get_unchecked_mut(*index) };
+                let mut values: &mut PartialPerkValues =
+                    unsafe { perk_values.get_unchecked_mut(*index) };
                 values.base += perk_base as u16;
                 values.rolls.push(perk_roll as u8);
             } else {
                 perk_values.push(PartialPerkValues {
                     name: component_values.perk,
                     base: perk_base as u16,
-                    rolls: StackVec::new(&[perk_roll as u8])
+                    rolls: StackVec::new(&[perk_roll as u8]),
                 });
                 *name_index_map.get_mut(component_values.perk) = Some(perk_values.len() - 1);
             }
@@ -46,7 +50,11 @@ pub fn get_perk_values(data: &Data, input_materials: &Vec<MaterialName>, gizmo_t
     perk_values
 }
 
-pub fn calc_perk_rank_probabilities(data: &Data, partial_values_arr: &[PartialPerkValues], is_ancient_gizmo: bool) -> PerkValuesVec {
+pub fn calc_perk_rank_probabilities(
+    data: &Data,
+    partial_values_arr: &[PartialPerkValues],
+    is_ancient_gizmo: bool,
+) -> PerkValuesVec {
     let mut perk_values_arr = SmallVec::with_capacity(partial_values_arr.len());
 
     for partial_values in partial_values_arr.iter() {
@@ -63,7 +71,10 @@ pub fn calc_perk_rank_probabilities(data: &Data, partial_values_arr: &[PartialPe
         };
 
         for x in perk_data.ranks.iter() {
-            perk_values.ranks.push(PerkRankValuesProbabilityContainer { values: *x, probability: 0.0 });
+            perk_values.ranks.push(PerkRankValuesProbabilityContainer {
+                values: *x,
+                probability: 0.0,
+            });
         }
 
         perk_values.rolls.sort();
@@ -73,13 +84,18 @@ pub fn calc_perk_rank_probabilities(data: &Data, partial_values_arr: &[PartialPe
         let mut count = 1;
         while let Some(x) = iter.next() {
             while let Some(next) = iter.peek() {
-                if *next != x { break; }
+                if *next != x {
+                    break;
+                }
                 count += 1;
                 iter.next();
             }
 
             if !roll_dist.is_empty() {
-                roll_dist = Arc::new(utils::convolve(&roll_dist, &dice::get_distribution(*x as usize, count)));
+                roll_dist = Arc::new(utils::convolve(
+                    &roll_dist,
+                    &dice::get_distribution(*x as usize, count),
+                ));
             } else {
                 roll_dist = dice::get_distribution(*x as usize, count);
             }
@@ -90,17 +106,26 @@ pub fn calc_perk_rank_probabilities(data: &Data, partial_values_arr: &[PartialPe
             let mut next_threshold = roll_dist.len() as i64 - 1;
 
             if i + 1 < perk_values.ranks.len() {
-                let next_container = unsafe{ perk_values.ranks.get_unchecked(i + 1) };
+                let next_container = unsafe { perk_values.ranks.get_unchecked(i + 1) };
                 if !next_container.values.ancient_only || is_ancient_gizmo {
                     // -1 because the range we need ends right before the threshold value of the next perk
-                    next_threshold = next_threshold.min(next_container.values.threshold as i64 - perk_values.base as i64 - 1);
+                    next_threshold = next_threshold
+                        .min(next_container.values.threshold as i64 - perk_values.base as i64 - 1);
                 }
             }
 
-            let mut container = unsafe{ perk_values.ranks.get_unchecked_mut(i) };
-            let range_start = i64::max(container.values.threshold as i64 - perk_values.base as i64, 0) as usize;
-            if (is_ancient_gizmo || !container.values.ancient_only) && (range_start as i64) <= next_threshold && next_threshold >= 0 {
-                container.probability = roll_dist[range_start..=next_threshold as usize].iter().sum();
+            let mut container = unsafe { perk_values.ranks.get_unchecked_mut(i) };
+            let range_start = i64::max(
+                container.values.threshold as i64 - perk_values.base as i64,
+                0,
+            ) as usize;
+            if (is_ancient_gizmo || !container.values.ancient_only)
+                && (range_start as i64) <= next_threshold
+                && next_threshold >= 0
+            {
+                container.probability = roll_dist[range_start..=next_threshold as usize]
+                    .iter()
+                    .sum();
             }
 
             if container.probability == 0.0 {
@@ -119,7 +144,11 @@ pub fn calc_perk_rank_probabilities(data: &Data, partial_values_arr: &[PartialPe
 }
 
 /// Quick check if it is even possible to generate the wanted perk rank. This won't catch all impossible material orders.
-pub fn can_generate_wanted_ranks(data: &Data, perk_values_arr: &PartialPerkValuesVec, wanted_gizmo: Gizmo) -> bool {
+pub fn can_generate_wanted_ranks(
+    data: &Data,
+    perk_values_arr: &PartialPerkValuesVec,
+    wanted_gizmo: Gizmo,
+) -> bool {
     let wanted_rank1 = wanted_gizmo.perks.0.rank as usize;
     let wanted_rank2 = wanted_gizmo.perks.1.rank as usize;
 
@@ -127,10 +156,18 @@ pub fn can_generate_wanted_ranks(data: &Data, perk_values_arr: &PartialPerkValue
     let perk2_ranks = &data.perks[wanted_gizmo.perks.1.name].ranks;
 
     let perk1_threshold = perk1_ranks[wanted_rank1].threshold as usize;
-    let perk1_next_threshold = if wanted_rank1 + 1 < perk1_ranks.len() { perk1_ranks[wanted_rank1 + 1].threshold as usize } else { usize::MAX };
+    let perk1_next_threshold = if wanted_rank1 + 1 < perk1_ranks.len() {
+        perk1_ranks[wanted_rank1 + 1].threshold as usize
+    } else {
+        usize::MAX
+    };
 
     let perk2_threshold = perk2_ranks[wanted_rank2].threshold as usize;
-    let perk2_next_threshold = if wanted_rank2 + 1 < perk2_ranks.len() { perk2_ranks[wanted_rank2 + 1].threshold as usize } else { usize::MAX };
+    let perk2_next_threshold = if wanted_rank2 + 1 < perk2_ranks.len() {
+        perk2_ranks[wanted_rank2 + 1].threshold as usize
+    } else {
+        usize::MAX
+    };
 
     let mut perk1_base = None;
     let mut perk1_max_roll = None;
@@ -140,26 +177,39 @@ pub fn can_generate_wanted_ranks(data: &Data, perk_values_arr: &PartialPerkValue
     for perk_value in perk_values_arr {
         if perk_value.name == wanted_gizmo.perks.0.name {
             perk1_base = Some(perk_value.base as usize);
-            perk1_max_roll = Some(perk_value.rolls.iter().map(|x| *x as usize).sum::<usize>() - perk_value.rolls.len());
+            perk1_max_roll = Some(
+                perk_value.rolls.iter().map(|x| *x as usize).sum::<usize>()
+                    - perk_value.rolls.len(),
+            );
         }
         if perk_value.name == wanted_gizmo.perks.1.name {
             perk2_base = Some(perk_value.base as usize);
-            perk2_max_roll = Some(perk_value.rolls.iter().map(|x| *x as usize).sum::<usize>() - perk_value.rolls.len());
+            perk2_max_roll = Some(
+                perk_value.rolls.iter().map(|x| *x as usize).sum::<usize>()
+                    - perk_value.rolls.len(),
+            );
         }
         if perk1_base.is_some() && perk2_base.is_some() {
             break;
         }
     }
 
-    if perk1_base.is_none() || (wanted_gizmo.perks.1.name != PerkName::Empty && perk2_base.is_none()) {
+    if perk1_base.is_none()
+        || (wanted_gizmo.perks.1.name != PerkName::Empty && perk2_base.is_none())
+    {
         return false;
     }
     unsafe {
-        if !(perk1_base.unwrap_unchecked() + perk1_max_roll.unwrap_unchecked() >= perk1_threshold && perk1_base.unwrap_unchecked() < perk1_next_threshold) {
+        if !(perk1_base.unwrap_unchecked() + perk1_max_roll.unwrap_unchecked() >= perk1_threshold
+            && perk1_base.unwrap_unchecked() < perk1_next_threshold)
+        {
             return false;
         }
         if wanted_gizmo.perks.1.name != PerkName::Empty
-        && !(perk2_base.unwrap_unchecked() + perk2_max_roll.unwrap_unchecked() >= perk2_threshold && perk2_base.unwrap_unchecked() < perk2_next_threshold) {
+            && !(perk2_base.unwrap_unchecked() + perk2_max_roll.unwrap_unchecked()
+                >= perk2_threshold
+                && perk2_base.unwrap_unchecked() < perk2_next_threshold)
+        {
             return false;
         }
     }
@@ -167,7 +217,10 @@ pub fn can_generate_wanted_ranks(data: &Data, perk_values_arr: &PartialPerkValue
     true
 }
 
-pub fn permutate_perk_ranks<'a>(perk_list: &'a PerkValuesVec, wanted_gizmo: Option<Gizmo>) -> Vec<RankCombination> {
+pub fn permutate_perk_ranks<'a>(
+    perk_list: &'a PerkValuesVec,
+    wanted_gizmo: Option<Gizmo>,
+) -> Vec<RankCombination> {
     let mut combinations = Vec::with_capacity(perk_list.len() * 10);
 
     let func = |x: &'a PerkValues| {
@@ -177,12 +230,12 @@ pub fn permutate_perk_ranks<'a>(perk_list: &'a PerkValuesVec, wanted_gizmo: Opti
             Some(gizmo) if gizmo.perks.0.name == x.name => {
                 i_first = gizmo.perks.0.rank as usize;
                 i_last = i_first;
-            },
+            }
             Some(gizmo) if gizmo.perks.1.name == x.name => {
                 i_first = gizmo.perks.1.rank as usize;
                 i_last = i_first;
-            },
-            _ => ()
+            }
+            _ => (),
         }
         x.ranks.iter().take(i_last + 1).skip(i_first)
     };
@@ -246,7 +299,7 @@ pub fn permutate_perk_ranks<'a>(perk_list: &'a PerkValuesVec, wanted_gizmo: Opti
 /// Then move on to do the same with the next rank in the array.
 pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &[PerkValues]) -> f64 {
     let mut p_empty = 1.0; // Total empty gizmo chance
-    let mut p_empty_per_perk = StackMap::<PerkName, f64, {PerkName::COUNT}>::new();
+    let mut p_empty_per_perk = StackMap::<PerkName, f64, { PerkName::COUNT }>::new();
     let mut ranks: SmallVec<[PRVPC; 30]> = smallvec![]; // vec of non zero ranks with a cost higher than the invention level
 
     // Chance to have a combination of perk ranks that can produce an empty gizmo (perks with a cost higher than
@@ -281,14 +334,18 @@ pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &[PerkValues]) -
 
     for rank in ranks.iter() {
         // Adjusted empty combo chance to a specific rank of a perk
-        let mut p_empty_rank = p_empty_combo * rank.probability / p_empty_per_perk.get(rank.values.name);
+        let mut p_empty_rank =
+            p_empty_combo * rank.probability / p_empty_per_perk.get(rank.values.name);
         unsafe {
             // Multiply with chance that our inventbudget is bellow the rank cost
-            p_empty_rank *= budget.dist.get_unchecked(u16::min(rank.values.cost, budget.range.max) as usize);
+            p_empty_rank *= budget
+                .dist
+                .get_unchecked(u16::min(rank.values.cost, budget.range.max) as usize);
         }
         p_empty += p_empty_rank;
         // Remove this rank from 'p_empty_combo'
-        p_empty_combo *= (p_empty_per_perk.get(rank.values.name) - rank.probability) / p_empty_per_perk.get(rank.values.name);
+        p_empty_combo *= (p_empty_per_perk.get(rank.values.name) - rank.probability)
+            / p_empty_per_perk.get(rank.values.name);
         // Remove this rank from the combined empty combo chance of a certain perk
         *p_empty_per_perk.get_mut(rank.values.name) -= rank.probability;
 
@@ -300,20 +357,33 @@ pub fn get_empty_gizmo_chance(budget: &Budget, perk_values_arr: &[PerkValues]) -
     p_empty
 }
 
-pub fn contains_conflict_ranks(data: &Data, perk_values_arr: &[PerkValues], wanted_gizmo: Gizmo) -> bool {
-    let p1_cost = data.perks[wanted_gizmo.perks.0.name].ranks[wanted_gizmo.perks.0.rank as usize].cost;
-    let p2_cost = data.perks[wanted_gizmo.perks.1.name].ranks[wanted_gizmo.perks.1.rank as usize].cost;
+pub fn contains_conflict_ranks(
+    data: &Data,
+    perk_values_arr: &[PerkValues],
+    wanted_gizmo: Gizmo,
+) -> bool {
+    let p1_cost =
+        data.perks[wanted_gizmo.perks.0.name].ranks[wanted_gizmo.perks.0.rank as usize].cost;
+    let p2_cost =
+        data.perks[wanted_gizmo.perks.1.name].ranks[wanted_gizmo.perks.1.rank as usize].cost;
 
     if p1_cost == p2_cost {
         return true;
     }
 
     for perk_values in perk_values_arr.iter() {
-        if perk_values.name == wanted_gizmo.perks.0.name || perk_values.name == wanted_gizmo.perks.1.name {
+        if perk_values.name == wanted_gizmo.perks.0.name
+            || perk_values.name == wanted_gizmo.perks.1.name
+        {
             continue;
         }
 
-        for rank in perk_values.ranks.iter().take(perk_values.i_last + 1).skip(perk_values.i_first) {
+        for rank in perk_values
+            .ranks
+            .iter()
+            .take(perk_values.i_last + 1)
+            .skip(perk_values.i_first)
+        {
             if rank.values.cost == p1_cost || rank.values.cost == p2_cost {
                 return true;
             }
@@ -323,6 +393,7 @@ pub fn contains_conflict_ranks(data: &Data, perk_values_arr: &[PerkValues], want
     false
 }
 
+#[rustfmt::skip]
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -331,7 +402,6 @@ mod tests {
     use crate::utils::{check_len, check_index, check_index_relative};
 
     fn assert_partial_perk_values_eq(actual: &PartialPerkValuesVec, expected: &PartialPerkValuesVec) {
-        PerkName::using_full_names();
         check_len(actual, expected);
 
         for (i, (acc, exp)) in actual.iter().zip(expected).enumerate() {
@@ -345,7 +415,6 @@ mod tests {
     }
 
     fn assert_perk_values_eq(actual: &PerkValuesVec, expected: &PerkValuesVec) {
-        PerkName::using_full_names();
         check_len(actual, expected);
 
         for (i, (acc, exp)) in actual.iter().zip(expected).enumerate() {
@@ -1139,7 +1208,6 @@ mod tests {
         use smallvec::smallvec;
 
         fn assert_rank_combination_eq(actual: &Vec<RankCombination>, expected: &Vec<RankCombination>) {
-            PerkName::using_full_names();
             check_len(actual, expected);
 
             for x in expected {

@@ -1,7 +1,8 @@
-use crate::{prelude::*, result::gizmo_combination_sort, component_prices::load_component_prices};
-use std::ffi::{c_char, CStr, CString};
-use std::sync::{Mutex, Arc, Condvar};
+use crate::{prelude::*, result::gizmo_combination_sort, Solver};
 use itertools::Itertools;
+use std::ffi::{c_char, CStr, CString};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Condvar, Mutex};
 
 static CHANNEL: Mutex<Option<CString>> = Mutex::new(None);
 
@@ -20,15 +21,16 @@ pub struct FfiArgs {
     pub sort_type: SortType,
     pub out_file: *const c_char,
     pub price_file: *const c_char,
-    pub alt_count: u8
+    pub alt_count: u8,
 }
 
 #[repr(C)]
 pub struct Response {
-    total_combination_count: usize,
+    total_combination_count: u64,
     bar_progress: *const u64,
     materials: *const c_char,
-    result: *const c_char
+    result: *const c_char,
+    cancel_signal: *const AtomicBool,
 }
 
 impl From<String> for Response {
@@ -37,7 +39,8 @@ impl From<String> for Response {
             total_combination_count: 0,
             bar_progress: std::ptr::null(),
             materials: std::ptr::null(),
-            result: CString::new(value).unwrap().into_raw() as *const c_char
+            result: CString::new(value).unwrap().into_raw() as *const c_char,
+            cancel_signal: std::ptr::null(),
         }
     }
 }
@@ -60,10 +63,18 @@ pub unsafe extern "C" fn perk_solver_ctypes(args: FfiArgs) -> Response {
         out_file = CStr::from_ptr(args.out_file).to_str().unwrap().to_string();
     }
     if !args.price_file.is_null() {
-        price_file = CStr::from_ptr(args.price_file).to_str().unwrap().to_string();
+        price_file = CStr::from_ptr(args.price_file)
+            .to_str()
+            .unwrap()
+            .to_string();
     }
     if !args.exclude.is_null() {
-        exclude = CStr::from_ptr(args.exclude).to_str().unwrap().split(",").map(|x| x.to_string()).collect_vec();
+        exclude = CStr::from_ptr(args.exclude)
+            .to_str()
+            .unwrap()
+            .split(",")
+            .map(|x| x.to_string())
+            .collect_vec();
     }
 
     let cli = Cli {
@@ -73,15 +84,19 @@ pub unsafe extern "C" fn perk_solver_ctypes(args: FfiArgs) -> Response {
         command: Commands::Gizmo {
             perk,
             rank: args.rank,
-            perk_two: if perk_two.is_empty() { None } else { Some(perk_two) },
+            perk_two: if perk_two.is_empty() {
+                None
+            } else {
+                Some(perk_two)
+            },
             rank_two: args.rank_two,
             fuzzy: args.fuzzy,
             exclude,
             sort_type: args.sort_type,
             out_file,
             price_file,
-            alt_count: args.alt_count
-        }
+            alt_count: args.alt_count,
+        },
     };
 
     colored::control::set_override(false); // Disable colored messages
@@ -89,18 +104,18 @@ pub unsafe extern "C" fn perk_solver_ctypes(args: FfiArgs) -> Response {
     let data = Data::load();
     let args = match Args::create(&cli) {
         Ok(args) => args,
-        Err(err) => return Response::from(err)
+        Err(err) => return Response::from(err),
     };
-    let s = match crate::setup(args, &data) {
+    let solver = match Solver::new(args, data) {
         Ok(s) => s,
-        Err(err) => return Response::from(err)
+        Err(err) => return Response::from(err),
     };
-    if let Err(err) = load_component_prices(&s.args) {
-        return Response::from(err);
-    }
+    let meta = solver.meta.clone();
 
-    let bar_progress = Arc::into_raw(s.bar_progress.clone()) as *const u64;
-    let materials = CString::new(s.materials.to_json()).unwrap();
+    let bar_progress = Arc::into_raw(meta.bar_progress.clone()) as *const u64;
+    let materials = CString::new(meta.materials.to_json()).unwrap();
+    let total_combination_count = meta.total_combination_count;
+    let cancel_signal = Arc::into_raw(meta.cancel_signal.clone());
     let has_started = Arc::new((Mutex::new(false), Condvar::new()));
     let has_started2 = Arc::clone(&has_started);
 
@@ -112,9 +127,11 @@ pub unsafe extern "C" fn perk_solver_ctypes(args: FfiArgs) -> Response {
             cvar.notify_one();
         }
 
-        crate::perk_solver_core(s.args, data, s.wanted_gizmo, s.materials, s.bar_progress, s.total_combination_count, s.result_tx);
-        let mut best_per_level = s.result_handler.join().unwrap()
-            .into_iter().map(|x| x.into_iter().filter(|y| y.prob_gizmo > 0.0).collect_vec()).collect_vec();
+        let mut best_per_level = solver
+            .run()
+            .into_iter()
+            .map(|x| x.into_iter().filter(|y| y.prob_gizmo > 0.0).collect_vec())
+            .collect_vec();
         for x in best_per_level.iter_mut() {
             for y in x.iter_mut() {
                 y.mat_combination = Arc::new(gizmo_combination_sort(&y.mat_combination));
@@ -132,10 +149,11 @@ pub unsafe extern "C" fn perk_solver_ctypes(args: FfiArgs) -> Response {
     }
 
     Response {
-        total_combination_count: s.total_combination_count,
+        total_combination_count,
         bar_progress,
         materials: materials.into_raw(),
-        result: std::ptr::null()
+        result: std::ptr::null(),
+        cancel_signal,
     }
 }
 
@@ -149,10 +167,26 @@ pub extern "C" fn get_result(response: &mut Response) {
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn cancel_and_free(mut response: Response) {
+    if response.cancel_signal != std::ptr::null() {
+        let cancel_signal = Arc::from_raw(response.cancel_signal);
+        response.cancel_signal = std::ptr::null();
+        cancel_signal.store(true, Ordering::SeqCst);
+        get_result(&mut response); // Wait untill everything has stopped
+        free_response(response);
+    }
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn free_response(response: Response) {
     if response.bar_progress != std::ptr::null() {
         let bar_progress = Arc::from_raw(response.bar_progress);
         drop(bar_progress);
+    }
+
+    if response.cancel_signal != std::ptr::null() {
+        let cancel_signal = Arc::from_raw(response.cancel_signal);
+        drop(cancel_signal);
     }
 
     if response.result != std::ptr::null() {

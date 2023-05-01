@@ -38,7 +38,8 @@ class Response(Structure):
         ("total_combination_count", c_uint64),
         ("bar_progress", POINTER(c_uint64)),
         ("materials", c_char_p),
-        ("result", c_char_p)
+        ("result", c_char_p),
+        ("cancel_signal", c_bool)
     ]
 
 # Set return types
@@ -61,9 +62,13 @@ def perk_solver(args):
 
     print(json.dumps(json.loads(response.materials), indent=2))
 
+    t_start = time.time()
     while response.bar_progress[0] != response.total_combination_count:
         format_progress(response)
         time.sleep(0.1)
+        if time.time() - t_start > 1:
+            lib.cancel_and_free(response) # It is possible to cancel early
+            return "Cancelled"
     format_progress(response) # Show 100%
 
     lib.get_result(byref(response)) # Blocking call. Returns when the result is ready.

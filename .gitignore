@@ -8,6 +8,7 @@ test.sh
 bench.sh
 *.opt
 *.code-workspace
+.vscode
 out.csv
 prices.txt
 cachegrind.out*

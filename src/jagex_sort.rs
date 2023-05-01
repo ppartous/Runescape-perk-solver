@@ -28,6 +28,7 @@ pub fn jagex_quicksort(rank_combination: &mut RankCombination) {
     f(rank_combination, 0, rank_combination.ranks.len() - 1);
 }
 
+#[rustfmt::skip]
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -35,7 +36,6 @@ mod tests {
     use crate::{PerkName, PerkRankValues, utils::check_index};
 
     fn assert_rankcombination_eq(actual: &RankCombination, expected: &RankCombination) {
-        PerkName::using_simplified_names();
         for (i, (acc, exp)) in actual.ranks.iter().zip(expected.ranks.iter()).enumerate() {
             check_index(acc.name, exp.name, i, "perk", actual, expected);
             check_index(acc.cost, exp.cost, i, "cost", actual, expected);

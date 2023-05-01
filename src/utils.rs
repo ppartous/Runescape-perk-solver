@@ -1,6 +1,6 @@
 #![allow(unused)]
-use std::process;
 use colored::*;
+use std::process;
 
 pub fn print_error(err: &str) -> ! {
     eprintln!("{}{} {err}", "error".red().bold(), ":".bold());
@@ -33,7 +33,7 @@ pub fn format_int(mut num: i64) -> String {
 /// Factorial operator (https://en.wikipedia.org/wiki/Factorial)
 pub fn fac(n: usize) -> f64 {
     let mut r = 1;
-    for i in 2 ..= n {
+    for i in 2..=n {
         r *= i;
     }
     r as f64
@@ -47,7 +47,9 @@ pub fn convolve(x: &Vec<f64>, y: &Vec<f64>) -> Vec<f64> {
     for i in 0..=(xlen + ylen - 2) {
         let start = i64::max(0, i - (ylen - 1)) as usize;
         let stop = i64::min(xlen - 1, i) as usize;
-        let sum = x[start..=stop].iter().zip(y[(i as usize - stop)..=(i as usize - start)].iter().rev())
+        let sum = x[start..=stop]
+            .iter()
+            .zip(y[(i as usize - stop)..=(i as usize - start)].iter().rev())
             .fold(0.0, |acc, (xval, yval)| acc + xval * yval);
         z.push(sum);
     }
@@ -57,10 +59,13 @@ pub fn convolve(x: &Vec<f64>, y: &Vec<f64>) -> Vec<f64> {
 #[cfg(test)]
 pub fn check_result<T>(acc: T, exp: T, name: &str) -> Result<(), String>
 where
-    T: PartialEq + std::fmt::Display
+    T: PartialEq + std::fmt::Display,
 {
     if acc != exp {
-        return Err(format!("Actual and expected have different '{}' values (actual: {}, expected: {})", name, acc, exp));
+        return Err(format!(
+            "Actual and expected have different '{}' values (actual: {}, expected: {})",
+            name, acc, exp
+        ));
     }
     Ok(())
 }
@@ -68,7 +73,7 @@ where
 #[cfg(test)]
 pub fn check<T>(acc: T, exp: T, name: &str)
 where
-    T: PartialEq + std::fmt::Display
+    T: PartialEq + std::fmt::Display,
 {
     if let Err(err) = check_result(acc, exp, name) {
         panic!("{}", err);
@@ -78,7 +83,7 @@ where
 #[cfg(test)]
 pub fn check_len_result<T>(acc: &[T], exp: &[T]) -> Result<(), String>
 where
-    T: std::fmt::Debug
+    T: std::fmt::Debug,
 {
     if acc.len() != exp.len() {
         return Err(format!("Actual and expected have different lengths (actual: {}, expected: {})\nActual: {:#?}\nExpected: {:#?}",
@@ -90,7 +95,7 @@ where
 #[cfg(test)]
 pub fn check_len<T>(acc: &[T], exp: &[T])
 where
-    T: std::fmt::Debug
+    T: std::fmt::Debug,
 {
     if let Err(err) = check_len_result(acc, exp) {
         panic!("{}", err);
@@ -98,10 +103,17 @@ where
 }
 
 #[cfg(test)]
-pub fn check_index_result<T, K>(acc: T, exp: T, i: usize, name: &str, acc_full: K, exp_full: K) -> Result<(), String>
+pub fn check_index_result<T, K>(
+    acc: T,
+    exp: T,
+    i: usize,
+    name: &str,
+    acc_full: K,
+    exp_full: K,
+) -> Result<(), String>
 where
     T: PartialEq + std::fmt::Display,
-    K: std::fmt::Debug
+    K: std::fmt::Debug,
 {
     if acc != exp {
         return Err(format!("Actual and expected have different '{}' values at index {} (actual: {}, expected: {})\nActual: {:#?}\nExpected: {:#?}",
@@ -114,7 +126,7 @@ where
 pub fn check_index<T, K>(acc: T, exp: T, i: usize, name: &str, acc_full: K, exp_full: K)
 where
     T: PartialEq + std::fmt::Display,
-    K: std::fmt::Debug
+    K: std::fmt::Debug,
 {
     if let Err(err) = check_index_result(acc, exp, i, name, acc_full, exp_full) {
         panic!("{}", err);
@@ -122,9 +134,17 @@ where
 }
 
 #[cfg(test)]
-pub fn check_index_relative_result<K>(acc: f64, exp: f64, max_relative: f64, i: usize, name: &str, acc_full: K, exp_full: K) -> Result<(), String>
+pub fn check_index_relative_result<K>(
+    acc: f64,
+    exp: f64,
+    max_relative: f64,
+    i: usize,
+    name: &str,
+    acc_full: K,
+    exp_full: K,
+) -> Result<(), String>
 where
-    K: std::fmt::Debug
+    K: std::fmt::Debug,
 {
     if approx::relative_ne!(acc, exp, max_relative = max_relative * f64::EPSILON) {
         return Err(format!("Actual and expected have different '{}' values at index {} (actual: {}, expected: {})\n\
@@ -135,11 +155,20 @@ where
 }
 
 #[cfg(test)]
-pub fn check_index_relative<K>(acc: f64, exp: f64, max_relative: f64, i: usize, name: &str, acc_full: K, exp_full: K)
-where
-    K: std::fmt::Debug
+pub fn check_index_relative<K>(
+    acc: f64,
+    exp: f64,
+    max_relative: f64,
+    i: usize,
+    name: &str,
+    acc_full: K,
+    exp_full: K,
+) where
+    K: std::fmt::Debug,
 {
-    if let Err(err) = check_index_relative_result(acc, exp, max_relative, i, name, acc_full, exp_full) {
+    if let Err(err) =
+        check_index_relative_result(acc, exp, max_relative, i, name, acc_full, exp_full)
+    {
         panic!("{}", err);
     }
 }

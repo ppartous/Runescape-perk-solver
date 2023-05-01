@@ -1,10 +1,13 @@
-use std::collections::VecDeque;
 use crate::prelude::*;
 use itertools::Itertools;
-use smallvec::{SmallVec, smallvec};
+use smallvec::{smallvec, SmallVec};
+use std::collections::VecDeque;
 
 pub fn find_gizmo_cost_thresholds(combination: &RankCombination, max_range: u16) -> Vec<Gizmo> {
-    let mut cost_thresholds = vec![Gizmo { cost: -1, ..Default::default() }];
+    let mut cost_thresholds = vec![Gizmo {
+        cost: -1,
+        ..Default::default()
+    }];
     let mut first_non_zero_rank_index = 0;
 
     let mut comb_iter = combination.ranks.iter().enumerate().peekable();
@@ -24,8 +27,17 @@ pub fn find_gizmo_cost_thresholds(combination: &RankCombination, max_range: u16)
 
         cost_thresholds.push(Gizmo::create(prv, None));
 
-        let next_threshold = if let Some(x) = comb_iter.peek() { x.1.cost } else { max_range };
-        for prv_two in combination.ranks.iter().take(i).skip(first_non_zero_rank_index) {
+        let next_threshold = if let Some(x) = comb_iter.peek() {
+            x.1.cost
+        } else {
+            max_range
+        };
+        for prv_two in combination
+            .ranks
+            .iter()
+            .take(i)
+            .skip(first_non_zero_rank_index)
+        {
             let cost_sum = prv.cost + prv_two.cost;
             if cost_sum >= next_threshold {
                 break;
@@ -48,7 +60,11 @@ pub fn find_gizmo_cost_thresholds(combination: &RankCombination, max_range: u16)
 
 /// This function is used when the perks in the gizmo we are looking for are known
 /// and the order of the perks doesn't matter
-pub fn find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_range: u16, wanted_gizmo: Gizmo) -> SmallVec<[Gizmo; 5]> {
+pub fn find_wanted_gizmo_cost_thresholds(
+    combination: &RankCombination,
+    max_range: u16,
+    wanted_gizmo: Gizmo,
+) -> SmallVec<[Gizmo; 5]> {
     let mut cost_thresholds = smallvec![];
     let mut first_non_zero_rank_index = 0;
     let mut perk_two_index = None;
@@ -106,7 +122,9 @@ pub fn find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_rang
         }
 
         let mut perk_one = *prv;
-        let mut perk_two = PerkRankValues{ ..Default::default() };
+        let mut perk_two = PerkRankValues {
+            ..Default::default()
+        };
 
         if wanted_gizmo.perks.1.is_empty() {
             // Singular perk can't exist if there is a higher index perk with equal cost
@@ -117,7 +135,11 @@ pub fn find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_rang
             }
 
             cost_thresholds.push(Gizmo::create(prv, None));
-            let next_major_threshold = if let Some((_, x)) = comb_iter.peek() { x.cost } else { max_range };
+            let next_major_threshold = if let Some((_, x)) = comb_iter.peek() {
+                x.cost
+            } else {
+                max_range
+            };
 
             if prv.doubleslot {
                 if let Some((_, x)) = comb_iter.peek() {
@@ -128,7 +150,10 @@ pub fn find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_rang
                     // threshold is max_range
                     break;
                 }
-            } else if first_non_zero_rank_index == i || (prv.cost + combination.ranks[first_non_zero_rank_index].cost >= next_major_threshold) {
+            } else if first_non_zero_rank_index == i
+                || (prv.cost + combination.ranks[first_non_zero_rank_index].cost
+                    >= next_major_threshold)
+            {
                 if let Some((_, x)) = comb_iter.peek() {
                     perk_one = **x;
                 } else {
@@ -171,10 +196,12 @@ pub fn find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_rang
                     }
                 }
 
-                if end_index == i  {
+                if end_index == i {
                     if let Some((_, x)) = comb_iter.peek() {
                         perk_one = **x;
-                        perk_two = PerkRankValues { ..Default::default() };
+                        perk_two = PerkRankValues {
+                            ..Default::default()
+                        };
                     } else {
                         break;
                     }
@@ -195,26 +222,33 @@ pub fn find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_rang
             perk_two_index = Some(i);
         } else {
             let perk_two_index = perk_two_index.unwrap();
-            let next_major_threshold = if let Some((_, x)) = comb_iter.peek() { x.cost } else { max_range };
+            let next_major_threshold = if let Some((_, x)) = comb_iter.peek() {
+                x.cost
+            } else {
+                max_range
+            };
             perk_two = combination.ranks[perk_two_index];
 
             if perk_one.cost + perk_two.cost >= next_major_threshold {
                 break;
             }
 
-            if perk_two_index < i - 1 && combination.ranks[perk_two_index + 1].cost == perk_two.cost {
+            if perk_two_index < i - 1 && combination.ranks[perk_two_index + 1].cost == perk_two.cost
+            {
                 break;
             }
 
             cost_thresholds.push(Gizmo::create(&perk_one, Some(&perk_two)));
 
-            if perk_two_index < combination.ranks.len() - 2 { // perk_two is lower than P2 so there is always a higher threshold
-                if
-                    (i < combination.ranks.len() - 1) // perk_one is lower than P1
+            if perk_two_index < combination.ranks.len() - 2 {
+                // perk_two is lower than P2 so there is always a higher threshold
+                if (i < combination.ranks.len() - 1) // perk_one is lower than P1
                     && ((perk_two_index == i - 1) || (perk_one.cost + combination.ranks[perk_two_index + 1].cost >= next_major_threshold))
                 {
                     perk_one = combination.ranks[i + 1];
-                    perk_two = PerkRankValues { ..Default::default() };
+                    perk_two = PerkRankValues {
+                        ..Default::default()
+                    };
                 } else {
                     perk_one = *prv;
                     perk_two = combination.ranks[perk_two_index + 1];
@@ -234,7 +268,11 @@ pub fn find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_rang
 
 /// This function is used for fuzzy search where the wanted perk can be combined with any other perk
 /// and the order of the perks doesn't matter so our wanted perk can be in slot 1 or 2
-pub fn fuzzy_find_wanted_gizmo_cost_thresholds(combination: &RankCombination, max_range: u16, wanted_gizmo: Gizmo) -> SmallVec<[Gizmo; 5]> {
+pub fn fuzzy_find_wanted_gizmo_cost_thresholds(
+    combination: &RankCombination,
+    max_range: u16,
+    wanted_gizmo: Gizmo,
+) -> SmallVec<[Gizmo; 5]> {
     let mut cost_thresholds = smallvec![];
 
     /*
@@ -273,7 +311,13 @@ pub fn fuzzy_find_wanted_gizmo_cost_thresholds(combination: &RankCombination, ma
             |--|   |--|   |--|         |--|                 <-- Regions we need to find
     */
 
-    for (i, values) in combination.ranks.iter().zip_longest(combination.ranks.iter().skip(1)).enumerate().rev() {
+    for (i, values) in combination
+        .ranks
+        .iter()
+        .zip_longest(combination.ranks.iter().skip(1))
+        .enumerate()
+        .rev()
+    {
         let prv = values.clone().left().unwrap();
         let prv_next = values.right(); // 1 index higher than prv
 
@@ -302,10 +346,20 @@ pub fn fuzzy_find_wanted_gizmo_cost_thresholds(combination: &RankCombination, ma
 
         // Find borders for when wanted perk is in gizmo slot two
         // All perks with a higher index than prv can potentially create a wanted gizmo
-        for (j, values2) in combination.ranks.iter().zip_longest(combination.ranks.iter().skip(1)).enumerate().skip(i + 1) {
+        for (j, values2) in combination
+            .ranks
+            .iter()
+            .zip_longest(combination.ranks.iter().skip(1))
+            .enumerate()
+            .skip(i + 1)
+        {
             let prv_two = values2.clone().left().unwrap(); // prv_two is in gizmo slot one
             let prv_two_next = values2.right();
-            let next_major_threshold = if let Some(x) = prv_two_next { u16::min(x.cost, max_range) } else { max_range };
+            let next_major_threshold = if let Some(x) = prv_two_next {
+                u16::min(x.cost, max_range)
+            } else {
+                max_range
+            };
 
             // When the costs of perk one and perk two are equal then they can only form a gizmo if they are next to each other
             if i < j - 1 && prv.cost == prv_next.unwrap().cost {
@@ -323,9 +377,9 @@ pub fn fuzzy_find_wanted_gizmo_cost_thresholds(combination: &RankCombination, ma
             }
 
             let next_threshold = prv_two.cost + prv_next.unwrap().cost; // Ex: wanted is P4 so i+1 is P3. perkTwo points to P2. So the range is from P2P4 to P2P3
-            if
-                j == i + 1 // If j points to 1 perk higher than our wanted perk (e.g. P3P4 when wanted is P4) then the next threshold will always be i+2 (P2 when wanted is P4)
-                || next_threshold >= next_major_threshold // Ex: Range is from P2P4 to P2P3 but P2P3 cost more than P1 so range is actually P2P4 to P1
+            if j == i + 1 // If j points to 1 perk higher than our wanted perk (e.g. P3P4 when wanted is P4) then the next threshold will always be i+2 (P2 when wanted is P4)
+                || next_threshold >= next_major_threshold
+            // Ex: Range is from P2P4 to P2P3 but P2P3 cost more than P1 so range is actually P2P4 to P1
             {
                 // If j = P1 than the next threshold is maxRange instead of another perk
                 if prv_two_next.is_some() && next_major_threshold < max_range {
@@ -348,6 +402,7 @@ pub fn fuzzy_find_wanted_gizmo_cost_thresholds(combination: &RankCombination, ma
 //                                                      Tests
 // =====================================================================================================================
 
+#[rustfmt::skip]
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -355,7 +410,6 @@ mod tests {
     use crate::utils::{check_len_result, check_index_result};
 
     fn assert_gcth_eq_result(actual: &[Gizmo], expected: &[Gizmo]) -> Result<(), String> {
-        PerkName::using_simplified_names();
         check_len_result(actual, expected)?;
 
         for (i, (acc, exp)) in actual.iter().zip(expected).enumerate() {
@@ -1014,7 +1068,7 @@ mod tests {
             fn two_consecutive_plus_one() {
                 let combination = RankCombination {
                     ranks: smallvec![
-                        PerkRankValues { name: PerkName::K, rank: 1, cost: 5, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::L, rank: 1, cost: 5, doubleslot: true, ..Default::default() },
                         PerkRankValues { name: PerkName::A, rank: 1, cost: 10, doubleslot: true, ..Default::default() },
                         PerkRankValues { name: PerkName::B, rank: 1, cost: 20, ..Default::default() },
                         PerkRankValues { name: PerkName::C, rank: 1, cost: 30, doubleslot: true, ..Default::default() },
@@ -1048,7 +1102,7 @@ mod tests {
                         PerkRankValues { name: PerkName::H, rank: 1, cost: 700, doubleslot: true, ..Default::default() },
                         PerkRankValues { name: PerkName::I, rank: 1, cost: 1400, ..Default::default() },
                         PerkRankValues { name: PerkName::J, rank: 1, cost: 2800, ..Default::default() },
-                        PerkRankValues { name: PerkName::K, rank: 1, cost: 6000, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::L, rank: 1, cost: 6000, doubleslot: true, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
@@ -1079,7 +1133,7 @@ mod tests {
                         PerkRankValues { name: PerkName::H, rank: 1, cost: 700, doubleslot: true, ..Default::default() },
                         PerkRankValues { name: PerkName::I, rank: 1, cost: 1400, doubleslot: true, ..Default::default() },
                         PerkRankValues { name: PerkName::J, rank: 1, cost: 2800, ..Default::default() },
-                        PerkRankValues { name: PerkName::K, rank: 1, cost: 6000, doubleslot: true, ..Default::default() },
+                        PerkRankValues { name: PerkName::L, rank: 1, cost: 6000, doubleslot: true, ..Default::default() },
                     ],
                     probability: 0.0,
                 };
@@ -1090,7 +1144,7 @@ mod tests {
                     Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 2830, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { name: PerkName::E, rank: 1 }), cost: 2860, ..Default::default() },
                     Gizmo { perks: (Perk { name: PerkName::J, rank: 1 }, Perk { ..Default::default() }), cost: 3150, ..Default::default() },
-                    Gizmo { perks: (Perk { name: PerkName::K, rank: 1 }, Perk { ..Default::default() }), cost: 6000, ..Default::default() },
+                    Gizmo { perks: (Perk { name: PerkName::L, rank: 1 }, Perk { ..Default::default() }), cost: 6000, ..Default::default() },
                 ];
                 let actual = find_wanted_gizmo_cost_thresholds(&combination, 10000, wanted_gizmo);
                 assert_gcth_eq(&actual, &expected);

@@ -1,10 +1,10 @@
-use std::{default::Default, fmt::Debug, ops::Index, mem::MaybeUninit};
+use std::{default::Default, fmt::Debug, mem::MaybeUninit, ops::Index};
 use uninit::extension_traits::MaybeUninitExt;
 
 #[derive(Clone, Copy)]
 pub struct StackVec<T: Copy, const N: usize> {
     ranks: MaybeUninit<[T; N]>,
-    len: usize
+    len: usize,
 }
 
 impl<T: Copy, const N: usize> StackVec<T, N> {
@@ -12,7 +12,7 @@ impl<T: Copy, const N: usize> StackVec<T, N> {
         assert!(slice.len() <= N);
         let mut x = StackVec::<T, N> {
             len: slice.len(),
-            ranks: MaybeUninit::uninit()
+            ranks: MaybeUninit::uninit(),
         };
         for (i, val) in slice.into_iter().enumerate() {
             unsafe {
@@ -31,9 +31,7 @@ impl<T: Copy, const N: usize> StackVec<T, N> {
     }
 
     pub fn iter(&self) -> std::slice::Iter<'_, T> {
-        unsafe {
-            self.ranks.assume_init_by_ref()[0..self.len].iter()
-        }
+        unsafe { self.ranks.assume_init_by_ref()[0..self.len].iter() }
     }
 
     pub fn push(&mut self, val: T) {
@@ -50,9 +48,7 @@ impl<T: Copy, const N: usize> Index<usize> for StackVec<T, N> {
 
     fn index(&self, index: usize) -> &Self::Output {
         debug_assert!(index < self.len);
-        unsafe {
-            self.ranks.assume_init_by_ref().get_unchecked(index)
-        }
+        unsafe { self.ranks.assume_init_by_ref().get_unchecked(index) }
     }
 }
 
@@ -69,25 +65,19 @@ impl<T: Copy, const N: usize> std::ops::Deref for StackVec<T, N> {
     type Target = [T];
 
     fn deref(&self) -> &Self::Target {
-        unsafe {
-            &self.ranks.assume_init_by_ref()[0..self.len]
-        }
+        unsafe { &self.ranks.assume_init_by_ref()[0..self.len] }
     }
 }
 
 impl<T: Copy, const N: usize> std::ops::DerefMut for StackVec<T, N> {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        unsafe {
-            &mut self.ranks.assume_init_by_mut()[0..self.len]
-        }
+        unsafe { &mut self.ranks.assume_init_by_mut()[0..self.len] }
     }
 }
 
 impl<T: Copy + Debug, const N: usize> Debug for StackVec<T, N> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        unsafe {
-            Debug::fmt(&self.ranks.assume_init_by_ref()[0..self.len], f)
-        }
+        unsafe { Debug::fmt(&self.ranks.assume_init_by_ref()[0..self.len], f) }
     }
 }
 

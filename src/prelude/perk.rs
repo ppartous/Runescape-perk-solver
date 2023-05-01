@@ -3,12 +3,15 @@ use crate::{PerkName, PerkRankValues};
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Perk {
     pub name: PerkName,
-    pub rank: u8
+    pub rank: u8,
 }
 
 impl Default for Perk {
     fn default() -> Self {
-        Perk { name: PerkName::Empty, rank: 0 }
+        Perk {
+            name: PerkName::Empty,
+            rank: 0,
+        }
     }
 }
 
@@ -28,7 +31,7 @@ impl From<&PerkRankValues> for Perk {
     fn from(x: &PerkRankValues) -> Self {
         Perk {
             name: x.name,
-            rank: x.rank
+            rank: x.rank,
         }
     }
 }

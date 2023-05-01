@@ -1,7 +1,7 @@
 pub mod stack_vec;
+use crate::{GizmoType, PerkName};
 pub use stack_vec::*;
 use std::ops::Index;
-use crate::{PerkName, GizmoType};
 
 #[derive(Debug, Clone, Copy)]
 pub struct PerkRanksData {
@@ -13,7 +13,7 @@ impl Default for PerkRanksData {
     fn default() -> Self {
         PerkRanksData {
             doubleslot: false,
-            ranks: StackVec::new(&[])
+            ranks: StackVec::new(&[]),
         }
     }
 }
@@ -32,7 +32,7 @@ impl Default for ComponentValues {
         ComponentValues {
             perk: PerkName::Empty,
             base: 0,
-            roll: 0
+            roll: 0,
         }
     }
 }
@@ -52,9 +52,9 @@ impl Index<GizmoType> for CompPerksPerGizmoType {
 
     fn index(&self, index: GizmoType) -> &Self::Output {
         match index {
-                GizmoType::Armour => &self.armour,
-                GizmoType::Tool => &self.tool,
-                GizmoType::Weapon => &self.weapon
+            GizmoType::Armour => &self.armour,
+            GizmoType::Tool => &self.tool,
+            GizmoType::Weapon => &self.weapon,
         }
     }
 }
@@ -65,7 +65,7 @@ impl Default for CompPerksPerGizmoType {
             ancient_only: false,
             weapon: StackVec::new(&[]),
             armour: StackVec::new(&[]),
-            tool: StackVec::new(&[])
+            tool: StackVec::new(&[]),
         }
     }
 }
@@ -90,14 +90,17 @@ impl Default for PerkRankValues {
             doubleslot: false,
             name: PerkName::Empty,
             rank: 0,
-            threshold: 0
+            threshold: 0,
         }
     }
 }
 
 impl std::fmt::Display for PerkRankValues {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{{ name: {}, rank: {}, cost: {}, threshold: {}, ancient_only: {}, doubleslot: {} }}",
-            self.name, self.rank, self.cost, self.threshold, self.ancient_only, self.doubleslot)
+        write!(
+            f,
+            "{{ name: {}, rank: {}, cost: {}, threshold: {}, ancient_only: {}, doubleslot: {} }}",
+            self.name, self.rank, self.cost, self.threshold, self.ancient_only, self.doubleslot
+        )
     }
 }

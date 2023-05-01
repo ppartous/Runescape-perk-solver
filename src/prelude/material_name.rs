@@ -1,202 +1,212 @@
-use std::{fmt, str::FromStr};
-use itertools::Itertools;
 use colored::*;
-use strum_macros::{EnumIter, EnumCount};
+use itertools::Itertools;
+use std::str::FromStr;
+use strum::{Display, EnumIter};
+use strum_macros::{EnumCount, EnumVariantNames, IntoStaticStr};
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash, EnumIter, EnumCount)]
+#[derive(
+    Debug,
+    Display,
+    Default,
+    PartialEq,
+    Eq,
+    Clone,
+    Copy,
+    PartialOrd,
+    Ord,
+    Hash,
+    EnumCount,
+    EnumIter,
+    EnumVariantNames,
+    IntoStaticStr,
+)]
+#[strum(ascii_case_insensitive, use_phf)]
 pub enum MaterialName {
+    #[strum(serialize = "Armadyl components")]
     ArmadylComponents,
+    #[strum(serialize = "Ascended components")]
     AscendedComponents,
+    #[strum(serialize = "Avernic components")]
     AvernicComponents,
+    #[strum(serialize = "Bandos components")]
     BandosComponents,
+    #[strum(serialize = "Base parts")]
     BaseParts,
+    #[strum(serialize = "Blade parts")]
     BladeParts,
+    #[strum(serialize = "Brassican components")]
     BrassicanComponents,
+    #[strum(serialize = "Classic components")]
     ClassicComponents,
+    #[strum(serialize = "Clear parts")]
     ClearParts,
+    #[strum(serialize = "Clockwork components")]
     ClockworkComponents,
+    #[strum(serialize = "Connector parts")]
     ConnectorParts,
+    #[strum(serialize = "Corporeal components")]
     CorporealComponents,
+    #[strum(serialize = "Cover parts")]
     CoverParts,
+    #[strum(serialize = "Crafted parts")]
     CraftedParts,
+    #[strum(serialize = "Crystal parts")]
     CrystalParts,
+    #[strum(serialize = "Culinary components")]
     CulinaryComponents,
+    #[strum(serialize = "Cywir components")]
     CywirComponents,
+    #[strum(serialize = "Deflecting parts")]
     DeflectingParts,
+    #[strum(serialize = "Delicate parts")]
     DelicateParts,
+    #[strum(serialize = "Dextrous components")]
     DextrousComponents,
+    #[strum(serialize = "Direct components")]
     DirectComponents,
+    #[strum(serialize = "Dragonfire components")]
     DragonfireComponents,
+    #[strum(serialize = "Enhancing components")]
     EnhancingComponents,
+    #[strum(serialize = "Ethereal components")]
     EtherealComponents,
+    #[strum(serialize = "Evasive components")]
     EvasiveComponents,
+    #[strum(serialize = "Explosive components")]
     ExplosiveComponents,
+    #[strum(serialize = "Faceted components")]
     FacetedComponents,
+    #[strum(serialize = "Flexible parts")]
     FlexibleParts,
+    #[strum(serialize = "Fortunate components")]
     FortunateComponents,
+    #[strum(serialize = "Fungal components")]
     FungalComponents,
+    #[strum(serialize = "Harnessed components")]
     HarnessedComponents,
+    #[strum(serialize = "Head parts")]
     HeadParts,
+    #[strum(serialize = "Healthy components")]
     HealthyComponents,
+    #[strum(serialize = "Heavy components")]
     HeavyComponents,
+    #[strum(serialize = "Historic components")]
     HistoricComponents,
+    #[strum(serialize = "Ilujankan components")]
     IlujankanComponents,
+    #[strum(serialize = "Imbued components")]
     ImbuedComponents,
+    #[default]
     Junk,
+    #[strum(serialize = "Knightly components")]
     KnightlyComponents,
+    #[strum(serialize = "Light components")]
     LightComponents,
+    #[strum(serialize = "Living components")]
     LivingComponents,
+    #[strum(serialize = "Magic parts")]
     MagicParts,
+    #[strum(serialize = "Metallic parts")]
     MetallicParts,
+    #[strum(serialize = "Noxious components")]
     NoxiousComponents,
+    #[strum(serialize = "Oceanic components")]
     OceanicComponents,
+    #[strum(serialize = "Organic parts")]
     OrganicParts,
+    #[strum(serialize = "Padded parts")]
     PaddedParts,
+    #[strum(serialize = "Pestiferous components")]
     PestiferousComponents,
+    #[strum(serialize = "Pious components")]
     PiousComponents,
+    #[strum(serialize = "Plated parts")]
     PlatedParts,
+    #[strum(serialize = "Powerful components")]
     PowerfulComponents,
+    #[strum(serialize = "Precious components")]
     PreciousComponents,
+    #[strum(serialize = "Precise components")]
     PreciseComponents,
+    #[strum(serialize = "Protective components")]
     ProtectiveComponents,
+    #[strum(serialize = "Refined components")]
     RefinedComponents,
+    #[strum(serialize = "Resilient components")]
     ResilientComponents,
+    #[strum(serialize = "Rumbling components")]
     RumblingComponents,
+    #[strum(serialize = "Saradomin components")]
     SaradominComponents,
+    #[strum(serialize = "Seren components")]
     SerenComponents,
+    #[strum(serialize = "Shadow components")]
     ShadowComponents,
+    #[strum(serialize = "Sharp components")]
     SharpComponents,
+    #[strum(serialize = "Shifting components")]
     ShiftingComponents,
+    #[strum(serialize = "Silent components")]
     SilentComponents,
+    #[strum(serialize = "Simple parts")]
     SimpleParts,
+    #[strum(serialize = "Smooth parts")]
     SmoothParts,
+    #[strum(serialize = "Spiked parts")]
     SpikedParts,
+    #[strum(serialize = "Spiritual parts")]
     SpiritualParts,
+    #[strum(serialize = "Stave parts")]
     StaveParts,
+    #[strum(serialize = "Strong components")]
     StrongComponents,
+    #[strum(serialize = "Stunning components")]
     StunningComponents,
+    #[strum(serialize = "Subtle components")]
     SubtleComponents,
+    #[strum(serialize = "Swift components")]
     SwiftComponents,
+    #[strum(serialize = "Tensile parts")]
     TensileParts,
+    #[strum(serialize = "Third-age components")]
     ThirdAgeComponents,
+    #[strum(serialize = "Timeworn components")]
     TimewornComponents,
+    #[strum(serialize = "Undead components")]
     UndeadComponents,
+    #[strum(serialize = "Variable components")]
     VariableComponents,
+    #[strum(serialize = "Vintage components")]
     VintageComponents,
+    #[strum(serialize = "Zamorak components")]
     ZamorakComponents,
+    #[strum(serialize = "Zaros components")]
     ZarosComponents,
 }
 
 impl MaterialName {
     pub fn vec_to_string(v: &[MaterialName]) -> String {
         let counts = v.iter().counts();
-        v.iter().unique().map(|x| {
-            let count = *counts.get(x).unwrap();
-            format!("{} × {}", count, x)
-        }).join(", ")
+        v.iter()
+            .unique()
+            .map(|x| {
+                let count = *counts.get(x).unwrap();
+                format!("{} × {}", count, x.to_string().cyan())
+            })
+            .join(", ")
     }
 
-    pub fn vec_to_string_colored(v: &[MaterialName]) -> String {
-        let counts = v.iter().counts();
-        v.iter().unique().map(|x| {
-            let count = *counts.get(x).unwrap();
-            format!("{} × {}", count, x.to_string().cyan())
-        }).join(", ")
+    pub fn to_str(&self) -> &'static str {
+        self.into()
     }
 }
 
 impl serde::Serialize for MaterialName {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer {
+    where
+        S: serde::Serializer,
+    {
         serializer.collect_str(&self)
-    }
-}
-
-impl fmt::Display for MaterialName {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            MaterialName::ArmadylComponents => write!(f, "Armadyl components"),
-            MaterialName::AscendedComponents => write!(f, "Ascended components"),
-            MaterialName::AvernicComponents => write!(f, "Avernic components"),
-            MaterialName::BandosComponents => write!(f, "Bandos components"),
-            MaterialName::BaseParts => write!(f, "Base parts"),
-            MaterialName::BladeParts => write!(f, "Blade parts"),
-            MaterialName::BrassicanComponents => write!(f, "Brassican components"),
-            MaterialName::ClassicComponents => write!(f, "Classic components"),
-            MaterialName::ClearParts => write!(f, "Clear parts"),
-            MaterialName::ClockworkComponents => write!(f, "Clockwork components"),
-            MaterialName::ConnectorParts => write!(f, "Connector parts"),
-            MaterialName::CorporealComponents => write!(f, "Corporeal components"),
-            MaterialName::CoverParts => write!(f, "Cover parts"),
-            MaterialName::CraftedParts => write!(f, "Crafted parts"),
-            MaterialName::CrystalParts => write!(f, "Crystal parts"),
-            MaterialName::CulinaryComponents => write!(f, "Culinary components"),
-            MaterialName::CywirComponents => write!(f, "Cywir components"),
-            MaterialName::DeflectingParts => write!(f, "Deflecting parts"),
-            MaterialName::DelicateParts => write!(f, "Delicate parts"),
-            MaterialName::DextrousComponents => write!(f, "Dextrous components"),
-            MaterialName::DirectComponents => write!(f, "Direct components"),
-            MaterialName::DragonfireComponents => write!(f, "Dragonfire components"),
-            MaterialName::EnhancingComponents => write!(f, "Enhancing components"),
-            MaterialName::EtherealComponents => write!(f, "Ethereal components"),
-            MaterialName::EvasiveComponents => write!(f, "Evasive components"),
-            MaterialName::ExplosiveComponents => write!(f, "Explosive components"),
-            MaterialName::FacetedComponents => write!(f, "Faceted components"),
-            MaterialName::FlexibleParts => write!(f, "Flexible parts"),
-            MaterialName::FortunateComponents => write!(f, "Fortunate components"),
-            MaterialName::FungalComponents => write!(f, "Fungal components"),
-            MaterialName::HarnessedComponents => write!(f, "Harnessed components"),
-            MaterialName::HeadParts => write!(f, "Head parts"),
-            MaterialName::HealthyComponents => write!(f, "Healthy components"),
-            MaterialName::HeavyComponents => write!(f, "Heavy components"),
-            MaterialName::HistoricComponents => write!(f, "Historic components"),
-            MaterialName::IlujankanComponents => write!(f, "Ilujankan components"),
-            MaterialName::ImbuedComponents => write!(f, "Imbued components"),
-            MaterialName::Junk => write!(f, "Junk"),
-            MaterialName::KnightlyComponents => write!(f, "Knightly components"),
-            MaterialName::LightComponents => write!(f, "Light components"),
-            MaterialName::LivingComponents => write!(f, "Living components"),
-            MaterialName::MagicParts => write!(f, "Magic parts"),
-            MaterialName::MetallicParts => write!(f, "Metallic parts"),
-            MaterialName::NoxiousComponents => write!(f, "Noxious components"),
-            MaterialName::OceanicComponents => write!(f, "Oceanic components"),
-            MaterialName::OrganicParts => write!(f, "Organic parts"),
-            MaterialName::PaddedParts => write!(f, "Padded parts"),
-            MaterialName::PestiferousComponents => write!(f, "Pestiferous components"),
-            MaterialName::PiousComponents => write!(f, "Pious components"),
-            MaterialName::PlatedParts => write!(f, "Plated parts"),
-            MaterialName::PowerfulComponents => write!(f, "Powerful components"),
-            MaterialName::PreciousComponents => write!(f, "Precious components"),
-            MaterialName::PreciseComponents => write!(f, "Precise components"),
-            MaterialName::ProtectiveComponents => write!(f, "Protective components"),
-            MaterialName::RefinedComponents => write!(f, "Refined components"),
-            MaterialName::ResilientComponents => write!(f, "Resilient components"),
-            MaterialName::RumblingComponents => write!(f, "Rumbling components"),
-            MaterialName::SaradominComponents => write!(f, "Saradomin components"),
-            MaterialName::SerenComponents => write!(f, "Seren components"),
-            MaterialName::ShadowComponents => write!(f, "Shadow components"),
-            MaterialName::SharpComponents => write!(f, "Sharp components"),
-            MaterialName::ShiftingComponents => write!(f, "Shifting components"),
-            MaterialName::SilentComponents => write!(f, "Silent components"),
-            MaterialName::SimpleParts => write!(f, "Simple parts"),
-            MaterialName::SmoothParts => write!(f, "Smooth parts"),
-            MaterialName::SpikedParts => write!(f, "Spiked parts"),
-            MaterialName::SpiritualParts => write!(f, "Spiritual parts"),
-            MaterialName::StaveParts => write!(f, "Stave parts"),
-            MaterialName::StrongComponents => write!(f, "Strong components"),
-            MaterialName::StunningComponents => write!(f, "Stunning components"),
-            MaterialName::SubtleComponents => write!(f, "Subtle components"),
-            MaterialName::SwiftComponents => write!(f, "Swift components"),
-            MaterialName::TensileParts => write!(f, "Tensile parts"),
-            MaterialName::ThirdAgeComponents => write!(f, "Third-age components"),
-            MaterialName::TimewornComponents => write!(f, "Timeworn components"),
-            MaterialName::UndeadComponents => write!(f, "Undead components"),
-            MaterialName::VariableComponents => write!(f, "Variable components"),
-            MaterialName::VintageComponents => write!(f, "Vintage components"),
-            MaterialName::ZamorakComponents => write!(f, "Zamorak components"),
-            MaterialName::ZarosComponents => write!(f, "Zaros components"),
-        }
     }
 }
 
@@ -286,7 +296,7 @@ impl FromStr for MaterialName {
                 "vintage components" => Ok(MaterialName::VintageComponents),
                 "zamorak components" => Ok(MaterialName::ZamorakComponents),
                 "zaros components" => Ok(MaterialName::ZarosComponents),
-                _ => Err("Unknown material name")
+                _ => Err("Unknown material name"),
             }
         }
 
@@ -307,8 +317,90 @@ impl From<MaterialName> for usize {
     }
 }
 
-impl std::default::Default for MaterialName {
-    fn default() -> Self {
-        MaterialName::Junk
-    }
-}
+pub static COMMON_MATERIALS: &[MaterialName] = &[
+    MaterialName::BaseParts,
+    MaterialName::BladeParts,
+    MaterialName::ClearParts,
+    MaterialName::ConnectorParts,
+    MaterialName::CoverParts,
+    MaterialName::CraftedParts,
+    MaterialName::CrystalParts,
+    MaterialName::DeflectingParts,
+    MaterialName::DelicateParts,
+    MaterialName::FlexibleParts,
+    MaterialName::HeadParts,
+    MaterialName::MagicParts,
+    MaterialName::MetallicParts,
+    MaterialName::OrganicParts,
+    MaterialName::PaddedParts,
+    MaterialName::PlatedParts,
+    MaterialName::SimpleParts,
+    MaterialName::SmoothParts,
+    MaterialName::SpikedParts,
+    MaterialName::SpiritualParts,
+    MaterialName::StaveParts,
+    MaterialName::TensileParts,
+];
+
+pub static UNCOMMON_MATERIALS: &[MaterialName] = &[
+    MaterialName::DextrousComponents,
+    MaterialName::DirectComponents,
+    MaterialName::EnhancingComponents,
+    MaterialName::EtherealComponents,
+    MaterialName::EvasiveComponents,
+    MaterialName::HealthyComponents,
+    MaterialName::HeavyComponents,
+    MaterialName::ImbuedComponents,
+    MaterialName::LightComponents,
+    MaterialName::LivingComponents,
+    MaterialName::PiousComponents,
+    MaterialName::PowerfulComponents,
+    MaterialName::PreciousComponents,
+    MaterialName::PreciseComponents,
+    MaterialName::ProtectiveComponents,
+    MaterialName::RefinedComponents,
+    MaterialName::SharpComponents,
+    MaterialName::StrongComponents,
+    MaterialName::StunningComponents,
+    MaterialName::SubtleComponents,
+    MaterialName::SwiftComponents,
+    MaterialName::VariableComponents,
+];
+
+pub static RARE_MATERIALS: &[MaterialName] = &[
+    MaterialName::ArmadylComponents,
+    MaterialName::AscendedComponents,
+    MaterialName::AvernicComponents,
+    MaterialName::BandosComponents,
+    MaterialName::BrassicanComponents,
+    MaterialName::ClassicComponents,
+    MaterialName::ClockworkComponents,
+    MaterialName::CorporealComponents,
+    MaterialName::CulinaryComponents,
+    MaterialName::CywirComponents,
+    MaterialName::DragonfireComponents,
+    MaterialName::ExplosiveComponents,
+    MaterialName::FacetedComponents,
+    MaterialName::FortunateComponents,
+    MaterialName::FungalComponents,
+    MaterialName::HarnessedComponents,
+    MaterialName::HistoricComponents,
+    MaterialName::IlujankanComponents,
+    MaterialName::KnightlyComponents,
+    MaterialName::NoxiousComponents,
+    MaterialName::OceanicComponents,
+    MaterialName::PestiferousComponents,
+    MaterialName::ResilientComponents,
+    MaterialName::RumblingComponents,
+    MaterialName::SaradominComponents,
+    MaterialName::SerenComponents,
+    MaterialName::ShadowComponents,
+    MaterialName::ShiftingComponents,
+    MaterialName::SilentComponents,
+    MaterialName::ThirdAgeComponents,
+    MaterialName::TimewornComponents,
+    MaterialName::UndeadComponents,
+    MaterialName::VintageComponents,
+    MaterialName::ZamorakComponents,
+    MaterialName::ZarosComponents,
+];

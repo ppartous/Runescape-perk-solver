@@ -1,0 +1,271 @@
+@import url('https://fonts.cdnfonts.com/css/ibm-plex-sans');
+@import url('https://fonts.cdnfonts.com/css/pt-serif');
+
+#ArgsForm {
+    background-color: #eeeeee;
+    padding: 8px 8px 8px 8px;
+    box-shadow: 0 3px 8px #dcdcdc;
+    margin-bottom: 0;
+}
+
+#ArgsForm>div {
+    display: flex;
+    align-items: start;
+    flex-wrap: wrap;
+    gap: 1em;
+}
+
+#ArgsForm table td,
+#ArgsForm table th {
+    text-align: left;
+}
+
+body {
+    font-family: 'IBM Plex Sans', 'Helvetica Neue', 'Arial', sans-serif;
+    margin: 0;
+    color: #202122;
+}
+
+#content {
+    margin: 8px;
+}
+
+.btn {
+    padding: 0.25em 0.45em;
+    border-style: outset;
+    border-radius: 3px;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #36c;
+    border-color: #36c;
+}
+
+.btn-danger {
+    color: #fff;
+    background-color: #FF4742;
+    border-color: #FF4742;
+}
+
+.progressbar {
+    border: solid 1px black;
+    border-radius: 5px;
+    overflow: hidden;
+    background-color: #e9ecef;
+    width: 100%;
+    height: 16px;
+}
+
+.progressbar-wrapper {
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
+
+.progressbar-bg {
+    background-color: #28a745;
+    height: 100%;
+    background-image: linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+    background-size: 1.5rem 1.5rem;
+}
+
+@keyframes progress-bar-stripes {
+    0% {
+        background-position: 1.5rem 0;
+    }
+
+    100% {
+        background-position: 0 0;
+    }
+}
+
+.progress-bar-animated {
+    animation: progress-bar-stripes 1s linear infinite;
+}
+
+.progressbar-text {
+    white-space: nowrap;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+}
+
+.result {
+    display: flex;
+    align-items: start;
+    gap: 10px;
+}
+
+.result td {
+    white-space: nowrap;
+}
+
+.wikitable {
+    border-collapse: collapse;
+    border: solid 1px #dcdcdc;
+    margin-top: 0.5em;
+}
+
+.wikitable th {
+    background-color: #eeeeee;
+    border: solid 1px #dcdcdc;
+    padding: 0.4em;
+    line-height: 1.65em;
+}
+
+.wikitable td {
+    border: solid 1px #dcdcdc;
+    padding: 0.20em 0.45em;
+    text-align: right;
+}
+
+.wikitable.result-alts td:nth-child(3) {
+    white-space: normal;
+}
+
+.tabber {
+    display: flex;
+    gap: 4px;
+    padding-left: 2em;
+    border-bottom: solid 1px #dcdcdc;
+}
+
+.tab {
+    border: solid 1px #dcdcdc;
+    border-bottom: none;
+    padding: 0.5em;
+    font-weight: bold;
+    background-color: #f9fafa;
+    margin-bottom: -1px;
+    transition: 0.2s ease;
+}
+
+.tab:hover {
+    background-color: #f1f3f3;
+    border-color: #dbe3e8;
+}
+
+.tab.is-selected {
+    background-color: white;
+}
+
+.tab.is-selected:hover {
+    color: #000;
+}
+
+.prices-container {
+    column-count: 2;
+    column-gap: 2em;
+}
+
+.inline-mat-image {
+    vertical-align: middle;
+    margin-right: 0.25em;
+    width: 25px;
+    height: 25px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #444e5a;
+    font-family: 'PT Serif', 'Palatino', 'Georgia', serif;
+}
+
+h1,
+h2,
+h3 {
+    border-bottom: 1px solid #e4eaee;
+    padding: 0 0 0.15em;
+    margin: 1em 0 0.3em 0;
+}
+
+.mat-order-image {
+    background-image: url("https://runescape.wiki/images/Perk_calculator_background_ancient.png?f33bb");
+    background-size: contain;
+    background-repeat: no-repeat;
+    height: 126px;
+    width: 210px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 0.5em;
+}
+
+.mat-order-image table {
+    position: relative;
+    border-collapse: collapse;
+    left: 49px;
+    top: 7px;
+}
+
+.mat-order-image td {
+    width: 32px;
+    height: 32px;
+    border: solid 4px transparent;
+    color: white;
+    text-align: center;
+    padding: 0;
+    font-size: 20px;
+}
+
+.calc-link {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32px' height='32px'%3E%3Cpath d='M 18 5 L 18 7 L 23.5625 7 L 11.28125 19.28125 L 12.71875 20.71875 L 25 8.4375 L 25 14 L 27 14 L 27 5 Z M 5 9 L 5 27 L 23 27 L 23 14 L 21 16 L 21 25 L 7 25 L 7 11 L 16 11 L 18 9 Z'/%3E%3C/svg%3E");
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    background-size: contain;
+    background-repeat: no-repeat;
+    vertical-align: middle;
+    margin-left: 2px;
+}
+
+.align-left-1 td:nth-child(1) {
+    text-align: left;
+}
+
+.align-left-2 td:nth-child(2) {
+    text-align: left;
+}
+
+.align-left-3 td:nth-child(3) {
+    text-align: left;
+}
+
+.align-left-4 td:nth-child(4) {
+    text-align: left;
+}
+
+.align-right-1 td:nth-child(1) {
+    text-align: right;
+}
+
+.align-right-2 td:nth-child(2) {
+    text-align: right;
+}
+
+.align-right-3 td:nth-child(3) {
+    text-align: right;
+}
+
+.align-right-4 td:nth-child(4) {
+    text-align: right;
+}
+
+.align-center-1 td:nth-child(1) {
+    text-align: center;
+}
+
+.align-center-2 td:nth-child(2) {
+    text-align: center;
+}
+
+.align-center-3 td:nth-child(3) {
+    text-align: center;
+}
+
+.align-center-4 td:nth-child(4) {
+    text-align: center;
+}
