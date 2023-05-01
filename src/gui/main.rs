@@ -173,7 +173,24 @@ fn App(cx: Scope) -> Element {
     ))
 }
 
+fn wiki_image_link(name: &str) -> String {
+    format!(
+        "https://runescape.wiki/images/{}.png?00000",
+        name.to_string().replace(" ", "_")
+    )
+}
+
+fn WikiImage<'a>(cx: Scope<'a>, name: &str) -> Element<'a> {
+    cx.render(rsx!(img {
+        src: "{wiki_image_link(name)}",
+        title: "{name}",
+        class: "inline-mat-image"
+    }))
+}
+
 fn PricesTab<'a>(cx: Scope<'a>, prices_status: &Option<Result<(), String>>) -> Element<'a> {
+    let shell_price_update_check = use_state(cx, || ());
+
     cx.render(rsx!(if let Some(status) = prices_status {
         rsx!(if let Err(err) = status {
             rsx!("{err}")
@@ -183,9 +200,8 @@ fn PricesTab<'a>(cx: Scope<'a>, prices_status: &Option<Result<(), String>>) -> E
                 div {
                     class: "prices-container",
                     table {
-                        class: "prices-table",
                         for mat in COMMON_MATERIALS.iter() {
-                            PriceTabElement(cx, *mat)
+                            PriceTabElement(cx, *mat, &shell_price_update_check)
                         }
                     }
                 }
@@ -193,21 +209,41 @@ fn PricesTab<'a>(cx: Scope<'a>, prices_status: &Option<Result<(), String>>) -> E
                 div {
                     class: "prices-container",
                     table {
-                        class: "prices-table",
                         for mat in UNCOMMON_MATERIALS.iter() {
-                            PriceTabElement(cx, *mat)
+                            PriceTabElement(cx, *mat, &shell_price_update_check)
                         }
                     }
                 }
                 h3 { "Rare materials" }
-                div{
+                div {
                     class: "prices-container",
                     table {
-                        class: "prices-table",
                         for mat in RARE_MATERIALS.iter() {
-                            PriceTabElement(cx, *mat)
+                            PriceTabElement(cx, *mat, &shell_price_update_check)
                         }
                     }
+                }
+                h3 { "Gizmo shells" }
+                div { "Prices are calculated based on the material prices above." }
+                table {
+                    class: "wikitable align-left-1",
+                    tr {
+                        th { "Shell" }
+                        th { "Price" }
+                        th { "Source materials" }
+                    }
+                    PriceTabShellElement(cx, GizmoType::Weapon, false,
+                        &[(10, MaterialName::BladeParts), (5, MaterialName::CraftedParts), (2, MaterialName::StrongComponents)])
+                    PriceTabShellElement(cx, GizmoType::Armour, false,
+                        &[(10, MaterialName::DeflectingParts), (5, MaterialName::CraftedParts), (2, MaterialName::ProtectiveComponents)])
+                    PriceTabShellElement(cx, GizmoType::Tool, false,
+                        &[(10, MaterialName::HeadParts), (5, MaterialName::CraftedParts), (2, MaterialName::PreciseComponents)])
+                    PriceTabShellElement(cx, GizmoType::Weapon, true,
+                        &[(20, MaterialName::BladeParts), (20, MaterialName::HistoricComponents), (2, MaterialName::ClassicComponents), (2, MaterialName::StrongComponents)])
+                    PriceTabShellElement(cx, GizmoType::Armour, true,
+                        &[(20, MaterialName::DeflectingParts), (20, MaterialName::HistoricComponents), (2, MaterialName::ClassicComponents), (2, MaterialName::ProtectiveComponents)])
+                    PriceTabShellElement(cx, GizmoType::Tool, true,
+                        &[(20, MaterialName::HeadParts), (20, MaterialName::HistoricComponents), (2, MaterialName::ClassicComponents), (2, MaterialName::PreciseComponents)])
                 }
             )
         })
@@ -216,13 +252,47 @@ fn PricesTab<'a>(cx: Scope<'a>, prices_status: &Option<Result<(), String>>) -> E
     }))
 }
 
-fn PriceTabElement(cx: Scope, mat: MaterialName) -> Element {
+fn PriceTabShellElement<'a>(
+    cx: Scope<'a>,
+    shell: GizmoType,
+    ancient: bool,
+    comb: &[(u8, MaterialName)],
+) -> Element<'a> {
+    let name = if ancient {
+        format!("Ancient {} gizmo shell", shell.to_string().to_lowercase())
+    } else {
+        format!("{} gizmo shell", shell.to_string())
+    };
+
     cx.render(rsx!(
         tr {
             td {
-                img {
-                    src: "https://runescape.wiki/images/{mat.to_string().replace(\" \", \"_\")}.png?00000",
+                WikiImage(cx, name.as_str())
+                "{name}"
+            }
+            td { format!("{:.0}", perk_solver::component_prices::get_shell_price(shell, ancient)) }
+            td {
+                for (i, (n, mat)) in comb.iter().enumerate() {
+                    if i > 0 {
+                        rsx!(", ")
+                    }
+                    "{n} × "
+                    WikiImage(cx, mat.to_str())
                 }
+            }
+        }
+    ))
+}
+
+fn PriceTabElement<'a>(
+    cx: Scope<'a>,
+    mat: MaterialName,
+    update_check: &'a UseState<()>,
+) -> Element<'a> {
+    cx.render(rsx!(
+        tr {
+            td {
+                WikiImage(cx, mat.to_str()),
                 "{mat}:"
             }
             td {
@@ -233,6 +303,7 @@ fn PriceTabElement(cx: Scope, mat: MaterialName) -> Element {
                     oninput: move |ev| {
                         if let Some(prices) = perk_solver::component_prices::PRICES.write().unwrap().as_mut() {
                             *prices.get_mut(mat) = ev.value.parse().unwrap_or(0.0);
+                            update_check.needs_update();
                         }
                     }
                 }
@@ -261,7 +332,7 @@ fn get_color(val: f64) -> (u8, u8, u8) {
 fn FullResultTable<'a>(cx: Scope<'a>, result: &Vec<Vec<ResultLine>>) -> Element<'a> {
     cx.render(rsx!(
         table {
-            class: "result-table",
+            class: "wikitable",
             tr {
                 th { rowspan: 2, "Level" }
                 th { colspan: 2, "Probability (%)" }
@@ -318,7 +389,7 @@ fn ResultTable<'a>(cx: Scope<'a>, result: &Vec<Vec<ResultLine>>, args: &Args) ->
             div {
                 class: "result",
                 table {
-                    class: "result-table",
+                    class: "wikitable",
                     tr {
                         th { rowspan: 2, "Level" }
                         th { colspan: 2, "Probability (%)" }
@@ -361,7 +432,7 @@ fn ResultTable<'a>(cx: Scope<'a>, result: &Vec<Vec<ResultLine>>, args: &Args) ->
                 }
                 div {
                     table {
-                        class: "result-table result-alts",
+                        class: "wikitable result-alts align-left-3 align-center-4",
                         tr {
                             th {
                                 match args.sort_type {
@@ -387,7 +458,7 @@ fn ResultTable<'a>(cx: Scope<'a>, result: &Vec<Vec<ResultLine>>, args: &Args) ->
                             }
                             td { "{best_wanted.level}" }
                             td {
-                                dangerous_inner_html: "{mat_combination_to_image_string(&best_wanted.mat_combination)}",
+                                MatCombinationList(cx, &best_wanted.mat_combination)
                             }
                             td {
                                 a {
@@ -413,7 +484,7 @@ fn ResultTable<'a>(cx: Scope<'a>, result: &Vec<Vec<ResultLine>>, args: &Args) ->
                                         }
                                         td { "{alt.level}" }
                                         td {
-                                            dangerous_inner_html: "{mat_combination_to_image_string(&alt.mat_combination)}",
+                                            MatCombinationList(cx, &alt.mat_combination)
                                         }
                                         td {
                                             a {
@@ -462,20 +533,18 @@ fn ResultTable<'a>(cx: Scope<'a>, result: &Vec<Vec<ResultLine>>, args: &Args) ->
     }
 }
 
-fn mat_combination_to_image_string(mat_combinaton: &[MaterialName]) -> String {
+fn MatCombinationList<'a>(cx: Scope<'a>, mat_combinaton: &[MaterialName]) -> Element<'a> {
     let counts = mat_combinaton.iter().counts();
-    mat_combinaton
-        .iter()
-        .unique()
-        .map(|x| {
-            let count = *counts.get(x).unwrap();
-            format!(
-                "{count} × <img src=\"https://runescape.wiki/images/{}.png?00000\" class=\"inline-mat-image\"/>{}",
-                x.to_string().replace(" ", "_"),
-                x.to_string()
-            )
-        })
-        .join(", ")
+    cx.render(rsx!(
+        for (i, mat) in mat_combinaton.iter().unique().enumerate() {
+            if i > 0 {
+                rsx!(", ")
+            }
+            "{*counts.get(mat).unwrap()} × "
+            WikiImage(cx, mat.to_str())
+            "{mat}"
+        }
+    ))
 }
 
 #[inline_props]
@@ -517,37 +586,34 @@ fn ProgressBar(
 }
 
 fn MaterialsList<'a>(cx: Scope<'a>, solver: &SolverMetadata) -> Element<'a> {
-    let mats = solver.materials.conflict
-        .iter()
-        .chain(&solver.materials.no_conflict)
-        .sorted()
-        .map(|x| {
-            format!("<img src=\"https://runescape.wiki/images/{}.png?00000\" class=\"inline-mat-image\"/>{}",
-                x.to_string().replace(" ", "_"),
-                x.to_string())
-        })
-        .join(", ");
-    let exclude = solver.args.exclude
-        .iter()
-        .map(|x| {
-            format!("<img src=\"https://runescape.wiki/images/{}.png?00000\" class=\"inline-mat-image\"/>{}",
-                x.to_string().replace(" ", "_"),
-                x.to_string())
-        })
-        .join(", ");
-
     cx.render(rsx!(
         div {
             class: "materials",
             b { "Materials: " }
-            span { dangerous_inner_html: "{mats}" }
+            span {
+                for (i, mat) in solver.materials.conflict.iter().chain(&solver.materials.no_conflict).sorted().enumerate() {
+                    if i > 0 {
+                        rsx!(", ")
+                    }
+                    WikiImage(cx, mat.to_str())
+                    "{mat}"
+                }
+            }
         }
         if !solver.args.exclude.is_empty() {
             rsx!(
                 div {
                     class: "excluded-materials",
                     b { "Excluded materials: " }
-                    span { dangerous_inner_html: "{exclude}" }
+                    span {
+                        for (i, mat) in solver.args.exclude.iter().enumerate() {
+                            if i > 0 {
+                                rsx!(", ")
+                            }
+                            WikiImage(cx, mat.to_str())
+                            "{mat}"
+                        }
+                    }
                 }
             )
         }
@@ -602,12 +668,6 @@ fn ArgsForm<'a>(cx: Scope, on_submit: EventHandler<'a, FormEvent>, is_running: b
                             input { r#type: "checkbox", name: "ancient", checked: "true" }
                         }
                     }
-                    tr {
-                        th { "Exclude filter:" }
-                        td {
-                            input { r#type: "text", name: "exclude filter", placeholder: "e.g.: noxious, direct" }
-                        }
-                    }
                 }
                 table {
                     tr {
@@ -625,13 +685,6 @@ fn ArgsForm<'a>(cx: Scope, on_submit: EventHandler<'a, FormEvent>, is_running: b
                             }
                         }
                     }
-                    tr {
-                        th { "Alt count:" }
-                        td {
-                            input { r#type: "number", name: "alt count", min: "0", max: "254", value: "5" }
-                        }
-                    }
-
                 }
                 table {
                     tr {
@@ -649,6 +702,20 @@ fn ArgsForm<'a>(cx: Scope, on_submit: EventHandler<'a, FormEvent>, is_running: b
                                 }
                                 label { r#for: x.0, x.0 }
                             }
+                        }
+                    }
+                }
+                table {
+                    tr {
+                        th { "Alt count:" }
+                        td {
+                            input { r#type: "number", name: "alt count", min: "0", max: "254", value: "5" }
+                        }
+                    }
+                    tr {
+                        th { "Exclude filter:" }
+                        td {
+                            input { r#type: "text", name: "exclude filter", placeholder: "e.g.: noxious, direct" }
                         }
                     }
                 }

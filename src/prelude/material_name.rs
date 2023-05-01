@@ -195,6 +195,10 @@ impl MaterialName {
             })
             .join(", ")
     }
+
+    pub fn to_str(&self) -> &'static str {
+        self.into()
+    }
 }
 
 impl serde::Serialize for MaterialName {

@@ -59,7 +59,7 @@ body {
 
 .progressbar-wrapper {
     margin-top: 1em;
-    margin-bottom: 1em;
+    margin-bottom: 0.5em;
 }
 
 .progressbar-bg {
@@ -96,32 +96,31 @@ body {
     gap: 10px;
 }
 
-.result-table {
-    border-collapse: collapse;
-    border: solid 1px #dcdcdc;
+.result td {
     white-space: nowrap;
 }
 
-.result-table th {
+.wikitable {
+    border-collapse: collapse;
+    border: solid 1px #dcdcdc;
+    margin-top: 0.5em;
+}
+
+.wikitable th {
     background-color: #eeeeee;
     border: solid 1px #dcdcdc;
     padding: 0.4em;
     line-height: 1.65em;
 }
 
-.result-table td {
+.wikitable td {
     border: solid 1px #dcdcdc;
     padding: 0.20em 0.45em;
     text-align: right;
 }
 
-.result-table.result-alts td:nth-child(3) {
+.wikitable.result-alts td:nth-child(3) {
     white-space: normal;
-    text-align: left;
-}
-
-.result-table.result-alts td:nth-child(4) {
-    text-align: center;
 }
 
 .tabber {
@@ -152,13 +151,6 @@ body {
 
 .tab.is-selected:hover {
     color: #000;
-}
-
-.prices-table img {
-    width: 25px;
-    height: 25px;
-    vertical-align: middle;
-    margin-right: 0.25em;
 }
 
 .prices-container {
@@ -228,4 +220,52 @@ h3 {
     background-repeat: no-repeat;
     vertical-align: middle;
     margin-left: 2px;
+}
+
+.align-left-1 td:nth-child(1) {
+    text-align: left;
+}
+
+.align-left-2 td:nth-child(2) {
+    text-align: left;
+}
+
+.align-left-3 td:nth-child(3) {
+    text-align: left;
+}
+
+.align-left-4 td:nth-child(4) {
+    text-align: left;
+}
+
+.align-right-1 td:nth-child(1) {
+    text-align: right;
+}
+
+.align-right-2 td:nth-child(2) {
+    text-align: right;
+}
+
+.align-right-3 td:nth-child(3) {
+    text-align: right;
+}
+
+.align-right-4 td:nth-child(4) {
+    text-align: right;
+}
+
+.align-center-1 td:nth-child(1) {
+    text-align: center;
+}
+
+.align-center-2 td:nth-child(2) {
+    text-align: center;
+}
+
+.align-center-3 td:nth-child(3) {
+    text-align: center;
+}
+
+.align-center-4 td:nth-child(4) {
+    text-align: center;
 }
