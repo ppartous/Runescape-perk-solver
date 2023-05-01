@@ -274,7 +274,13 @@ fn FullResultTable<'a>(cx: Scope<'a>, result: &Vec<Vec<ResultLine>>) -> Element<
             }
             for lines in result.iter() {
                 tr {
-                    td { rowspan: "{lines.len()}", "{lines[0].level}" }
+                    td {
+                        rowspan: "{lines.len()}",
+                        match lines[0].level - (lines[0].level % 2) {
+                            0 => String::from("1"),
+                            x => format!("{x}-{}", x + 1)
+                        }
+                    }
                     td { perk_solver::result::format_float(lines[0].prob_gizmo) }
                     td { perk_solver::result::format_float(lines[0].prob_attempt) }
                     td { perk_solver::result::format_price(lines[0].price) }
@@ -379,7 +385,7 @@ fn ResultTable<'a>(cx: Scope<'a>, result: &Vec<Vec<ResultLine>>, args: &Args) ->
                                 }
                             }
                             td { "{best_wanted.level}" }
-                            td { MaterialName::vec_to_string(&best_wanted.mat_combination) }
+                            td { dangerous_inner_html: "{mat_combination_to_image_string(&best_wanted.mat_combination)}" }
                         }
                         if args.result_depth > 1 {
                             rsx!(
@@ -396,7 +402,7 @@ fn ResultTable<'a>(cx: Scope<'a>, result: &Vec<Vec<ResultLine>>, args: &Args) ->
                                             }
                                         }
                                         td { "{alt.level}" }
-                                        td { MaterialName::vec_to_string(&alt.mat_combination) }
+                                        td { dangerous_inner_html: "{mat_combination_to_image_string(&alt.mat_combination)}" }
                                     }
                                 }
                             )
@@ -410,6 +416,22 @@ fn ResultTable<'a>(cx: Scope<'a>, result: &Vec<Vec<ResultLine>>, args: &Args) ->
             "No material combination found that can produce this gizmo."
         ))
     }
+}
+
+fn mat_combination_to_image_string(mat_combinaton: &[MaterialName]) -> String {
+    let counts = mat_combinaton.iter().counts();
+    mat_combinaton
+        .iter()
+        .unique()
+        .map(|x| {
+            let count = *counts.get(x).unwrap();
+            format!(
+                "{count} × <img src=\"https://runescape.wiki/images/{}.png?00000\" class=\"inline-mat-image\"/>{}",
+                x.to_string().replace(" ", "_"),
+                x.to_string()
+            )
+        })
+        .join(", ")
 }
 
 #[inline_props]
@@ -451,30 +473,37 @@ fn ProgressBar(
 }
 
 fn MaterialsList<'a>(cx: Scope<'a>, solver: &SolverMetadata) -> Element<'a> {
+    let mats = solver.materials.conflict
+        .iter()
+        .chain(&solver.materials.no_conflict)
+        .sorted()
+        .map(|x| {
+            format!("<img src=\"https://runescape.wiki/images/{}.png?00000\" class=\"inline-mat-image\"/>{}",
+                x.to_string().replace(" ", "_"),
+                x.to_string())
+        })
+        .join(", ");
+    let exclude = solver.args.exclude
+        .iter()
+        .map(|x| {
+            format!("<img src=\"https://runescape.wiki/images/{}.png?00000\" class=\"inline-mat-image\"/>{}",
+                x.to_string().replace(" ", "_"),
+                x.to_string())
+        })
+        .join(", ");
+
     cx.render(rsx!(
         div {
             class: "materials",
             b { "Materials: " }
-            span {
-                solver.materials.conflict
-                    .iter()
-                    .chain(&solver.materials.no_conflict)
-                    .sorted()
-                    .map(|x| x.to_string())
-                    .join(", ")
-            }
+            span { dangerous_inner_html: "{mats}" }
         }
         if !solver.args.exclude.is_empty() {
             rsx!(
                 div {
                     class: "excluded-materials",
                     b { "Excluded materials: " }
-                    span {
-                        solver.args.exclude
-                            .iter()
-                            .map(|x| x.to_string())
-                            .join(", ")
-                    }
+                    span { dangerous_inner_html: "{exclude}" }
                 }
             )
         }

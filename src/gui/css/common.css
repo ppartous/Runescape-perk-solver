@@ -162,6 +162,13 @@ body {
     column-gap: 2em;
 }
 
+.inline-mat-image {
+    vertical-align: middle;
+    margin-right: 0.25em;
+    width: 25px;
+    height: 25px;
+}
+
 h1,
 h2,
 h3,
