@@ -120,6 +120,10 @@ body {
     text-align: left;
 }
 
+.result-table.result-alts td:nth-child(4) {
+    text-align: center;
+}
+
 .tabber {
     display: flex;
     gap: 4px;
@@ -185,4 +189,43 @@ h3 {
     border-bottom: 1px solid #e4eaee;
     padding: 0 0 0.15em;
     margin: 1em 0 0.3em 0;
+}
+
+.mat-order-image {
+    background-image: url("https://runescape.wiki/images/Perk_calculator_background_ancient.png?f33bb");
+    background-size: contain;
+    background-repeat: no-repeat;
+    height: 126px;
+    width: 210px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 0.5em;
+}
+
+.mat-order-image table {
+    position: relative;
+    border-collapse: collapse;
+    left: 49px;
+    top: 7px;
+}
+
+.mat-order-image td {
+    width: 32px;
+    height: 32px;
+    border: solid 4px transparent;
+    color: white;
+    text-align: center;
+    padding: 0;
+    font-size: 20px;
+}
+
+.calc-link {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32px' height='32px'%3E%3Cpath d='M 18 5 L 18 7 L 23.5625 7 L 11.28125 19.28125 L 12.71875 20.71875 L 25 8.4375 L 25 14 L 27 14 L 27 5 Z M 5 9 L 5 27 L 23 27 L 23 14 L 21 16 L 21 25 L 7 25 L 7 11 L 16 11 L 18 9 Z'/%3E%3C/svg%3E");
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    background-size: contain;
+    background-repeat: no-repeat;
+    vertical-align: middle;
+    margin-left: 2px;
 }
