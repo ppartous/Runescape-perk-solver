@@ -3,7 +3,7 @@ use itertools::Itertools;
 use regex::Regex;
 use serde_json::{self, Value};
 use std::{fs, str::FromStr, sync::RwLock};
-use strum::{EnumCount, IntoEnumIterator};
+use strum::EnumCount;
 
 static APP_USER_AGENT: &str = concat!(
     env!("CARGO_PKG_NAME"),
@@ -52,11 +52,6 @@ pub fn load_component_prices(price_file: &str) -> Result<(), String> {
     }
 
     let prices = string_to_map(&text);
-    for mat in MaterialName::iter() {
-        if *prices.get(mat) == 0.0 {
-            print_warning(format!("Price missing for '{}'", mat).as_str());
-        };
-    }
 
     if price_file != "false" {
         text = prices
