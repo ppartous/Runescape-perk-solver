@@ -159,10 +159,21 @@ body {
 }
 
 .inline-mat-image {
-    vertical-align: middle;
-    margin-right: 0.25em;
+    display: inline-block;
     width: 25px;
     height: 25px;
+    padding: 0;
+    margin-right: 0.25em;
+    text-align: center;
+}
+
+.inline-mat-image img {
+    vertical-align: middle;
+    display: inline-block;
+    max-width: 25px;
+    max-height: 25px;
+    width: auto;
+    height: auto;
 }
 
 h1,

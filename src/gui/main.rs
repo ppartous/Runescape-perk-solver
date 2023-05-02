@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // Prevents opening a console window alongside the gui
 use std::collections::HashMap;
 use std::sync::atomic::Ordering;
 use std::time::Duration;
@@ -16,7 +17,7 @@ use strum_macros::EnumVariantNames;
 use tokio::time;
 
 fn main() {
-    colored::control::set_override(false); // Disable colored messages
+    colored::control::set_override(false); // Disable colored error message strings
     let icon = Icon::from_rgba(include_bytes!("../../images/icon.bin").to_vec(), 32, 32).unwrap();
 
     let config = Config::new().with_window(
@@ -183,10 +184,12 @@ fn wiki_image_link(name: &str) -> String {
 }
 
 fn WikiImage<'a>(cx: Scope<'a>, name: &str) -> Element<'a> {
-    cx.render(rsx!(img {
-        src: "{wiki_image_link(name)}",
-        title: "{name}",
-        class: "inline-mat-image"
+    cx.render(rsx!(div {
+        class: "inline-mat-image",
+        img {
+            src: "{wiki_image_link(name)}",
+            title: "{name}",
+        }
     }))
 }
 
