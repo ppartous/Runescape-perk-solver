@@ -269,3 +269,10 @@ h3 {
 .align-center-4 td:nth-child(4) {
     text-align: center;
 }
+
+.help::after {
+    content: "(?)";
+    font-size: 0.7em;
+    position: relative;
+    top: -0.5em;
+}

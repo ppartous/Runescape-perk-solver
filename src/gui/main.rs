@@ -4,6 +4,7 @@ use std::sync::atomic::Ordering;
 use std::time::Duration;
 
 use dioxus::prelude::*;
+use dioxus_desktop::tao::window::Icon;
 use dioxus_desktop::{Config, WindowBuilder};
 
 use clap::ValueEnum;
@@ -16,11 +17,14 @@ use tokio::time;
 
 fn main() {
     colored::control::set_override(false); // Disable colored messages
+    let icon = Icon::from_rgba(include_bytes!("../../images/icon.bin").to_vec(), 32, 32).unwrap();
+
     let config = Config::new().with_window(
         WindowBuilder::default()
             .with_title(format!("Perk solver {}", env!("CARGO_PKG_VERSION")))
             .with_inner_size(dioxus_desktop::LogicalSize::new(1100.0, 950.0))
-            .with_resizable(true),
+            .with_resizable(true)
+            .with_window_icon(Some(icon)),
     );
 
     dioxus_desktop::launch_cfg(App, config);
@@ -722,13 +726,21 @@ fn ArgsForm<'a>(cx: Scope, on_submit: EventHandler<'a, FormEvent>, is_running: b
                 }
                 table {
                     tr {
-                        th { "Alt count:" }
+                        th {
+                            class: "help",
+                            title: "Amount of additional unique material combination to show after the best one.",
+                            "Alt count:"
+                        }
                         td {
                             input { r#type: "number", name: "alt count", min: "0", max: "254", value: "5" }
                         }
                     }
                     tr {
-                        th { "Exclude filter:" }
+                        th {
+                            class: "help",
+                            title: "Comma separated list of material values to exclude. Uses basic substring matching.",
+                            "Exclude filter:"
+                        }
                         td {
                             input { r#type: "text", name: "exclude filter", placeholder: "e.g.: noxious, direct" }
                         }
