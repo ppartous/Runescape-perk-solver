@@ -1,8 +1,11 @@
 Finds the optimal material combination and invention level for a given set of perks.
 
+![](./images/Example_gui.png)
+
+## Cli version
 Use `perk_solver --help` to display the help text.
 
-## Options
+### Options
 Usage: `perk_solver [OPTIONS] --type <GIZMO_TYPE> --level <INVENTION_LEVEL> <COMMAND>`
 
 | Command          | Description                                                    |
@@ -17,7 +20,7 @@ Options:
 | `-l`  | `--level <INVENTION LEVEL>` | Use two values separated by a comma to search in a range.  |    Yes   |
 | `-a`  | `--ancient`                 | For ancient gizmos                                         |    No    |
 
-### Gizmo command
+#### Gizmo command
 Usage: `perk_solver --type <GIZMO_TYPE> --level <INVENTION_LEVEL> gizmo [OPTIONS] <PERK> [RANK] [PERK_TWO] [RANK_TWO]`
 
 | Argument     | Description                                                                                                                                               | Required |
@@ -37,7 +40,7 @@ Options:
 |       | `--out-file <OUT FILE>`     | Output file name. Set to `false` to disable output [default: `out.csv`]                                                                                                                                                     |    No    |
 |       | `--price-file <PRICE FILE>` | Prices file name. If the file already exist prices are loaded form the file; if not, they are loaded from the wiki. Set to `false` to disable. When disabled prices are always loaded from the wiki [default: `prices.txt`] |    No    |
 
-### Material intput command
+#### Material intput command
 Usage: `perk_solver --type <GIZMO_TYPE> --level <INVENTION_LEVEL> material-input <MATS>...`
 
 | Argument | Description                                                                                                                        | Required |
@@ -51,13 +54,13 @@ Options:
 | `-l`  | `--level <INVENTION LEVEL>` | Single value.                                              |    Yes   |
 | `-a`  | `--ancient`                 | For ancient gizmos                                         |    No    |
 
-## Example
+### Example
 ```sh
 $ perk_solver -t weapon -l 50,80 -a gizmo equilibrium 4 mobile -e connector,delicate,flexible -A 5
 ```
-![](./images/Example_output.png)
+![](./images/Example_cli_output.png)
 
-## What are conflict materials
+### What are conflict materials
 Conflict materials are materials that can generate perks ranks with an equal cost value as one of the wanted perk ranks.
 This matters as equal cost values can cause unstable sorting results so for these material combinations the order
 of the materials might matter whereas gizmos made entirely from non-conflict materials are always position independent.
