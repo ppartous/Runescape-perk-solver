@@ -104,7 +104,6 @@
 
 pub mod component_prices;
 mod dice;
-pub mod ffi;
 mod gizmo_cost_thresholds;
 mod jagex_sort;
 mod perk_values;
