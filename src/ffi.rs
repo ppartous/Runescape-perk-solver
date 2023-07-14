@@ -96,6 +96,7 @@ pub unsafe extern "C" fn perk_solver_ctypes(args: FfiArgs) -> Response {
             out_file,
             price_file,
             alt_count: args.alt_count,
+            limit_cpu: false,
         },
     };
 

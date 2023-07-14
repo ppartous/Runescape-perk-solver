@@ -197,7 +197,11 @@ impl Solver {
             self.meta.args.ancient,
         ));
         let slot_count = if self.meta.args.ancient { 9 } else { 5 };
-        let pool = ThreadPool::new(num_cpus::get() * 2);
+        let pool = if self.meta.args.limit_cpu {
+            ThreadPool::new(num_cpus::get() * 8 / 10)
+        } else {
+            ThreadPool::new(num_cpus::get() * 2)
+        };
         let ten_millis = Duration::from_millis(10);
         let materials = &self.meta.materials;
         let wanted_gizmo = self.wanted_gizmo;

@@ -114,6 +114,16 @@ pub fn ArgsForm<'a>(
                             input { r#type: "text", name: "exclude filter", placeholder: "e.g.: noxious, direct" }
                         }
                     }
+                    tr {
+                        th {
+                            class: "help",
+                            title: "Limit the number of threads used to 80% of the amount available on the system rounded down.",
+                            "Limit CPU usage:"
+                        }
+                        td {
+                            input { r#type: "checkbox", name: "limit CPU", checked: "false" }
+                        }
+                    }
                 }
             }
             if *is_running {
@@ -185,6 +195,7 @@ pub fn form_to_args(values: &HashMap<String, String>) -> Result<Args, String> {
             out_file: String::from("false"),
             price_file: String::from("false"),
             alt_count,
+            limit_cpu: values.get("limit CPU").unwrap() == "true",
         },
     };
     Args::create(&cli)

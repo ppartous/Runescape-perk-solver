@@ -75,6 +75,10 @@ pub enum Commands {
         /// Amount of alternative combinations to show
         #[arg(long = "alt-count", short = 'A', default_value_t = 0, value_parser = clap::value_parser!(u8).range(..=254))]
         alt_count: u8,
+
+        /// Limit the number of threads used to 1 less than the amount available on the system
+        #[arg(long = "limit-cpu", default_value_t = true)]
+        limit_cpu: bool,
     },
     /// Show the gizmo probabilities for a given material combination
     MaterialInput {
@@ -137,6 +141,7 @@ pub struct Args {
     pub out_file: String,
     pub price_file: String,
     pub result_depth: u8,
+    pub limit_cpu: bool,
 }
 
 impl Args {
@@ -152,6 +157,7 @@ impl Args {
             out_file,
             price_file,
             alt_count,
+            limit_cpu,
         } = &cli.command
         {
             let invention_level = match cli.invention_level.len() {
@@ -226,6 +232,7 @@ impl Args {
                 out_file: out_file.clone(),
                 price_file: price_file.clone(),
                 result_depth: *alt_count + 1,
+                limit_cpu: *limit_cpu,
             })
         } else {
             Err("Bad command".to_string())
@@ -249,6 +256,7 @@ impl Default for Args {
             out_file: String::from("out.csv"),
             price_file: String::from("prices.txt"),
             result_depth: 1,
+            limit_cpu: false,
         }
     }
 }
