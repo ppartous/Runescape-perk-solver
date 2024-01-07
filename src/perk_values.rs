@@ -32,7 +32,7 @@ pub fn get_perk_values(
             }
 
             if let Some(index) = name_index_map.get(component_values.perk) {
-                let mut values: &mut PartialPerkValues =
+                let values: &mut PartialPerkValues =
                     unsafe { perk_values.get_unchecked_mut(*index) };
                 values.base += perk_base as u16;
                 values.rolls.push(perk_roll as u8);
@@ -114,7 +114,7 @@ pub fn calc_perk_rank_probabilities(
                 }
             }
 
-            let mut container = unsafe { perk_values.ranks.get_unchecked_mut(i) };
+            let container = unsafe { perk_values.ranks.get_unchecked_mut(i) };
             let range_start = i64::max(
                 container.values.threshold as i64 - perk_values.base as i64,
                 0,
