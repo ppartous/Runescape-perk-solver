@@ -122,8 +122,18 @@ fn lookup_on_wiki() -> Result<String, reqwest::Error> {
         .user_agent(APP_USER_AGENT)
         .build()?;
 
-    let url = format!("https://runescape.wiki/api.php?action=scribunto-console&format=json&title=sandbox&clear=true&content=&question={}",
-        include_str!("./component_prices.lua")
+    // use p._all_prices() from: https://runescape.wiki/w/Module:Component_costs
+    let url = format!("https://runescape.wiki/api.php?{}",
+        form_urlencoded::Serializer::new(String::new())
+            .append_pair("action", "parse")
+            .append_pair("text", "{{#invoke:Component costs|_all_prices}}")
+            .append_pair("contentmodel", "wikitext")
+            .append_pair("prop", "text")
+            .append_pair("disablelimitreport", "")
+            .append_pair("wrapoutputclass", "")
+            .append_pair("format", "json")
+            .append_pair("formatversion", "2")
+            .finish()
     );
     let body = client.get(url).send()?.text()?;
 
@@ -132,7 +142,7 @@ fn lookup_on_wiki() -> Result<String, reqwest::Error> {
 
 fn extract_from_response(response: &str) -> Result<String, String> {
     let json: Value = serde_json::from_str(response).unwrap_or_default();
-    let text = &json["print"];
+    let text = &json["parse"]["text"];
 
     if let Value::String(text) = text {
         Ok(text.clone())
@@ -143,8 +153,14 @@ fn extract_from_response(response: &str) -> Result<String, String> {
 
 fn string_to_map(text: &str) -> PriceMap {
     let mut prices = PriceMap::new();
-    let re = Regex::new(r"^([^:]+): ?([\d\.]+)").unwrap();
-    let lines = text.split('\n');
+
+    // strip <p>..</p> or <div ...>...</div> wrappers from MediaWiki parse response
+    let mut re = Regex::new(r"</?(p|div)[^>]*>").unwrap();
+    let response = &re.replace_all(text, "");
+
+    // match "(Component): (Price)" lines
+    re = Regex::new(r"^([^:]+): ?([\d\.]+)").unwrap();
+    let lines = response.split('\n');
 
     for line in lines {
         if let Some(captures) = re.captures(line) {
