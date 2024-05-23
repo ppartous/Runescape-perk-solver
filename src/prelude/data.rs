@@ -4,7 +4,6 @@ pub mod stack_map;
 use crate::{MaterialName, PerkName};
 pub use prelude::*;
 pub use stack_map::*;
-use std::str::FromStr;
 use strum::EnumCount;
 
 #[derive(Debug)]
@@ -17,74 +16,74 @@ impl Data {
     pub fn load() -> Data {
         Data {
             comps: stack_map! {
-                MaterialName::from_str("Armadyl components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::ArmadylComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Precise").unwrap(),
+                            perk: PerkName::Precise,
                             base: 44,
                             roll: 8
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Devoted").unwrap(),
+                            perk: PerkName::Devoted,
                             base: 39,
                             roll: 9
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Charitable").unwrap(),
+                            perk: PerkName::Charitable,
                             base: 25,
                             roll: 28
                         },
                     ])
                 },
-                MaterialName::from_str("Ascended components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::AscendedComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Efficient").unwrap(),
+                            perk: PerkName::Efficient,
                             base: 40,
                             roll: 8
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Enhanced Efficient").unwrap(),
+                            perk: PerkName::EnhancedEfficient,
                             base: 20,
                             roll: 25
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Efficient").unwrap(),
+                            perk: PerkName::Efficient,
                             base: 40,
                             roll: 8
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Enhanced Efficient").unwrap(),
+                            perk: PerkName::EnhancedEfficient,
                             base: 20,
                             roll: 25
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Efficient").unwrap(),
+                            perk: PerkName::Efficient,
                             base: 40,
                             roll: 8
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Enhanced Efficient").unwrap(),
+                            perk: PerkName::EnhancedEfficient,
                             base: 20,
                             roll: 25
                         },
                     ])
                 },
-                MaterialName::from_str("Avernic components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::AvernicComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Lunging").unwrap(),
+                            perk: PerkName::Lunging,
                             base: 44,
                             roll: 8
                         },
@@ -94,23 +93,23 @@ impl Data {
                     tool: StackVec::new(&[
                     ])
                 },
-                MaterialName::from_str("Bandos components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::BandosComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Genocidal").unwrap(),
+                            perk: PerkName::Genocidal,
                             base: 44,
                             roll: 8
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Genocidal").unwrap(),
+                            perk: PerkName::Genocidal,
                             base: 44,
                             roll: 8
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Devoted").unwrap(),
+                            perk: PerkName::Devoted,
                             base: 39,
                             roll: 9
                         },
@@ -118,372 +117,372 @@ impl Data {
                     tool: StackVec::new(&[
                     ])
                 },
-                MaterialName::from_str("Base parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::BaseParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Talking").unwrap(),
+                            perk: PerkName::Talking,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Dragon Slayer").unwrap(),
+                            perk: PerkName::DragonSlayer,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Inaccurate").unwrap(),
+                            perk: PerkName::Inaccurate,
                             base: 8,
                             roll: 33
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Talking").unwrap(),
+                            perk: PerkName::Talking,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Dragon Slayer").unwrap(),
+                            perk: PerkName::DragonSlayer,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Turtling").unwrap(),
+                            perk: PerkName::Turtling,
                             base: 9,
                             roll: 33
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Talking").unwrap(),
+                            perk: PerkName::Talking,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Charitable").unwrap(),
+                            perk: PerkName::Charitable,
                             base: 7,
                             roll: 25
                         },
                     ])
                 },
-                MaterialName::from_str("Blade parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::BladeParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Biting").unwrap(),
+                            perk: PerkName::Biting,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Junk Food").unwrap(),
+                            perk: PerkName::JunkFood,
                             base: 8,
                             roll: 33
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Biting").unwrap(),
+                            perk: PerkName::Biting,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Junk Food").unwrap(),
+                            perk: PerkName::JunkFood,
                             base: 8,
                             roll: 33
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Honed").unwrap(),
+                            perk: PerkName::Honed,
                             base: 7,
                             roll: 25
                         },
                     ])
                 },
-                MaterialName::from_str("Brassican components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::BrassicanComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Hallucinogenic").unwrap(),
+                            perk: PerkName::Hallucinogenic,
                             base: 36,
                             roll: 9
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Talking").unwrap(),
+                            perk: PerkName::Talking,
                             base: 45,
                             roll: 8
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Brassican").unwrap(),
+                            perk: PerkName::Brassican,
                             base: 49,
                             roll: 8
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Hallucinogenic").unwrap(),
+                            perk: PerkName::Hallucinogenic,
                             base: 36,
                             roll: 9
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Talking").unwrap(),
+                            perk: PerkName::Talking,
                             base: 45,
                             roll: 8
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Brassican").unwrap(),
+                            perk: PerkName::Brassican,
                             base: 49,
                             roll: 8
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Hallucinogenic").unwrap(),
+                            perk: PerkName::Hallucinogenic,
                             base: 36,
                             roll: 9
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Talking").unwrap(),
+                            perk: PerkName::Talking,
                             base: 45,
                             roll: 8
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Brassican").unwrap(),
+                            perk: PerkName::Brassican,
                             base: 49,
                             roll: 8
                         },
                     ])
                 },
-                MaterialName::from_str("Classic components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::ClassicComponents => CompPerksPerGizmoType {
                     ancient_only: true,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Scavenging").unwrap(),
+                            perk: PerkName::Scavenging,
                             base: 12,
                             roll: 20
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Efficient").unwrap(),
+                            perk: PerkName::Efficient,
                             base: 12,
                             roll: 40
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Scavenging").unwrap(),
+                            perk: PerkName::Scavenging,
                             base: 12,
                             roll: 20
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Efficient").unwrap(),
+                            perk: PerkName::Efficient,
                             base: 12,
                             roll: 40
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Fortune").unwrap(),
+                            perk: PerkName::Fortune,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Furnace").unwrap(),
+                            perk: PerkName::Furnace,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Efficient").unwrap(),
+                            perk: PerkName::Efficient,
                             base: 12,
                             roll: 40
                         },
                     ])
                 },
-                MaterialName::from_str("Clear parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::ClearParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Glow Worm").unwrap(),
+                            perk: PerkName::GlowWorm,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Hallucinogenic").unwrap(),
+                            perk: PerkName::Hallucinogenic,
                             base: 7,
                             roll: 28
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Slayer").unwrap(),
+                            perk: PerkName::DemonSlayer,
                             base: 5,
                             roll: 15
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Glow Worm").unwrap(),
+                            perk: PerkName::GlowWorm,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Hallucinogenic").unwrap(),
+                            perk: PerkName::Hallucinogenic,
                             base: 7,
                             roll: 28
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Slayer").unwrap(),
+                            perk: PerkName::DemonSlayer,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Profane").unwrap(),
+                            perk: PerkName::Profane,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Crystal Shield").unwrap(),
+                            perk: PerkName::CrystalShield,
                             base: 5,
                             roll: 15
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Glow Worm").unwrap(),
+                            perk: PerkName::GlowWorm,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Hallucinogenic").unwrap(),
+                            perk: PerkName::Hallucinogenic,
                             base: 7,
                             roll: 28
                         },
                     ])
                 },
-                MaterialName::from_str("Clockwork components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::ClockworkComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Enhanced Efficient").unwrap(),
+                            perk: PerkName::EnhancedEfficient,
                             base: 45,
                             roll: 8
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Flanking").unwrap(),
+                            perk: PerkName::Flanking,
                             base: 25,
                             roll: 28
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Enhanced Efficient").unwrap(),
+                            perk: PerkName::EnhancedEfficient,
                             base: 45,
                             roll: 8
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Enhanced Efficient").unwrap(),
+                            perk: PerkName::EnhancedEfficient,
                             base: 45,
                             roll: 8
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Tinker").unwrap(),
+                            perk: PerkName::Tinker,
                             base: 18,
                             roll: 28
                         },
                     ])
                 },
-                MaterialName::from_str("Connector parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::ConnectorParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Scavenging").unwrap(),
+                            perk: PerkName::Scavenging,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Dragon Bait").unwrap(),
+                            perk: PerkName::DragonBait,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Undead Bait").unwrap(),
+                            perk: PerkName::UndeadBait,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mobile").unwrap(),
+                            perk: PerkName::Mobile,
                             base: 7,
                             roll: 28
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Precise").unwrap(),
+                            perk: PerkName::Precise,
                             base: 5,
                             roll: 15
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Scavenging").unwrap(),
+                            perk: PerkName::Scavenging,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Dragon Bait").unwrap(),
+                            perk: PerkName::DragonBait,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Undead Bait").unwrap(),
+                            perk: PerkName::UndeadBait,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mobile").unwrap(),
+                            perk: PerkName::Mobile,
                             base: 7,
                             roll: 28
                         },
@@ -491,13 +490,13 @@ impl Data {
                     tool: StackVec::new(&[
                     ])
                 },
-                MaterialName::from_str("Corporeal components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::CorporealComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Brief Respite").unwrap(),
+                            perk: PerkName::BriefRespite,
                             base: 40,
                             roll: 8
                         },
@@ -505,185 +504,185 @@ impl Data {
                     tool: StackVec::new(&[
                     ])
                 },
-                MaterialName::from_str("Cover parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::CoverParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Shield Bashing").unwrap(),
+                            perk: PerkName::ShieldBashing,
                             base: 5,
                             roll: 15
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Shield Bashing").unwrap(),
+                            perk: PerkName::ShieldBashing,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Profane").unwrap(),
+                            perk: PerkName::Profane,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Bulwark").unwrap(),
+                            perk: PerkName::Bulwark,
                             base: 9,
                             roll: 33
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Confused").unwrap(),
+                            perk: PerkName::Confused,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Furnace").unwrap(),
+                            perk: PerkName::Furnace,
                             base: 7,
                             roll: 25
                         },
                     ])
                 },
-                MaterialName::from_str("Crafted parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::CraftedParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Hallucinogenic").unwrap(),
+                            perk: PerkName::Hallucinogenic,
                             base: 7,
                             roll: 28
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Fatiguing").unwrap(),
+                            perk: PerkName::Fatiguing,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mediocrity").unwrap(),
+                            perk: PerkName::Mediocrity,
                             base: 8,
                             roll: 33
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Hallucinogenic").unwrap(),
+                            perk: PerkName::Hallucinogenic,
                             base: 7,
                             roll: 28
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Fatiguing").unwrap(),
+                            perk: PerkName::Fatiguing,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Preparation").unwrap(),
+                            perk: PerkName::Preparation,
                             base: 5,
                             roll: 15
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Hallucinogenic").unwrap(),
+                            perk: PerkName::Hallucinogenic,
                             base: 7,
                             roll: 28
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Fatiguing").unwrap(),
+                            perk: PerkName::Fatiguing,
                             base: 8,
                             roll: 32
                         },
                     ])
                 },
-                MaterialName::from_str("Crystal parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::CrystalParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Efficient").unwrap(),
+                            perk: PerkName::Efficient,
                             base: 5,
                             roll: 13
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Trophy-taker's").unwrap(),
+                            perk: PerkName::TrophyTaker,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Undead Slayer").unwrap(),
+                            perk: PerkName::UndeadSlayer,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Bait").unwrap(),
+                            perk: PerkName::DemonBait,
                             base: 8,
                             roll: 32
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Efficient").unwrap(),
+                            perk: PerkName::Efficient,
                             base: 5,
                             roll: 13
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Trophy-taker's").unwrap(),
+                            perk: PerkName::TrophyTaker,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Undead Slayer").unwrap(),
+                            perk: PerkName::UndeadSlayer,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Bait").unwrap(),
+                            perk: PerkName::DemonBait,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Turtling").unwrap(),
+                            perk: PerkName::Turtling,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Profane").unwrap(),
+                            perk: PerkName::Profane,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Enhanced Devoted").unwrap(),
+                            perk: PerkName::EnhancedDevoted,
                             base: 5,
                             roll: 15
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Efficient").unwrap(),
+                            perk: PerkName::Efficient,
                             base: 5,
                             roll: 13
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Cheapskate").unwrap(),
+                            perk: PerkName::Cheapskate,
                             base: 8,
                             roll: 32
                         },
                     ])
                 },
-                MaterialName::from_str("Culinary components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::CulinaryComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Invigorating").unwrap(),
+                            perk: PerkName::Invigorating,
                             base: 39,
                             roll: 9
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Invigorating").unwrap(),
+                            perk: PerkName::Invigorating,
                             base: 39,
                             roll: 9
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Brief Respite").unwrap(),
+                            perk: PerkName::BriefRespite,
                             base: 45,
                             roll: 8
                         },
@@ -691,11 +690,11 @@ impl Data {
                     tool: StackVec::new(&[
                     ])
                 },
-                MaterialName::from_str("Cywir components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::CywirComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Planted Feet").unwrap(),
+                            perk: PerkName::PlantedFeet,
                             base: 20,
                             roll: 20
                         },
@@ -705,434 +704,434 @@ impl Data {
                     tool: StackVec::new(&[
                     ])
                 },
-                MaterialName::from_str("Deflecting parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::DeflectingParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Shield Bashing").unwrap(),
+                            perk: PerkName::ShieldBashing,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Inaccurate").unwrap(),
+                            perk: PerkName::Inaccurate,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mediocrity").unwrap(),
+                            perk: PerkName::Mediocrity,
                             base: 8,
                             roll: 32
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Shield Bashing").unwrap(),
+                            perk: PerkName::ShieldBashing,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Venomblood").unwrap(),
+                            perk: PerkName::Venomblood,
                             base: 5,
                             roll: 15
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Imp Souled").unwrap(),
+                            perk: PerkName::ImpSouled,
                             base: 7,
                             roll: 27
                         },
                     ])
                 },
-                MaterialName::from_str("Delicate parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::DelicateParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Bait").unwrap(),
+                            perk: PerkName::DemonBait,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Junk Food").unwrap(),
+                            perk: PerkName::JunkFood,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Eruptive").unwrap(),
+                            perk: PerkName::Eruptive,
                             base: 5,
                             roll: 13
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Enhanced Efficient").unwrap(),
+                            perk: PerkName::EnhancedEfficient,
                             base: 5,
                             roll: 15
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Bait").unwrap(),
+                            perk: PerkName::DemonBait,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Junk Food").unwrap(),
+                            perk: PerkName::JunkFood,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Lucky").unwrap(),
+                            perk: PerkName::Lucky,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Enhanced Efficient").unwrap(),
+                            perk: PerkName::EnhancedEfficient,
                             base: 5,
                             roll: 15
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Butterfingers").unwrap(),
+                            perk: PerkName::Butterfingers,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Charitable").unwrap(),
+                            perk: PerkName::Charitable,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Enhanced Efficient").unwrap(),
+                            perk: PerkName::EnhancedEfficient,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Tinker").unwrap(),
+                            perk: PerkName::Tinker,
                             base: 7,
                             roll: 25
                         },
                     ])
                 },
-                MaterialName::from_str("Dextrous components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::DextrousComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Slayer").unwrap(),
+                            perk: PerkName::DemonSlayer,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Dragon Bait").unwrap(),
+                            perk: PerkName::DragonBait,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mobile").unwrap(),
+                            perk: PerkName::Mobile,
                             base: 12,
                             roll: 44
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Slayer").unwrap(),
+                            perk: PerkName::DemonSlayer,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Dragon Bait").unwrap(),
+                            perk: PerkName::DragonBait,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mobile").unwrap(),
+                            perk: PerkName::Mobile,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Reflexes").unwrap(),
+                            perk: PerkName::Reflexes,
                             base: 12,
                             roll: 40
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Polishing").unwrap(),
+                            perk: PerkName::Polishing,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Butterfingers").unwrap(),
+                            perk: PerkName::Butterfingers,
                             base: 9,
                             roll: 33
                         },
                     ])
                 },
-                MaterialName::from_str("Direct components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::DirectComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Biting").unwrap(),
+                            perk: PerkName::Biting,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Blunted").unwrap(),
+                            perk: PerkName::Blunted,
                             base: 12,
                             roll: 45
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Biting").unwrap(),
+                            perk: PerkName::Biting,
                             base: 9,
                             roll: 33
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Charitable").unwrap(),
+                            perk: PerkName::Charitable,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Pyromaniac").unwrap(),
+                            perk: PerkName::Pyromaniac,
                             base: 9,
                             roll: 32
                         },
                     ])
                 },
-                MaterialName::from_str("Dragonfire components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::DragonfireComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Dragon Slayer").unwrap(),
+                            perk: PerkName::DragonSlayer,
                             base: 44,
                             roll: 8
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Dragon Slayer").unwrap(),
+                            perk: PerkName::DragonSlayer,
                             base: 44,
                             roll: 8
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Furnace").unwrap(),
+                            perk: PerkName::Furnace,
                             base: 25,
                             roll: 28
                         },
                     ])
                 },
-                MaterialName::from_str("Enhancing components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::EnhancingComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Dragon Slayer").unwrap(),
+                            perk: PerkName::DragonSlayer,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Invigorating").unwrap(),
+                            perk: PerkName::Invigorating,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Energising").unwrap(),
+                            perk: PerkName::Energising,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Inaccurate").unwrap(),
+                            perk: PerkName::Inaccurate,
                             base: 12,
                             roll: 45
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Dragon Slayer").unwrap(),
+                            perk: PerkName::DragonSlayer,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Invigorating").unwrap(),
+                            perk: PerkName::Invigorating,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Energising").unwrap(),
+                            perk: PerkName::Energising,
                             base: 12,
                             roll: 44
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Cheapskate").unwrap(),
+                            perk: PerkName::Cheapskate,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Refined").unwrap(),
+                            perk: PerkName::Refined,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Rapid").unwrap(),
+                            perk: PerkName::Rapid,
                             base: 12,
                             roll: 40
                         },
                     ])
                 },
-                MaterialName::from_str("Ethereal components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::EtherealComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Wise").unwrap(),
+                            perk: PerkName::Wise,
                             base: 12,
                             roll: 40
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Wise").unwrap(),
+                            perk: PerkName::Wise,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Brief Respite").unwrap(),
+                            perk: PerkName::BriefRespite,
                             base: 9,
                             roll: 33
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Wise").unwrap(),
+                            perk: PerkName::Wise,
                             base: 12,
                             roll: 40
                         },
                     ])
                 },
-                MaterialName::from_str("Evasive components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::EvasiveComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Blunted").unwrap(),
+                            perk: PerkName::Blunted,
                             base: 12,
                             roll: 45
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Turtling").unwrap(),
+                            perk: PerkName::Turtling,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Venomblood").unwrap(),
+                            perk: PerkName::Venomblood,
                             base: 9,
                             roll: 33
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Prosper").unwrap(),
+                            perk: PerkName::Prosper,
                             base: 12,
                             roll: 8
                         },
                     ])
                 },
-                MaterialName::from_str("Explosive components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::ExplosiveComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Crackling").unwrap(),
+                            perk: PerkName::Crackling,
                             base: 48,
                             roll: 5
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Ultimatums").unwrap(),
+                            perk: PerkName::Ultimatums,
                             base: 40,
                             roll: 8
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Crackling").unwrap(),
+                            perk: PerkName::Crackling,
                             base: 48,
                             roll: 5
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Ultimatums").unwrap(),
+                            perk: PerkName::Ultimatums,
                             base: 40,
                             roll: 8
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Pyromaniac").unwrap(),
+                            perk: PerkName::Pyromaniac,
                             base: 25,
                             roll: 28
                         },
                     ])
                 },
-                MaterialName::from_str("Faceted components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::FacetedComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Crystal Shield").unwrap(),
+                            perk: PerkName::CrystalShield,
                             base: 39,
                             roll: 9
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Enhanced Devoted").unwrap(),
+                            perk: PerkName::EnhancedDevoted,
                             base: 45,
                             roll: 8
                         },
@@ -1140,175 +1139,175 @@ impl Data {
                     tool: StackVec::new(&[
                     ])
                 },
-                MaterialName::from_str("Flexible parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::FlexibleParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Wise").unwrap(),
+                            perk: PerkName::Wise,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Dragon Bait").unwrap(),
+                            perk: PerkName::DragonBait,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mobile").unwrap(),
+                            perk: PerkName::Mobile,
                             base: 7,
                             roll: 28
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Clear Headed").unwrap(),
+                            perk: PerkName::ClearHeaded,
                             base: 5,
                             roll: 15
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Wise").unwrap(),
+                            perk: PerkName::Wise,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Dragon Bait").unwrap(),
+                            perk: PerkName::DragonBait,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mobile").unwrap(),
+                            perk: PerkName::Mobile,
                             base: 7,
                             roll: 28
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Clear Headed").unwrap(),
+                            perk: PerkName::ClearHeaded,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Profane").unwrap(),
+                            perk: PerkName::Profane,
                             base: 8,
                             roll: 33
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Wise").unwrap(),
+                            perk: PerkName::Wise,
                             base: 9,
                             roll: 33
                         },
                     ])
                 },
-                MaterialName::from_str("Fortunate components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::FortunateComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Looting").unwrap(),
+                            perk: PerkName::Looting,
                             base: 13,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Hoarding").unwrap(),
+                            perk: PerkName::Hoarding,
                             base: 13,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Brassican").unwrap(),
+                            perk: PerkName::Brassican,
                             base: 13,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Spendthrift").unwrap(),
+                            perk: PerkName::Spendthrift,
                             base: 13,
                             roll: 40
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Looting").unwrap(),
+                            perk: PerkName::Looting,
                             base: 13,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Hoarding").unwrap(),
+                            perk: PerkName::Hoarding,
                             base: 13,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Brassican").unwrap(),
+                            perk: PerkName::Brassican,
                             base: 13,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Lucky").unwrap(),
+                            perk: PerkName::Lucky,
                             base: 13,
                             roll: 40
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Hoarding").unwrap(),
+                            perk: PerkName::Hoarding,
                             base: 13,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Brassican").unwrap(),
+                            perk: PerkName::Brassican,
                             base: 13,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Polishing").unwrap(),
+                            perk: PerkName::Polishing,
                             base: 13,
                             roll: 40
                         },
                     ])
                 },
-                MaterialName::from_str("Fungal components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::FungalComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Absorbative").unwrap(),
+                            perk: PerkName::Absorbative,
                             base: 40,
                             roll: 8
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Tinker").unwrap(),
+                            perk: PerkName::Tinker,
                             base: 10,
                             roll: 28
                         },
                     ])
                 },
-                MaterialName::from_str("Harnessed components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::HarnessedComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Reflexes").unwrap(),
+                            perk: PerkName::Reflexes,
                             base: 45,
                             roll: 8
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Preparation").unwrap(),
+                            perk: PerkName::Preparation,
                             base: 44,
                             roll: 8
                         },
@@ -1316,212 +1315,212 @@ impl Data {
                     tool: StackVec::new(&[
                     ])
                 },
-                MaterialName::from_str("Head parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::HeadParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Talking").unwrap(),
+                            perk: PerkName::Talking,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Clear Headed").unwrap(),
+                            perk: PerkName::ClearHeaded,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Inaccurate").unwrap(),
+                            perk: PerkName::Inaccurate,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mediocrity").unwrap(),
+                            perk: PerkName::Mediocrity,
                             base: 8,
                             roll: 32
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Talking").unwrap(),
+                            perk: PerkName::Talking,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Clear Headed").unwrap(),
+                            perk: PerkName::ClearHeaded,
                             base: 5,
                             roll: 15
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Talking").unwrap(),
+                            perk: PerkName::Talking,
                             base: 7,
                             roll: 27
                         },
                     ])
                 },
-                MaterialName::from_str("Healthy components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::HealthyComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Efficient").unwrap(),
+                            perk: PerkName::Efficient,
                             base: 9,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Inaccurate").unwrap(),
+                            perk: PerkName::Inaccurate,
                             base: 12,
                             roll: 45
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Efficient").unwrap(),
+                            perk: PerkName::Efficient,
                             base: 9,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Venomblood").unwrap(),
+                            perk: PerkName::Venomblood,
                             base: 9,
                             roll: 33
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Efficient").unwrap(),
+                            perk: PerkName::Efficient,
                             base: 9,
                             roll: 32
                         },
                     ])
                 },
-                MaterialName::from_str("Heavy components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::HeavyComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Bait").unwrap(),
+                            perk: PerkName::DemonBait,
                             base: 12,
                             roll: 45
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Bait").unwrap(),
+                            perk: PerkName::DemonBait,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Bulwark").unwrap(),
+                            perk: PerkName::Bulwark,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Preparation").unwrap(),
+                            perk: PerkName::Preparation,
                             base: 9,
                             roll: 33
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Butterfingers").unwrap(),
+                            perk: PerkName::Butterfingers,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Breakdown").unwrap(),
+                            perk: PerkName::Breakdown,
                             base: 12,
                             roll: 40
                         },
                     ])
                 },
-                MaterialName::from_str("Historic components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::HistoricComponents => CompPerksPerGizmoType {
                     ancient_only: true,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Precise").unwrap(),
+                            perk: PerkName::Precise,
                             base: 11,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Genocidal").unwrap(),
+                            perk: PerkName::Genocidal,
                             base: 11,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Ultimatums").unwrap(),
+                            perk: PerkName::Ultimatums,
                             base: 11,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Looting").unwrap(),
+                            perk: PerkName::Looting,
                             base: 11,
                             roll: 33
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Genocidal").unwrap(),
+                            perk: PerkName::Genocidal,
                             base: 11,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Ultimatums").unwrap(),
+                            perk: PerkName::Ultimatums,
                             base: 11,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Looting").unwrap(),
+                            perk: PerkName::Looting,
                             base: 11,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Turtling").unwrap(),
+                            perk: PerkName::Turtling,
                             base: 11,
                             roll: 33
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Imp Souled").unwrap(),
+                            perk: PerkName::ImpSouled,
                             base: 11,
                             roll: 33
                         },
                     ])
                 },
-                MaterialName::from_str("Ilujankan components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::IlujankanComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Aftershock").unwrap(),
+                            perk: PerkName::Aftershock,
                             base: 40,
                             roll: 8
                         },
@@ -1531,61 +1530,61 @@ impl Data {
                     tool: StackVec::new(&[
                     ])
                 },
-                MaterialName::from_str("Imbued components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::ImbuedComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Crackling").unwrap(),
+                            perk: PerkName::Crackling,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Ultimatums").unwrap(),
+                            perk: PerkName::Ultimatums,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Junk Food").unwrap(),
+                            perk: PerkName::JunkFood,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Energising").unwrap(),
+                            perk: PerkName::Energising,
                             base: 12,
                             roll: 44
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Crackling").unwrap(),
+                            perk: PerkName::Crackling,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Ultimatums").unwrap(),
+                            perk: PerkName::Ultimatums,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Junk Food").unwrap(),
+                            perk: PerkName::JunkFood,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Energising").unwrap(),
+                            perk: PerkName::Energising,
                             base: 12,
                             roll: 44
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Furnace").unwrap(),
+                            perk: PerkName::Furnace,
                             base: 12,
                             roll: 40
                         },
                     ])
                 },
-                MaterialName::from_str("Junk").unwrap() => CompPerksPerGizmoType {
+                MaterialName::Junk => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                     ]),
@@ -1594,18 +1593,18 @@ impl Data {
                     tool: StackVec::new(&[
                     ])
                 },
-                MaterialName::from_str("Knightly components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::KnightlyComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Taunting").unwrap(),
+                            perk: PerkName::Taunting,
                             base: 44,
                             roll: 8
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Taunting").unwrap(),
+                            perk: PerkName::Taunting,
                             base: 44,
                             roll: 8
                         },
@@ -1613,234 +1612,234 @@ impl Data {
                     tool: StackVec::new(&[
                     ])
                 },
-                MaterialName::from_str("Light components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::LightComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Glow Worm").unwrap(),
+                            perk: PerkName::GlowWorm,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Hallucinogenic").unwrap(),
+                            perk: PerkName::Hallucinogenic,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Inaccurate").unwrap(),
+                            perk: PerkName::Inaccurate,
                             base: 12,
                             roll: 45
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Glow Worm").unwrap(),
+                            perk: PerkName::GlowWorm,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Hallucinogenic").unwrap(),
+                            perk: PerkName::Hallucinogenic,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Lucky").unwrap(),
+                            perk: PerkName::Lucky,
                             base: 9,
                             roll: 33
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Glow Worm").unwrap(),
+                            perk: PerkName::GlowWorm,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Hallucinogenic").unwrap(),
+                            perk: PerkName::Hallucinogenic,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Pyromaniac").unwrap(),
+                            perk: PerkName::Pyromaniac,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Rapid").unwrap(),
+                            perk: PerkName::Rapid,
                             base: 9,
                             roll: 33
                         },
                     ])
                 },
-                MaterialName::from_str("Living components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::LivingComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Talking").unwrap(),
+                            perk: PerkName::Talking,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Undead Slayer").unwrap(),
+                            perk: PerkName::UndeadSlayer,
                             base: 9,
                             roll: 33
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Talking").unwrap(),
+                            perk: PerkName::Talking,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Undead Slayer").unwrap(),
+                            perk: PerkName::UndeadSlayer,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Profane").unwrap(),
+                            perk: PerkName::Profane,
                             base: 12,
                             roll: 45
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Talking").unwrap(),
+                            perk: PerkName::Talking,
                             base: 12,
                             roll: 44
                         },
                     ])
                 },
-                MaterialName::from_str("Magic parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::MagicParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Undead Bait").unwrap(),
+                            perk: PerkName::UndeadBait,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Crackling").unwrap(),
+                            perk: PerkName::Crackling,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Ultimatums").unwrap(),
+                            perk: PerkName::Ultimatums,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Energising").unwrap(),
+                            perk: PerkName::Energising,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Spendthrift").unwrap(),
+                            perk: PerkName::Spendthrift,
                             base: 5,
                             roll: 13
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Undead Bait").unwrap(),
+                            perk: PerkName::UndeadBait,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Crackling").unwrap(),
+                            perk: PerkName::Crackling,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Ultimatums").unwrap(),
+                            perk: PerkName::Ultimatums,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Energising").unwrap(),
+                            perk: PerkName::Energising,
                             base: 7,
                             roll: 27
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Honed").unwrap(),
+                            perk: PerkName::Honed,
                             base: 7,
                             roll: 27
                         },
                     ])
                 },
-                MaterialName::from_str("Metallic parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::MetallicParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mediocrity").unwrap(),
+                            perk: PerkName::Mediocrity,
                             base: 8,
                             roll: 33
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Bulwark").unwrap(),
+                            perk: PerkName::Bulwark,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Preparation").unwrap(),
+                            perk: PerkName::Preparation,
                             base: 5,
                             roll: 15
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Confused").unwrap(),
+                            perk: PerkName::Confused,
                             base: 7,
                             roll: 27
                         },
                     ])
                 },
-                MaterialName::from_str("Noxious components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::NoxiousComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Biting").unwrap(),
+                            perk: PerkName::Biting,
                             base: 40,
                             roll: 8
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Biting").unwrap(),
+                            perk: PerkName::Biting,
                             base: 40,
                             roll: 8
                         },
@@ -1848,135 +1847,135 @@ impl Data {
                     tool: StackVec::new(&[
                     ])
                 },
-                MaterialName::from_str("Oceanic components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::OceanicComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Invigorating").unwrap(),
+                            perk: PerkName::Invigorating,
                             base: 45,
                             roll: 8
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Invigorating").unwrap(),
+                            perk: PerkName::Invigorating,
                             base: 45,
                             roll: 8
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Polishing").unwrap(),
+                            perk: PerkName::Polishing,
                             base: 25,
                             roll: 28
                         },
                     ])
                 },
-                MaterialName::from_str("Organic parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::OrganicParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Talking").unwrap(),
+                            perk: PerkName::Talking,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Invigorating").unwrap(),
+                            perk: PerkName::Invigorating,
                             base: 5,
                             roll: 13
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Inaccurate").unwrap(),
+                            perk: PerkName::Inaccurate,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mediocrity").unwrap(),
+                            perk: PerkName::Mediocrity,
                             base: 8,
                             roll: 32
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Talking").unwrap(),
+                            perk: PerkName::Talking,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Invigorating").unwrap(),
+                            perk: PerkName::Invigorating,
                             base: 5,
                             roll: 13
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Brief Respite").unwrap(),
+                            perk: PerkName::BriefRespite,
                             base: 5,
                             roll: 15
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Talking").unwrap(),
+                            perk: PerkName::Talking,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Pyromaniac").unwrap(),
+                            perk: PerkName::Pyromaniac,
                             base: 7,
                             roll: 27
                         },
                     ])
                 },
-                MaterialName::from_str("Padded parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::PaddedParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Bait").unwrap(),
+                            perk: PerkName::DemonBait,
                             base: 8,
                             roll: 32
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Bait").unwrap(),
+                            perk: PerkName::DemonBait,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Absorbative").unwrap(),
+                            perk: PerkName::Absorbative,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Profane").unwrap(),
+                            perk: PerkName::Profane,
                             base: 8,
                             roll: 33
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Polishing").unwrap(),
+                            perk: PerkName::Polishing,
                             base: 7,
                             roll: 28
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Butterfingers").unwrap(),
+                            perk: PerkName::Butterfingers,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Breakdown").unwrap(),
+                            perk: PerkName::Breakdown,
                             base: 7,
                             roll: 27
                         },
                     ])
                 },
-                MaterialName::from_str("Pestiferous components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::PestiferousComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Venomblood").unwrap(),
+                            perk: PerkName::Venomblood,
                             base: 44,
                             roll: 8
                         },
@@ -1984,146 +1983,146 @@ impl Data {
                     tool: StackVec::new(&[
                     ])
                 },
-                MaterialName::from_str("Pious components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::PiousComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Enlightened").unwrap(),
+                            perk: PerkName::Enlightened,
                             base: 9,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Hoarding").unwrap(),
+                            perk: PerkName::Hoarding,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Wise").unwrap(),
+                            perk: PerkName::Wise,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Dragon Bait").unwrap(),
+                            perk: PerkName::DragonBait,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mediocrity").unwrap(),
+                            perk: PerkName::Mediocrity,
                             base: 12,
                             roll: 44
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Enlightened").unwrap(),
+                            perk: PerkName::Enlightened,
                             base: 9,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Hoarding").unwrap(),
+                            perk: PerkName::Hoarding,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Wise").unwrap(),
+                            perk: PerkName::Wise,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Dragon Bait").unwrap(),
+                            perk: PerkName::DragonBait,
                             base: 12,
                             roll: 45
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Enlightened").unwrap(),
+                            perk: PerkName::Enlightened,
                             base: 9,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Hoarding").unwrap(),
+                            perk: PerkName::Hoarding,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Wise").unwrap(),
+                            perk: PerkName::Wise,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Charitable").unwrap(),
+                            perk: PerkName::Charitable,
                             base: 12,
                             roll: 44
                         },
                     ])
                 },
-                MaterialName::from_str("Plated parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::PlatedParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Blunted").unwrap(),
+                            perk: PerkName::Blunted,
                             base: 8,
                             roll: 32
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Absorbative").unwrap(),
+                            perk: PerkName::Absorbative,
                             base: 5,
                             roll: 15
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 8,
                             roll: 33
                         },
                     ])
                 },
-                MaterialName::from_str("Powerful components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::PowerfulComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Genocidal").unwrap(),
+                            perk: PerkName::Genocidal,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Trophy-taker's").unwrap(),
+                            perk: PerkName::TrophyTaker,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Blunted").unwrap(),
+                            perk: PerkName::Blunted,
                             base: 12,
                             roll: 45
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Genocidal").unwrap(),
+                            perk: PerkName::Genocidal,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Trophy-taker's").unwrap(),
+                            perk: PerkName::TrophyTaker,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Bulwark").unwrap(),
+                            perk: PerkName::Bulwark,
                             base: 12,
                             roll: 40
                         },
@@ -2131,276 +2130,276 @@ impl Data {
                     tool: StackVec::new(&[
                     ])
                 },
-                MaterialName::from_str("Precious components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::PreciousComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Looting").unwrap(),
+                            perk: PerkName::Looting,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Scavenging").unwrap(),
+                            perk: PerkName::Scavenging,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Spendthrift").unwrap(),
+                            perk: PerkName::Spendthrift,
                             base: 9,
                             roll: 32
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Looting").unwrap(),
+                            perk: PerkName::Looting,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Scavenging").unwrap(),
+                            perk: PerkName::Scavenging,
                             base: 12,
                             roll: 40
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 12,
                             roll: 45
                         },
                     ])
                 },
-                MaterialName::from_str("Precise components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::PreciseComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Blunted").unwrap(),
+                            perk: PerkName::Blunted,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Eruptive").unwrap(),
+                            perk: PerkName::Eruptive,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Precise").unwrap(),
+                            perk: PerkName::Precise,
                             base: 9,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Flanking").unwrap(),
+                            perk: PerkName::Flanking,
                             base: 9,
                             roll: 32
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 12,
                             roll: 44
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Honed").unwrap(),
+                            perk: PerkName::Honed,
                             base: 9,
                             roll: 32
                         },
                     ])
                 },
-                MaterialName::from_str("Protective components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::ProtectiveComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Hoarding").unwrap(),
+                            perk: PerkName::Hoarding,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Bait").unwrap(),
+                            perk: PerkName::DemonBait,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Shield Bashing").unwrap(),
+                            perk: PerkName::ShieldBashing,
                             base: 12,
                             roll: 40
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Hoarding").unwrap(),
+                            perk: PerkName::Hoarding,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Bait").unwrap(),
+                            perk: PerkName::DemonBait,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Shield Bashing").unwrap(),
+                            perk: PerkName::ShieldBashing,
                             base: 12,
                             roll: 40
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Hoarding").unwrap(),
+                            perk: PerkName::Hoarding,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Polishing").unwrap(),
+                            perk: PerkName::Polishing,
                             base: 12,
                             roll: 40
                         },
                     ])
                 },
-                MaterialName::from_str("Refined components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::RefinedComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Hoarding").unwrap(),
+                            perk: PerkName::Hoarding,
                             base: 11,
                             roll: 25
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 11,
                             roll: 25
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 11,
                             roll: 25
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Dragon Bait").unwrap(),
+                            perk: PerkName::DragonBait,
                             base: 11,
                             roll: 25
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Bait").unwrap(),
+                            perk: PerkName::DemonBait,
                             base: 11,
                             roll: 25
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Energising").unwrap(),
+                            perk: PerkName::Energising,
                             base: 11,
                             roll: 25
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Inaccurate").unwrap(),
+                            perk: PerkName::Inaccurate,
                             base: 11,
                             roll: 25
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Hoarding").unwrap(),
+                            perk: PerkName::Hoarding,
                             base: 11,
                             roll: 25
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 11,
                             roll: 25
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 11,
                             roll: 25
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Dragon Bait").unwrap(),
+                            perk: PerkName::DragonBait,
                             base: 11,
                             roll: 25
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Bait").unwrap(),
+                            perk: PerkName::DemonBait,
                             base: 11,
                             roll: 25
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Energising").unwrap(),
+                            perk: PerkName::Energising,
                             base: 11,
                             roll: 25
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Brief Respite").unwrap(),
+                            perk: PerkName::BriefRespite,
                             base: 11,
                             roll: 25
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Hoarding").unwrap(),
+                            perk: PerkName::Hoarding,
                             base: 11,
                             roll: 25
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 11,
                             roll: 25
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 11,
                             roll: 25
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Refined").unwrap(),
+                            perk: PerkName::Refined,
                             base: 11,
                             roll: 25
                         },
                     ])
                 },
-                MaterialName::from_str("Resilient components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::ResilientComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Bulwark").unwrap(),
+                            perk: PerkName::Bulwark,
                             base: 45,
                             roll: 8
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Refined").unwrap(),
+                            perk: PerkName::Refined,
                             base: 25,
                             roll: 28
                         },
                     ])
                 },
-                MaterialName::from_str("Rumbling components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::RumblingComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Eruptive").unwrap(),
+                            perk: PerkName::Eruptive,
                             base: 40,
                             roll: 8
                         },
@@ -2410,18 +2409,18 @@ impl Data {
                     tool: StackVec::new(&[
                     ])
                 },
-                MaterialName::from_str("Saradomin components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::SaradominComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Spendthrift").unwrap(),
+                            perk: PerkName::Spendthrift,
                             base: 44,
                             roll: 8
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Devoted").unwrap(),
+                            perk: PerkName::Devoted,
                             base: 39,
                             roll: 9
                         },
@@ -2429,50 +2428,50 @@ impl Data {
                     tool: StackVec::new(&[
                     ])
                 },
-                MaterialName::from_str("Seren components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::SerenComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Enlightened").unwrap(),
+                            perk: PerkName::Enlightened,
                             base: 40,
                             roll: 8
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Wise").unwrap(),
+                            perk: PerkName::Wise,
                             base: 48,
                             roll: 5
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Enlightened").unwrap(),
+                            perk: PerkName::Enlightened,
                             base: 40,
                             roll: 8
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Wise").unwrap(),
+                            perk: PerkName::Wise,
                             base: 48,
                             roll: 5
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Enlightened").unwrap(),
+                            perk: PerkName::Enlightened,
                             base: 40,
                             roll: 8
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Wise").unwrap(),
+                            perk: PerkName::Wise,
                             base: 48,
                             roll: 5
                         },
                     ])
                 },
-                MaterialName::from_str("Shadow components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::ShadowComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Caroming").unwrap(),
+                            perk: PerkName::Caroming,
                             base: 40,
                             roll: 8
                         },
@@ -2482,782 +2481,782 @@ impl Data {
                     tool: StackVec::new(&[
                     ])
                 },
-                MaterialName::from_str("Sharp components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::SharpComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Dragon Bait").unwrap(),
+                            perk: PerkName::DragonBait,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Taunting").unwrap(),
+                            perk: PerkName::Taunting,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Flanking").unwrap(),
+                            perk: PerkName::Flanking,
                             base: 9,
                             roll: 32
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Dragon Bait").unwrap(),
+                            perk: PerkName::DragonBait,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Taunting").unwrap(),
+                            perk: PerkName::Taunting,
                             base: 9,
                             roll: 33
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Honed").unwrap(),
+                            perk: PerkName::Honed,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Furnace").unwrap(),
+                            perk: PerkName::Furnace,
                             base: 9,
                             roll: 33
                         },
                     ])
                 },
-                MaterialName::from_str("Shifting components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::ShiftingComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Efficient").unwrap(),
+                            perk: PerkName::Efficient,
                             base: 44,
                             roll: 8
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Ultimatums").unwrap(),
+                            perk: PerkName::Ultimatums,
                             base: 45,
                             roll: 8
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Efficient").unwrap(),
+                            perk: PerkName::Efficient,
                             base: 44,
                             roll: 8
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Ultimatums").unwrap(),
+                            perk: PerkName::Ultimatums,
                             base: 45,
                             roll: 8
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Efficient").unwrap(),
+                            perk: PerkName::Efficient,
                             base: 44,
                             roll: 8
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Rapid").unwrap(),
+                            perk: PerkName::Rapid,
                             base: 25,
                             roll: 28
                         },
                     ])
                 },
-                MaterialName::from_str("Silent components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::SilentComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Lucky").unwrap(),
+                            perk: PerkName::Lucky,
                             base: 45,
                             roll: 8
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Honed").unwrap(),
+                            perk: PerkName::Honed,
                             base: 25,
                             roll: 28
                         },
                     ])
                 },
-                MaterialName::from_str("Simple parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::SimpleParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Looting").unwrap(),
+                            perk: PerkName::Looting,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Hallucinogenic").unwrap(),
+                            perk: PerkName::Hallucinogenic,
                             base: 7,
                             roll: 28
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Talking").unwrap(),
+                            perk: PerkName::Talking,
                             base: 7,
                             roll: 27
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Looting").unwrap(),
+                            perk: PerkName::Looting,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Hallucinogenic").unwrap(),
+                            perk: PerkName::Hallucinogenic,
                             base: 7,
                             roll: 28
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Talking").unwrap(),
+                            perk: PerkName::Talking,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Profane").unwrap(),
+                            perk: PerkName::Profane,
                             base: 8,
                             roll: 33
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Hallucinogenic").unwrap(),
+                            perk: PerkName::Hallucinogenic,
                             base: 7,
                             roll: 28
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Talking").unwrap(),
+                            perk: PerkName::Talking,
                             base: 7,
                             roll: 27
                         },
                     ])
                 },
-                MaterialName::from_str("Smooth parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::SmoothParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Scavenging").unwrap(),
+                            perk: PerkName::Scavenging,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Undead Bait").unwrap(),
+                            perk: PerkName::UndeadBait,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Energising").unwrap(),
+                            perk: PerkName::Energising,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Blunted").unwrap(),
+                            perk: PerkName::Blunted,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Eruptive").unwrap(),
+                            perk: PerkName::Eruptive,
                             base: 5,
                             roll: 13
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Scavenging").unwrap(),
+                            perk: PerkName::Scavenging,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Undead Bait").unwrap(),
+                            perk: PerkName::UndeadBait,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Energising").unwrap(),
+                            perk: PerkName::Energising,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Reflexes").unwrap(),
+                            perk: PerkName::Reflexes,
                             base: 5,
                             roll: 15
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Cheapskate").unwrap(),
+                            perk: PerkName::Cheapskate,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Refined").unwrap(),
+                            perk: PerkName::Refined,
                             base: 7,
                             roll: 27
                         },
                     ])
                 },
-                MaterialName::from_str("Spiked parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::SpikedParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 7,
                             roll: 28
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Fatiguing").unwrap(),
+                            perk: PerkName::Fatiguing,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Genocidal").unwrap(),
+                            perk: PerkName::Genocidal,
                             base: 5,
                             roll: 13
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Trophy-taker's").unwrap(),
+                            perk: PerkName::TrophyTaker,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Taunting").unwrap(),
+                            perk: PerkName::Taunting,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Junk Food").unwrap(),
+                            perk: PerkName::JunkFood,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Flanking").unwrap(),
+                            perk: PerkName::Flanking,
                             base: 5,
                             roll: 15
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 7,
                             roll: 28
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Fatiguing").unwrap(),
+                            perk: PerkName::Fatiguing,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Genocidal").unwrap(),
+                            perk: PerkName::Genocidal,
                             base: 5,
                             roll: 13
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Trophy-taker's").unwrap(),
+                            perk: PerkName::TrophyTaker,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Taunting").unwrap(),
+                            perk: PerkName::Taunting,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Junk Food").unwrap(),
+                            perk: PerkName::JunkFood,
                             base: 8,
                             roll: 33
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 7,
                             roll: 28
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Fatiguing").unwrap(),
+                            perk: PerkName::Fatiguing,
                             base: 8,
                             roll: 32
                         },
                     ])
                 },
-                MaterialName::from_str("Spiritual parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::SpiritualParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Enlightened").unwrap(),
+                            perk: PerkName::Enlightened,
                             base: 5,
                             roll: 13
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Hoarding").unwrap(),
+                            perk: PerkName::Hoarding,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Wise").unwrap(),
+                            perk: PerkName::Wise,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Inaccurate").unwrap(),
+                            perk: PerkName::Inaccurate,
                             base: 8,
                             roll: 33
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Enlightened").unwrap(),
+                            perk: PerkName::Enlightened,
                             base: 5,
                             roll: 13
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Hoarding").unwrap(),
+                            perk: PerkName::Hoarding,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Wise").unwrap(),
+                            perk: PerkName::Wise,
                             base: 9,
                             roll: 33
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Enlightened").unwrap(),
+                            perk: PerkName::Enlightened,
                             base: 5,
                             roll: 13
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Antitheism").unwrap(),
+                            perk: PerkName::Antitheism,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Hoarding").unwrap(),
+                            perk: PerkName::Hoarding,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Cautious").unwrap(),
+                            perk: PerkName::Cautious,
                             base: 7,
                             roll: 27
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Wise").unwrap(),
+                            perk: PerkName::Wise,
                             base: 9,
                             roll: 33
                         },
                     ])
                 },
-                MaterialName::from_str("Stave parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::StaveParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Glow Worm").unwrap(),
+                            perk: PerkName::GlowWorm,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 7,
                             roll: 28
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Fatiguing").unwrap(),
+                            perk: PerkName::Fatiguing,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Undead Bait").unwrap(),
+                            perk: PerkName::UndeadBait,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Energising").unwrap(),
+                            perk: PerkName::Energising,
                             base: 7,
                             roll: 27
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Glow Worm").unwrap(),
+                            perk: PerkName::GlowWorm,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 7,
                             roll: 28
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Fatiguing").unwrap(),
+                            perk: PerkName::Fatiguing,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Undead Bait").unwrap(),
+                            perk: PerkName::UndeadBait,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Energising").unwrap(),
+                            perk: PerkName::Energising,
                             base: 7,
                             roll: 27
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Glow Worm").unwrap(),
+                            perk: PerkName::GlowWorm,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 7,
                             roll: 28
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Fatiguing").unwrap(),
+                            perk: PerkName::Fatiguing,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Rapid").unwrap(),
+                            perk: PerkName::Rapid,
                             base: 7,
                             roll: 25
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Prosper").unwrap(),
+                            perk: PerkName::Prosper,
                             base: 5,
                             roll: 5
                         },
                     ])
                 },
-                MaterialName::from_str("Strong components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::StrongComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Fatiguing").unwrap(),
+                            perk: PerkName::Fatiguing,
                             base: 12,
                             roll: 45
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Fatiguing").unwrap(),
+                            perk: PerkName::Fatiguing,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Absorbative").unwrap(),
+                            perk: PerkName::Absorbative,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Enhanced Devoted").unwrap(),
+                            perk: PerkName::EnhancedDevoted,
                             base: 9,
                             roll: 32
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Committed").unwrap(),
+                            perk: PerkName::Committed,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Fatiguing").unwrap(),
+                            perk: PerkName::Fatiguing,
                             base: 12,
                             roll: 45
                         },
                     ])
                 },
-                MaterialName::from_str("Stunning components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::StunningComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Fatiguing").unwrap(),
+                            perk: PerkName::Fatiguing,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Clear Headed").unwrap(),
+                            perk: PerkName::ClearHeaded,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mediocrity").unwrap(),
+                            perk: PerkName::Mediocrity,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mysterious").unwrap(),
+                            perk: PerkName::Mysterious,
                             base: 12,
                             roll: 40
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Fatiguing").unwrap(),
+                            perk: PerkName::Fatiguing,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Clear Headed").unwrap(),
+                            perk: PerkName::ClearHeaded,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mysterious").unwrap(),
+                            perk: PerkName::Mysterious,
                             base: 12,
                             roll: 40
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Fatiguing").unwrap(),
+                            perk: PerkName::Fatiguing,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mysterious").unwrap(),
+                            perk: PerkName::Mysterious,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Confused").unwrap(),
+                            perk: PerkName::Confused,
                             base: 12,
                             roll: 40
                         },
                     ])
                 },
-                MaterialName::from_str("Subtle components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::SubtleComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Looting").unwrap(),
+                            perk: PerkName::Looting,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Bait").unwrap(),
+                            perk: PerkName::DemonBait,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mobile").unwrap(),
+                            perk: PerkName::Mobile,
                             base: 12,
                             roll: 44
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Looting").unwrap(),
+                            perk: PerkName::Looting,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Bait").unwrap(),
+                            perk: PerkName::DemonBait,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mobile").unwrap(),
+                            perk: PerkName::Mobile,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Crystal Shield").unwrap(),
+                            perk: PerkName::CrystalShield,
                             base: 12,
                             roll: 40
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Confused").unwrap(),
+                            perk: PerkName::Confused,
                             base: 12,
                             roll: 45
                         },
                     ])
                 },
-                MaterialName::from_str("Swift components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::SwiftComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Invigorating").unwrap(),
+                            perk: PerkName::Invigorating,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Shield Bashing").unwrap(),
+                            perk: PerkName::ShieldBashing,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Blunted").unwrap(),
+                            perk: PerkName::Blunted,
                             base: 12,
                             roll: 45
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Invigorating").unwrap(),
+                            perk: PerkName::Invigorating,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Shield Bashing").unwrap(),
+                            perk: PerkName::ShieldBashing,
                             base: 12,
                             roll: 40
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Imp Souled").unwrap(),
+                            perk: PerkName::ImpSouled,
                             base: 12,
                             roll: 40
                         },
                     ])
                 },
-                MaterialName::from_str("Tensile parts").unwrap() => CompPerksPerGizmoType {
+                MaterialName::TensileParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Hoarding").unwrap(),
+                            perk: PerkName::Hoarding,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Blunted").unwrap(),
+                            perk: PerkName::Blunted,
                             base: 8,
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mysterious").unwrap(),
+                            perk: PerkName::Mysterious,
                             base: 9,
                             roll: 33
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Hoarding").unwrap(),
+                            perk: PerkName::Hoarding,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Profane").unwrap(),
+                            perk: PerkName::Profane,
                             base: 8,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mysterious").unwrap(),
+                            perk: PerkName::Mysterious,
                             base: 9,
                             roll: 33
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Hoarding").unwrap(),
+                            perk: PerkName::Hoarding,
                             base: 5,
                             roll: 15
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Mysterious").unwrap(),
+                            perk: PerkName::Mysterious,
                             base: 9,
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Butterfingers").unwrap(),
+                            perk: PerkName::Butterfingers,
                             base: 8,
                             roll: 32
                         },
                     ])
                 },
-                MaterialName::from_str("Third-age components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::ThirdAgeComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Slayer").unwrap(),
+                            perk: PerkName::DemonSlayer,
                             base: 44,
                             roll: 8
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Slayer").unwrap(),
+                            perk: PerkName::DemonSlayer,
                             base: 44,
                             roll: 8
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Prosper").unwrap(),
+                            perk: PerkName::Prosper,
                             base: 50,
                             roll: 50
                         },
                     ])
                 },
-                MaterialName::from_str("Timeworn components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::TimewornComponents => CompPerksPerGizmoType {
                     ancient_only: true,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Ruthless").unwrap(),
+                            perk: PerkName::Ruthless,
                             base: 30,
                             roll: 13
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Eruptive").unwrap(),
+                            perk: PerkName::Eruptive,
                             base: 26,
                             roll: 33
                         },
@@ -3266,202 +3265,202 @@ impl Data {
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Fortune").unwrap(),
+                            perk: PerkName::Fortune,
                             base: 36,
                             roll: 30
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Prosper").unwrap(),
+                            perk: PerkName::Prosper,
                             base: 13,
                             roll: 26
                         },
                     ])
                 },
-                MaterialName::from_str("Undead components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::UndeadComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Genocidal").unwrap(),
+                            perk: PerkName::Genocidal,
                             base: 40,
                             roll: 8
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Undead Slayer").unwrap(),
+                            perk: PerkName::UndeadSlayer,
                             base: 48,
                             roll: 5
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Genocidal").unwrap(),
+                            perk: PerkName::Genocidal,
                             base: 40,
                             roll: 8
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Undead Slayer").unwrap(),
+                            perk: PerkName::UndeadSlayer,
                             base: 48,
                             roll: 5
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Breakdown").unwrap(),
+                            perk: PerkName::Breakdown,
                             base: 25,
                             roll: 28
                         },
                     ])
                 },
-                MaterialName::from_str("Variable components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::VariableComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Trophy-taker's").unwrap(),
+                            perk: PerkName::TrophyTaker,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Bait").unwrap(),
+                            perk: PerkName::DemonBait,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Clear Headed").unwrap(),
+                            perk: PerkName::ClearHeaded,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Enhanced Efficient").unwrap(),
+                            perk: PerkName::EnhancedEfficient,
                             base: 9,
                             roll: 32
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Trophy-taker's").unwrap(),
+                            perk: PerkName::TrophyTaker,
                             base: 12,
                             roll: 44
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Demon Bait").unwrap(),
+                            perk: PerkName::DemonBait,
                             base: 12,
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Clear Headed").unwrap(),
+                            perk: PerkName::ClearHeaded,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Enhanced Efficient").unwrap(),
+                            perk: PerkName::EnhancedEfficient,
                             base: 9,
                             roll: 32
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Cheapskate").unwrap(),
+                            perk: PerkName::Cheapskate,
                             base: 12,
                             roll: 40
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Enhanced Efficient").unwrap(),
+                            perk: PerkName::EnhancedEfficient,
                             base: 9,
                             roll: 32
                         },
                     ])
                 },
-                MaterialName::from_str("Vintage components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::VintageComponents => CompPerksPerGizmoType {
                     ancient_only: true,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Relentless").unwrap(),
+                            perk: PerkName::Relentless,
                             base: 50,
                             roll: 13
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Crackling").unwrap(),
+                            perk: PerkName::Crackling,
                             base: 26,
                             roll: 33
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Relentless").unwrap(),
+                            perk: PerkName::Relentless,
                             base: 50,
                             roll: 13
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Crackling").unwrap(),
+                            perk: PerkName::Crackling,
                             base: 26,
                             roll: 33
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Fortune").unwrap(),
+                            perk: PerkName::Fortune,
                             base: 36,
                             roll: 30
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Furnace").unwrap(),
+                            perk: PerkName::Furnace,
                             base: 36,
                             roll: 30
                         },
                     ])
                 },
-                MaterialName::from_str("Zamorak components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::ZamorakComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Impatient").unwrap(),
+                            perk: PerkName::Impatient,
                             base: 44,
                             roll: 8
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Impatient").unwrap(),
+                            perk: PerkName::Impatient,
                             base: 44,
                             roll: 8
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Devoted").unwrap(),
+                            perk: PerkName::Devoted,
                             base: 39,
                             roll: 9
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Imp Souled").unwrap(),
+                            perk: PerkName::ImpSouled,
                             base: 28,
                             roll: 29
                         },
                     ])
                 },
-                MaterialName::from_str("Zaros components").unwrap() => CompPerksPerGizmoType {
+                MaterialName::ZarosComponents => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Impatient").unwrap(),
+                            perk: PerkName::Impatient,
                             base: 44,
                             roll: 8
                         },
                     ]),
                     armour: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Impatient").unwrap(),
+                            perk: PerkName::Impatient,
                             base: 44,
                             roll: 8
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Enhanced Devoted").unwrap(),
+                            perk: PerkName::EnhancedDevoted,
                             base: 39,
                             roll: 9
                         },
                     ]),
                     tool: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Imp Souled").unwrap(),
+                            perk: PerkName::ImpSouled,
                             base: 20,
                             roll: 25
                         },
@@ -3469,11 +3468,11 @@ impl Data {
                 },
             },
             perks: stack_map! {
-                PerkName::from_str("Empty").unwrap() => PerkRanksData {
+                PerkName::Empty => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Empty").unwrap(),
+                            name: PerkName::Empty,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -3482,11 +3481,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Absorbative").unwrap() => PerkRanksData {
+                PerkName::Absorbative => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Absorbative").unwrap(),
+                            name: PerkName::Absorbative,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -3494,7 +3493,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Absorbative").unwrap(),
+                            name: PerkName::Absorbative,
                             rank: 1,
                             cost: 40,
                             threshold: 55,
@@ -3502,7 +3501,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Absorbative").unwrap(),
+                            name: PerkName::Absorbative,
                             rank: 2,
                             cost: 90,
                             threshold: 115,
@@ -3510,7 +3509,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Absorbative").unwrap(),
+                            name: PerkName::Absorbative,
                             rank: 3,
                             cost: 175,
                             threshold: 220,
@@ -3518,7 +3517,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Absorbative").unwrap(),
+                            name: PerkName::Absorbative,
                             rank: 4,
                             cost: 185,
                             threshold: 260,
@@ -3527,11 +3526,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Aftershock").unwrap() => PerkRanksData {
+                PerkName::Aftershock => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Aftershock").unwrap(),
+                            name: PerkName::Aftershock,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -3539,7 +3538,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Aftershock").unwrap(),
+                            name: PerkName::Aftershock,
                             rank: 1,
                             cost: 40,
                             threshold: 55,
@@ -3547,7 +3546,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Aftershock").unwrap(),
+                            name: PerkName::Aftershock,
                             rank: 2,
                             cost: 90,
                             threshold: 115,
@@ -3555,7 +3554,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Aftershock").unwrap(),
+                            name: PerkName::Aftershock,
                             rank: 3,
                             cost: 175,
                             threshold: 170,
@@ -3563,7 +3562,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Aftershock").unwrap(),
+                            name: PerkName::Aftershock,
                             rank: 4,
                             cost: 185,
                             threshold: 200,
@@ -3572,11 +3571,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Antitheism").unwrap() => PerkRanksData {
+                PerkName::Antitheism => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Antitheism").unwrap(),
+                            name: PerkName::Antitheism,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -3584,7 +3583,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Antitheism").unwrap(),
+                            name: PerkName::Antitheism,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -3593,11 +3592,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Biting").unwrap() => PerkRanksData {
+                PerkName::Biting => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Biting").unwrap(),
+                            name: PerkName::Biting,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -3605,7 +3604,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Biting").unwrap(),
+                            name: PerkName::Biting,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -3613,7 +3612,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Biting").unwrap(),
+                            name: PerkName::Biting,
                             rank: 2,
                             cost: 80,
                             threshold: 100,
@@ -3621,7 +3620,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Biting").unwrap(),
+                            name: PerkName::Biting,
                             rank: 3,
                             cost: 150,
                             threshold: 200,
@@ -3629,7 +3628,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Biting").unwrap(),
+                            name: PerkName::Biting,
                             rank: 4,
                             cost: 160,
                             threshold: 240,
@@ -3638,11 +3637,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Blunted").unwrap() => PerkRanksData {
+                PerkName::Blunted => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Blunted").unwrap(),
+                            name: PerkName::Blunted,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -3650,7 +3649,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Blunted").unwrap(),
+                            name: PerkName::Blunted,
                             rank: 1,
                             cost: 30,
                             threshold: 40,
@@ -3658,7 +3657,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Blunted").unwrap(),
+                            name: PerkName::Blunted,
                             rank: 2,
                             cost: 30,
                             threshold: 70,
@@ -3666,7 +3665,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Blunted").unwrap(),
+                            name: PerkName::Blunted,
                             rank: 3,
                             cost: 30,
                             threshold: 120,
@@ -3674,7 +3673,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Blunted").unwrap(),
+                            name: PerkName::Blunted,
                             rank: 4,
                             cost: 30,
                             threshold: 155,
@@ -3682,7 +3681,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Blunted").unwrap(),
+                            name: PerkName::Blunted,
                             rank: 5,
                             cost: 30,
                             threshold: 195,
@@ -3691,11 +3690,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Brassican").unwrap() => PerkRanksData {
+                PerkName::Brassican => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Brassican").unwrap(),
+                            name: PerkName::Brassican,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -3703,7 +3702,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Brassican").unwrap(),
+                            name: PerkName::Brassican,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -3712,11 +3711,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Breakdown").unwrap() => PerkRanksData {
+                PerkName::Breakdown => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Breakdown").unwrap(),
+                            name: PerkName::Breakdown,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -3724,7 +3723,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Breakdown").unwrap(),
+                            name: PerkName::Breakdown,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -3732,7 +3731,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Breakdown").unwrap(),
+                            name: PerkName::Breakdown,
                             rank: 2,
                             cost: 65,
                             threshold: 80,
@@ -3740,7 +3739,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Breakdown").unwrap(),
+                            name: PerkName::Breakdown,
                             rank: 3,
                             cost: 120,
                             threshold: 130,
@@ -3748,7 +3747,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Breakdown").unwrap(),
+                            name: PerkName::Breakdown,
                             rank: 4,
                             cost: 160,
                             threshold: 170,
@@ -3756,7 +3755,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Breakdown").unwrap(),
+                            name: PerkName::Breakdown,
                             rank: 5,
                             cost: 195,
                             threshold: 210,
@@ -3764,7 +3763,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Breakdown").unwrap(),
+                            name: PerkName::Breakdown,
                             rank: 6,
                             cost: 205,
                             threshold: 250,
@@ -3773,11 +3772,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Brief Respite").unwrap() => PerkRanksData {
+                PerkName::BriefRespite => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Brief Respite").unwrap(),
+                            name: PerkName::BriefRespite,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -3785,7 +3784,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Brief Respite").unwrap(),
+                            name: PerkName::BriefRespite,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -3793,7 +3792,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Brief Respite").unwrap(),
+                            name: PerkName::BriefRespite,
                             rank: 2,
                             cost: 80,
                             threshold: 100,
@@ -3801,7 +3800,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Brief Respite").unwrap(),
+                            name: PerkName::BriefRespite,
                             rank: 3,
                             cost: 150,
                             threshold: 200,
@@ -3809,7 +3808,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Brief Respite").unwrap(),
+                            name: PerkName::BriefRespite,
                             rank: 4,
                             cost: 160,
                             threshold: 240,
@@ -3818,11 +3817,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Bulwark").unwrap() => PerkRanksData {
+                PerkName::Bulwark => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Bulwark").unwrap(),
+                            name: PerkName::Bulwark,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -3830,7 +3829,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Bulwark").unwrap(),
+                            name: PerkName::Bulwark,
                             rank: 1,
                             cost: 40,
                             threshold: 55,
@@ -3838,7 +3837,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Bulwark").unwrap(),
+                            name: PerkName::Bulwark,
                             rank: 2,
                             cost: 90,
                             threshold: 115,
@@ -3846,7 +3845,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Bulwark").unwrap(),
+                            name: PerkName::Bulwark,
                             rank: 3,
                             cost: 175,
                             threshold: 220,
@@ -3854,7 +3853,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Bulwark").unwrap(),
+                            name: PerkName::Bulwark,
                             rank: 4,
                             cost: 185,
                             threshold: 260,
@@ -3863,11 +3862,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Butterfingers").unwrap() => PerkRanksData {
+                PerkName::Butterfingers => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Butterfingers").unwrap(),
+                            name: PerkName::Butterfingers,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -3875,7 +3874,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Butterfingers").unwrap(),
+                            name: PerkName::Butterfingers,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -3883,7 +3882,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Butterfingers").unwrap(),
+                            name: PerkName::Butterfingers,
                             rank: 2,
                             cost: 65,
                             threshold: 80,
@@ -3891,7 +3890,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Butterfingers").unwrap(),
+                            name: PerkName::Butterfingers,
                             rank: 3,
                             cost: 120,
                             threshold: 130,
@@ -3899,7 +3898,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Butterfingers").unwrap(),
+                            name: PerkName::Butterfingers,
                             rank: 4,
                             cost: 160,
                             threshold: 170,
@@ -3907,7 +3906,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Butterfingers").unwrap(),
+                            name: PerkName::Butterfingers,
                             rank: 5,
                             cost: 195,
                             threshold: 210,
@@ -3916,11 +3915,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Caroming").unwrap() => PerkRanksData {
+                PerkName::Caroming => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Caroming").unwrap(),
+                            name: PerkName::Caroming,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -3928,7 +3927,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Caroming").unwrap(),
+                            name: PerkName::Caroming,
                             rank: 1,
                             cost: 40,
                             threshold: 55,
@@ -3936,7 +3935,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Caroming").unwrap(),
+                            name: PerkName::Caroming,
                             rank: 2,
                             cost: 90,
                             threshold: 115,
@@ -3944,7 +3943,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Caroming").unwrap(),
+                            name: PerkName::Caroming,
                             rank: 3,
                             cost: 175,
                             threshold: 170,
@@ -3952,7 +3951,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Caroming").unwrap(),
+                            name: PerkName::Caroming,
                             rank: 4,
                             cost: 185,
                             threshold: 200,
@@ -3961,11 +3960,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Cautious").unwrap() => PerkRanksData {
+                PerkName::Cautious => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Cautious").unwrap(),
+                            name: PerkName::Cautious,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -3973,7 +3972,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Cautious").unwrap(),
+                            name: PerkName::Cautious,
                             rank: 1,
                             cost: 35,
                             threshold: 45,
@@ -3982,11 +3981,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Charitable").unwrap() => PerkRanksData {
+                PerkName::Charitable => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Charitable").unwrap(),
+                            name: PerkName::Charitable,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -3994,7 +3993,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Charitable").unwrap(),
+                            name: PerkName::Charitable,
                             rank: 1,
                             cost: 30,
                             threshold: 40,
@@ -4002,7 +4001,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Charitable").unwrap(),
+                            name: PerkName::Charitable,
                             rank: 2,
                             cost: 75,
                             threshold: 90,
@@ -4010,7 +4009,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Charitable").unwrap(),
+                            name: PerkName::Charitable,
                             rank: 3,
                             cost: 135,
                             threshold: 180,
@@ -4018,7 +4017,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Charitable").unwrap(),
+                            name: PerkName::Charitable,
                             rank: 4,
                             cost: 145,
                             threshold: 210,
@@ -4027,11 +4026,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Cheapskate").unwrap() => PerkRanksData {
+                PerkName::Cheapskate => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Cheapskate").unwrap(),
+                            name: PerkName::Cheapskate,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4039,7 +4038,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Cheapskate").unwrap(),
+                            name: PerkName::Cheapskate,
                             rank: 1,
                             cost: 20,
                             threshold: 40,
@@ -4047,7 +4046,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Cheapskate").unwrap(),
+                            name: PerkName::Cheapskate,
                             rank: 2,
                             cost: 30,
                             threshold: 70,
@@ -4055,7 +4054,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Cheapskate").unwrap(),
+                            name: PerkName::Cheapskate,
                             rank: 3,
                             cost: 40,
                             threshold: 150,
@@ -4064,11 +4063,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Clear Headed").unwrap() => PerkRanksData {
+                PerkName::ClearHeaded => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Clear Headed").unwrap(),
+                            name: PerkName::ClearHeaded,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4076,7 +4075,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Clear Headed").unwrap(),
+                            name: PerkName::ClearHeaded,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -4084,7 +4083,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Clear Headed").unwrap(),
+                            name: PerkName::ClearHeaded,
                             rank: 2,
                             cost: 80,
                             threshold: 100,
@@ -4092,7 +4091,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Clear Headed").unwrap(),
+                            name: PerkName::ClearHeaded,
                             rank: 3,
                             cost: 150,
                             threshold: 200,
@@ -4100,7 +4099,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Clear Headed").unwrap(),
+                            name: PerkName::ClearHeaded,
                             rank: 4,
                             cost: 160,
                             threshold: 240,
@@ -4109,11 +4108,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Committed").unwrap() => PerkRanksData {
+                PerkName::Committed => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Committed").unwrap(),
+                            name: PerkName::Committed,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4121,7 +4120,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Committed").unwrap(),
+                            name: PerkName::Committed,
                             rank: 1,
                             cost: 35,
                             threshold: 45,
@@ -4130,11 +4129,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Confused").unwrap() => PerkRanksData {
+                PerkName::Confused => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Confused").unwrap(),
+                            name: PerkName::Confused,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4142,7 +4141,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Confused").unwrap(),
+                            name: PerkName::Confused,
                             rank: 1,
                             cost: 20,
                             threshold: 40,
@@ -4150,7 +4149,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Confused").unwrap(),
+                            name: PerkName::Confused,
                             rank: 2,
                             cost: 30,
                             threshold: 70,
@@ -4158,7 +4157,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Confused").unwrap(),
+                            name: PerkName::Confused,
                             rank: 3,
                             cost: 40,
                             threshold: 150,
@@ -4167,11 +4166,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Crackling").unwrap() => PerkRanksData {
+                PerkName::Crackling => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Crackling").unwrap(),
+                            name: PerkName::Crackling,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4179,7 +4178,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Crackling").unwrap(),
+                            name: PerkName::Crackling,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -4187,7 +4186,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Crackling").unwrap(),
+                            name: PerkName::Crackling,
                             rank: 2,
                             cost: 80,
                             threshold: 100,
@@ -4195,7 +4194,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Crackling").unwrap(),
+                            name: PerkName::Crackling,
                             rank: 3,
                             cost: 150,
                             threshold: 200,
@@ -4203,7 +4202,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Crackling").unwrap(),
+                            name: PerkName::Crackling,
                             rank: 4,
                             cost: 160,
                             threshold: 240,
@@ -4212,11 +4211,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Crystal Shield").unwrap() => PerkRanksData {
+                PerkName::CrystalShield => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Crystal Shield").unwrap(),
+                            name: PerkName::CrystalShield,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4224,7 +4223,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Crystal Shield").unwrap(),
+                            name: PerkName::CrystalShield,
                             rank: 1,
                             cost: 30,
                             threshold: 40,
@@ -4232,7 +4231,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Crystal Shield").unwrap(),
+                            name: PerkName::CrystalShield,
                             rank: 2,
                             cost: 120,
                             threshold: 150,
@@ -4240,7 +4239,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Crystal Shield").unwrap(),
+                            name: PerkName::CrystalShield,
                             rank: 3,
                             cost: 150,
                             threshold: 180,
@@ -4248,7 +4247,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Crystal Shield").unwrap(),
+                            name: PerkName::CrystalShield,
                             rank: 4,
                             cost: 160,
                             threshold: 210,
@@ -4257,11 +4256,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Demon Bait").unwrap() => PerkRanksData {
+                PerkName::DemonBait => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Demon Bait").unwrap(),
+                            name: PerkName::DemonBait,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4269,7 +4268,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Demon Bait").unwrap(),
+                            name: PerkName::DemonBait,
                             rank: 1,
                             cost: 35,
                             threshold: 45,
@@ -4278,11 +4277,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Demon Slayer").unwrap() => PerkRanksData {
+                PerkName::DemonSlayer => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Demon Slayer").unwrap(),
+                            name: PerkName::DemonSlayer,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4290,7 +4289,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Demon Slayer").unwrap(),
+                            name: PerkName::DemonSlayer,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -4299,11 +4298,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Devoted").unwrap() => PerkRanksData {
+                PerkName::Devoted => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Devoted").unwrap(),
+                            name: PerkName::Devoted,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4311,7 +4310,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Devoted").unwrap(),
+                            name: PerkName::Devoted,
                             rank: 1,
                             cost: 40,
                             threshold: 55,
@@ -4319,7 +4318,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Devoted").unwrap(),
+                            name: PerkName::Devoted,
                             rank: 2,
                             cost: 90,
                             threshold: 115,
@@ -4327,7 +4326,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Devoted").unwrap(),
+                            name: PerkName::Devoted,
                             rank: 3,
                             cost: 175,
                             threshold: 220,
@@ -4335,7 +4334,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Devoted").unwrap(),
+                            name: PerkName::Devoted,
                             rank: 4,
                             cost: 185,
                             threshold: 260,
@@ -4344,11 +4343,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Dragon Bait").unwrap() => PerkRanksData {
+                PerkName::DragonBait => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Dragon Bait").unwrap(),
+                            name: PerkName::DragonBait,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4356,7 +4355,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Dragon Bait").unwrap(),
+                            name: PerkName::DragonBait,
                             rank: 1,
                             cost: 35,
                             threshold: 45,
@@ -4365,11 +4364,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Dragon Slayer").unwrap() => PerkRanksData {
+                PerkName::DragonSlayer => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Dragon Slayer").unwrap(),
+                            name: PerkName::DragonSlayer,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4377,7 +4376,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Dragon Slayer").unwrap(),
+                            name: PerkName::DragonSlayer,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -4386,11 +4385,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Efficient").unwrap() => PerkRanksData {
+                PerkName::Efficient => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Efficient").unwrap(),
+                            name: PerkName::Efficient,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4398,7 +4397,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Efficient").unwrap(),
+                            name: PerkName::Efficient,
                             rank: 1,
                             cost: 35,
                             threshold: 40,
@@ -4406,7 +4405,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Efficient").unwrap(),
+                            name: PerkName::Efficient,
                             rank: 2,
                             cost: 70,
                             threshold: 80,
@@ -4414,7 +4413,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Efficient").unwrap(),
+                            name: PerkName::Efficient,
                             rank: 3,
                             cost: 100,
                             threshold: 120,
@@ -4422,7 +4421,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Efficient").unwrap(),
+                            name: PerkName::Efficient,
                             rank: 4,
                             cost: 110,
                             threshold: 140,
@@ -4431,11 +4430,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Energising").unwrap() => PerkRanksData {
+                PerkName::Energising => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Energising").unwrap(),
+                            name: PerkName::Energising,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4443,7 +4442,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Energising").unwrap(),
+                            name: PerkName::Energising,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -4451,7 +4450,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Energising").unwrap(),
+                            name: PerkName::Energising,
                             rank: 2,
                             cost: 80,
                             threshold: 100,
@@ -4459,7 +4458,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Energising").unwrap(),
+                            name: PerkName::Energising,
                             rank: 3,
                             cost: 150,
                             threshold: 200,
@@ -4467,7 +4466,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Energising").unwrap(),
+                            name: PerkName::Energising,
                             rank: 4,
                             cost: 160,
                             threshold: 240,
@@ -4476,11 +4475,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Enhanced Devoted").unwrap() => PerkRanksData {
+                PerkName::EnhancedDevoted => PerkRanksData {
                     doubleslot: true,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Enhanced Devoted").unwrap(),
+                            name: PerkName::EnhancedDevoted,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4488,7 +4487,7 @@ impl Data {
                             doubleslot: true
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Enhanced Devoted").unwrap(),
+                            name: PerkName::EnhancedDevoted,
                             rank: 1,
                             cost: 30,
                             threshold: 40,
@@ -4496,7 +4495,7 @@ impl Data {
                             doubleslot: true
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Enhanced Devoted").unwrap(),
+                            name: PerkName::EnhancedDevoted,
                             rank: 2,
                             cost: 120,
                             threshold: 140,
@@ -4504,7 +4503,7 @@ impl Data {
                             doubleslot: true
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Enhanced Devoted").unwrap(),
+                            name: PerkName::EnhancedDevoted,
                             rank: 3,
                             cost: 220,
                             threshold: 230,
@@ -4512,7 +4511,7 @@ impl Data {
                             doubleslot: true
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Enhanced Devoted").unwrap(),
+                            name: PerkName::EnhancedDevoted,
                             rank: 4,
                             cost: 230,
                             threshold: 270,
@@ -4521,11 +4520,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Enhanced Efficient").unwrap() => PerkRanksData {
+                PerkName::EnhancedEfficient => PerkRanksData {
                     doubleslot: true,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Enhanced Efficient").unwrap(),
+                            name: PerkName::EnhancedEfficient,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4533,7 +4532,7 @@ impl Data {
                             doubleslot: true
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Enhanced Efficient").unwrap(),
+                            name: PerkName::EnhancedEfficient,
                             rank: 1,
                             cost: 30,
                             threshold: 40,
@@ -4541,7 +4540,7 @@ impl Data {
                             doubleslot: true
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Enhanced Efficient").unwrap(),
+                            name: PerkName::EnhancedEfficient,
                             rank: 2,
                             cost: 120,
                             threshold: 140,
@@ -4549,7 +4548,7 @@ impl Data {
                             doubleslot: true
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Enhanced Efficient").unwrap(),
+                            name: PerkName::EnhancedEfficient,
                             rank: 3,
                             cost: 220,
                             threshold: 230,
@@ -4557,7 +4556,7 @@ impl Data {
                             doubleslot: true
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Enhanced Efficient").unwrap(),
+                            name: PerkName::EnhancedEfficient,
                             rank: 4,
                             cost: 230,
                             threshold: 270,
@@ -4566,11 +4565,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Enlightened").unwrap() => PerkRanksData {
+                PerkName::Enlightened => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Enlightened").unwrap(),
+                            name: PerkName::Enlightened,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4578,7 +4577,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Enlightened").unwrap(),
+                            name: PerkName::Enlightened,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -4586,7 +4585,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Enlightened").unwrap(),
+                            name: PerkName::Enlightened,
                             rank: 2,
                             cost: 80,
                             threshold: 100,
@@ -4594,7 +4593,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Enlightened").unwrap(),
+                            name: PerkName::Enlightened,
                             rank: 3,
                             cost: 150,
                             threshold: 200,
@@ -4602,7 +4601,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Enlightened").unwrap(),
+                            name: PerkName::Enlightened,
                             rank: 4,
                             cost: 160,
                             threshold: 240,
@@ -4611,11 +4610,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Eruptive").unwrap() => PerkRanksData {
+                PerkName::Eruptive => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Eruptive").unwrap(),
+                            name: PerkName::Eruptive,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4623,7 +4622,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Eruptive").unwrap(),
+                            name: PerkName::Eruptive,
                             rank: 1,
                             cost: 40,
                             threshold: 55,
@@ -4631,7 +4630,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Eruptive").unwrap(),
+                            name: PerkName::Eruptive,
                             rank: 2,
                             cost: 90,
                             threshold: 115,
@@ -4639,7 +4638,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Eruptive").unwrap(),
+                            name: PerkName::Eruptive,
                             rank: 3,
                             cost: 175,
                             threshold: 220,
@@ -4647,7 +4646,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Eruptive").unwrap(),
+                            name: PerkName::Eruptive,
                             rank: 4,
                             cost: 185,
                             threshold: 260,
@@ -4656,11 +4655,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Fatiguing").unwrap() => PerkRanksData {
+                PerkName::Fatiguing => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Fatiguing").unwrap(),
+                            name: PerkName::Fatiguing,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4668,7 +4667,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Fatiguing").unwrap(),
+                            name: PerkName::Fatiguing,
                             rank: 1,
                             cost: 35,
                             threshold: 40,
@@ -4676,7 +4675,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Fatiguing").unwrap(),
+                            name: PerkName::Fatiguing,
                             rank: 2,
                             cost: 35,
                             threshold: 90,
@@ -4684,7 +4683,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Fatiguing").unwrap(),
+                            name: PerkName::Fatiguing,
                             rank: 3,
                             cost: 35,
                             threshold: 180,
@@ -4693,11 +4692,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Flanking").unwrap() => PerkRanksData {
+                PerkName::Flanking => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Flanking").unwrap(),
+                            name: PerkName::Flanking,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4705,7 +4704,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Flanking").unwrap(),
+                            name: PerkName::Flanking,
                             rank: 1,
                             cost: 30,
                             threshold: 40,
@@ -4713,7 +4712,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Flanking").unwrap(),
+                            name: PerkName::Flanking,
                             rank: 2,
                             cost: 110,
                             threshold: 140,
@@ -4721,7 +4720,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Flanking").unwrap(),
+                            name: PerkName::Flanking,
                             rank: 3,
                             cost: 180,
                             threshold: 210,
@@ -4729,7 +4728,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Flanking").unwrap(),
+                            name: PerkName::Flanking,
                             rank: 4,
                             cost: 190,
                             threshold: 250,
@@ -4738,11 +4737,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Fortune").unwrap() => PerkRanksData {
+                PerkName::Fortune => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Fortune").unwrap(),
+                            name: PerkName::Fortune,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4750,7 +4749,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Fortune").unwrap(),
+                            name: PerkName::Fortune,
                             rank: 1,
                             cost: 45,
                             threshold: 60,
@@ -4758,7 +4757,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Fortune").unwrap(),
+                            name: PerkName::Fortune,
                             rank: 2,
                             cost: 90,
                             threshold: 130,
@@ -4766,7 +4765,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Fortune").unwrap(),
+                            name: PerkName::Fortune,
                             rank: 3,
                             cost: 180,
                             threshold: 250,
@@ -4775,11 +4774,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Furnace").unwrap() => PerkRanksData {
+                PerkName::Furnace => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Furnace").unwrap(),
+                            name: PerkName::Furnace,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4787,7 +4786,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Furnace").unwrap(),
+                            name: PerkName::Furnace,
                             rank: 1,
                             cost: 40,
                             threshold: 55,
@@ -4795,7 +4794,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Furnace").unwrap(),
+                            name: PerkName::Furnace,
                             rank: 2,
                             cost: 90,
                             threshold: 115,
@@ -4803,7 +4802,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Furnace").unwrap(),
+                            name: PerkName::Furnace,
                             rank: 3,
                             cost: 175,
                             threshold: 220,
@@ -4811,7 +4810,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Furnace").unwrap(),
+                            name: PerkName::Furnace,
                             rank: 4,
                             cost: 185,
                             threshold: 260,
@@ -4820,11 +4819,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Genocidal").unwrap() => PerkRanksData {
+                PerkName::Genocidal => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Genocidal").unwrap(),
+                            name: PerkName::Genocidal,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4832,7 +4831,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Genocidal").unwrap(),
+                            name: PerkName::Genocidal,
                             rank: 1,
                             cost: 50,
                             threshold: 65,
@@ -4841,11 +4840,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Glow Worm").unwrap() => PerkRanksData {
+                PerkName::GlowWorm => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Glow Worm").unwrap(),
+                            name: PerkName::GlowWorm,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4853,7 +4852,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Glow Worm").unwrap(),
+                            name: PerkName::GlowWorm,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -4862,11 +4861,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Hallucinogenic").unwrap() => PerkRanksData {
+                PerkName::Hallucinogenic => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Hallucinogenic").unwrap(),
+                            name: PerkName::Hallucinogenic,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4874,7 +4873,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Hallucinogenic").unwrap(),
+                            name: PerkName::Hallucinogenic,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -4883,11 +4882,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Hoarding").unwrap() => PerkRanksData {
+                PerkName::Hoarding => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Hoarding").unwrap(),
+                            name: PerkName::Hoarding,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4895,7 +4894,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Hoarding").unwrap(),
+                            name: PerkName::Hoarding,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -4904,11 +4903,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Honed").unwrap() => PerkRanksData {
+                PerkName::Honed => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Honed").unwrap(),
+                            name: PerkName::Honed,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4916,7 +4915,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Honed").unwrap(),
+                            name: PerkName::Honed,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -4924,7 +4923,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Honed").unwrap(),
+                            name: PerkName::Honed,
                             rank: 2,
                             cost: 65,
                             threshold: 80,
@@ -4932,7 +4931,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Honed").unwrap(),
+                            name: PerkName::Honed,
                             rank: 3,
                             cost: 120,
                             threshold: 130,
@@ -4940,7 +4939,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Honed").unwrap(),
+                            name: PerkName::Honed,
                             rank: 4,
                             cost: 160,
                             threshold: 170,
@@ -4948,7 +4947,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Honed").unwrap(),
+                            name: PerkName::Honed,
                             rank: 5,
                             cost: 195,
                             threshold: 210,
@@ -4956,7 +4955,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Honed").unwrap(),
+                            name: PerkName::Honed,
                             rank: 6,
                             cost: 205,
                             threshold: 250,
@@ -4965,11 +4964,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Imp Souled").unwrap() => PerkRanksData {
+                PerkName::ImpSouled => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Imp Souled").unwrap(),
+                            name: PerkName::ImpSouled,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4977,7 +4976,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Imp Souled").unwrap(),
+                            name: PerkName::ImpSouled,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -4985,7 +4984,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Imp Souled").unwrap(),
+                            name: PerkName::ImpSouled,
                             rank: 2,
                             cost: 65,
                             threshold: 80,
@@ -4993,7 +4992,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Imp Souled").unwrap(),
+                            name: PerkName::ImpSouled,
                             rank: 3,
                             cost: 120,
                             threshold: 130,
@@ -5001,7 +5000,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Imp Souled").unwrap(),
+                            name: PerkName::ImpSouled,
                             rank: 4,
                             cost: 160,
                             threshold: 170,
@@ -5009,7 +5008,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Imp Souled").unwrap(),
+                            name: PerkName::ImpSouled,
                             rank: 5,
                             cost: 195,
                             threshold: 210,
@@ -5017,7 +5016,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Imp Souled").unwrap(),
+                            name: PerkName::ImpSouled,
                             rank: 6,
                             cost: 205,
                             threshold: 250,
@@ -5026,11 +5025,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Impatient").unwrap() => PerkRanksData {
+                PerkName::Impatient => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Impatient").unwrap(),
+                            name: PerkName::Impatient,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5038,7 +5037,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Impatient").unwrap(),
+                            name: PerkName::Impatient,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -5046,7 +5045,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Impatient").unwrap(),
+                            name: PerkName::Impatient,
                             rank: 2,
                             cost: 80,
                             threshold: 100,
@@ -5054,7 +5053,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Impatient").unwrap(),
+                            name: PerkName::Impatient,
                             rank: 3,
                             cost: 150,
                             threshold: 200,
@@ -5062,7 +5061,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Impatient").unwrap(),
+                            name: PerkName::Impatient,
                             rank: 4,
                             cost: 160,
                             threshold: 240,
@@ -5071,11 +5070,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Inaccurate").unwrap() => PerkRanksData {
+                PerkName::Inaccurate => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Inaccurate").unwrap(),
+                            name: PerkName::Inaccurate,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5083,7 +5082,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Inaccurate").unwrap(),
+                            name: PerkName::Inaccurate,
                             rank: 1,
                             cost: 30,
                             threshold: 40,
@@ -5091,7 +5090,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Inaccurate").unwrap(),
+                            name: PerkName::Inaccurate,
                             rank: 2,
                             cost: 30,
                             threshold: 70,
@@ -5099,7 +5098,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Inaccurate").unwrap(),
+                            name: PerkName::Inaccurate,
                             rank: 3,
                             cost: 30,
                             threshold: 120,
@@ -5107,7 +5106,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Inaccurate").unwrap(),
+                            name: PerkName::Inaccurate,
                             rank: 4,
                             cost: 30,
                             threshold: 155,
@@ -5115,7 +5114,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Inaccurate").unwrap(),
+                            name: PerkName::Inaccurate,
                             rank: 5,
                             cost: 30,
                             threshold: 195,
@@ -5124,11 +5123,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Invigorating").unwrap() => PerkRanksData {
+                PerkName::Invigorating => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Invigorating").unwrap(),
+                            name: PerkName::Invigorating,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5136,7 +5135,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Invigorating").unwrap(),
+                            name: PerkName::Invigorating,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -5144,7 +5143,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Invigorating").unwrap(),
+                            name: PerkName::Invigorating,
                             rank: 2,
                             cost: 80,
                             threshold: 100,
@@ -5152,7 +5151,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Invigorating").unwrap(),
+                            name: PerkName::Invigorating,
                             rank: 3,
                             cost: 150,
                             threshold: 200,
@@ -5160,7 +5159,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Invigorating").unwrap(),
+                            name: PerkName::Invigorating,
                             rank: 4,
                             cost: 160,
                             threshold: 240,
@@ -5169,11 +5168,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Junk Food").unwrap() => PerkRanksData {
+                PerkName::JunkFood => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Junk Food").unwrap(),
+                            name: PerkName::JunkFood,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5181,7 +5180,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Junk Food").unwrap(),
+                            name: PerkName::JunkFood,
                             rank: 1,
                             cost: 30,
                             threshold: 40,
@@ -5189,7 +5188,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Junk Food").unwrap(),
+                            name: PerkName::JunkFood,
                             rank: 2,
                             cost: 30,
                             threshold: 90,
@@ -5197,7 +5196,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Junk Food").unwrap(),
+                            name: PerkName::JunkFood,
                             rank: 3,
                             cost: 30,
                             threshold: 180,
@@ -5206,11 +5205,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Looting").unwrap() => PerkRanksData {
+                PerkName::Looting => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Looting").unwrap(),
+                            name: PerkName::Looting,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5218,7 +5217,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Looting").unwrap(),
+                            name: PerkName::Looting,
                             rank: 1,
                             cost: 50,
                             threshold: 65,
@@ -5227,11 +5226,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Lucky").unwrap() => PerkRanksData {
+                PerkName::Lucky => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Lucky").unwrap(),
+                            name: PerkName::Lucky,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5239,7 +5238,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Lucky").unwrap(),
+                            name: PerkName::Lucky,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -5247,7 +5246,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Lucky").unwrap(),
+                            name: PerkName::Lucky,
                             rank: 2,
                             cost: 65,
                             threshold: 80,
@@ -5255,7 +5254,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Lucky").unwrap(),
+                            name: PerkName::Lucky,
                             rank: 3,
                             cost: 120,
                             threshold: 130,
@@ -5263,7 +5262,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Lucky").unwrap(),
+                            name: PerkName::Lucky,
                             rank: 4,
                             cost: 160,
                             threshold: 170,
@@ -5271,7 +5270,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Lucky").unwrap(),
+                            name: PerkName::Lucky,
                             rank: 5,
                             cost: 195,
                             threshold: 210,
@@ -5279,7 +5278,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Lucky").unwrap(),
+                            name: PerkName::Lucky,
                             rank: 6,
                             cost: 205,
                             threshold: 250,
@@ -5288,11 +5287,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Lunging").unwrap() => PerkRanksData {
+                PerkName::Lunging => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Lunging").unwrap(),
+                            name: PerkName::Lunging,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5300,7 +5299,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Lunging").unwrap(),
+                            name: PerkName::Lunging,
                             rank: 1,
                             cost: 40,
                             threshold: 55,
@@ -5308,7 +5307,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Lunging").unwrap(),
+                            name: PerkName::Lunging,
                             rank: 2,
                             cost: 90,
                             threshold: 115,
@@ -5316,7 +5315,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Lunging").unwrap(),
+                            name: PerkName::Lunging,
                             rank: 3,
                             cost: 175,
                             threshold: 170,
@@ -5324,7 +5323,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Lunging").unwrap(),
+                            name: PerkName::Lunging,
                             rank: 4,
                             cost: 185,
                             threshold: 200,
@@ -5333,11 +5332,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Mediocrity").unwrap() => PerkRanksData {
+                PerkName::Mediocrity => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Mediocrity").unwrap(),
+                            name: PerkName::Mediocrity,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5345,7 +5344,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Mediocrity").unwrap(),
+                            name: PerkName::Mediocrity,
                             rank: 1,
                             cost: 30,
                             threshold: 40,
@@ -5353,7 +5352,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Mediocrity").unwrap(),
+                            name: PerkName::Mediocrity,
                             rank: 2,
                             cost: 30,
                             threshold: 90,
@@ -5361,7 +5360,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Mediocrity").unwrap(),
+                            name: PerkName::Mediocrity,
                             rank: 3,
                             cost: 30,
                             threshold: 180,
@@ -5370,11 +5369,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Mobile").unwrap() => PerkRanksData {
+                PerkName::Mobile => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Mobile").unwrap(),
+                            name: PerkName::Mobile,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5382,7 +5381,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Mobile").unwrap(),
+                            name: PerkName::Mobile,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -5391,11 +5390,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Mysterious").unwrap() => PerkRanksData {
+                PerkName::Mysterious => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Mysterious").unwrap(),
+                            name: PerkName::Mysterious,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5403,7 +5402,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Mysterious").unwrap(),
+                            name: PerkName::Mysterious,
                             rank: 1,
                             cost: 20,
                             threshold: 25,
@@ -5411,7 +5410,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Mysterious").unwrap(),
+                            name: PerkName::Mysterious,
                             rank: 2,
                             cost: 30,
                             threshold: 45,
@@ -5419,7 +5418,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Mysterious").unwrap(),
+                            name: PerkName::Mysterious,
                             rank: 3,
                             cost: 40,
                             threshold: 120,
@@ -5427,7 +5426,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Mysterious").unwrap(),
+                            name: PerkName::Mysterious,
                             rank: 4,
                             cost: 50,
                             threshold: 175,
@@ -5435,7 +5434,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Mysterious").unwrap(),
+                            name: PerkName::Mysterious,
                             rank: 5,
                             cost: 60,
                             threshold: 250,
@@ -5443,7 +5442,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Mysterious").unwrap(),
+                            name: PerkName::Mysterious,
                             rank: 6,
                             cost: 70,
                             threshold: 300,
@@ -5452,11 +5451,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Planted Feet").unwrap() => PerkRanksData {
+                PerkName::PlantedFeet => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Planted Feet").unwrap(),
+                            name: PerkName::PlantedFeet,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5464,7 +5463,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Planted Feet").unwrap(),
+                            name: PerkName::PlantedFeet,
                             rank: 1,
                             cost: 60,
                             threshold: 60,
@@ -5473,11 +5472,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Polishing").unwrap() => PerkRanksData {
+                PerkName::Polishing => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Polishing").unwrap(),
+                            name: PerkName::Polishing,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5485,7 +5484,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Polishing").unwrap(),
+                            name: PerkName::Polishing,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -5493,7 +5492,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Polishing").unwrap(),
+                            name: PerkName::Polishing,
                             rank: 2,
                             cost: 80,
                             threshold: 100,
@@ -5501,7 +5500,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Polishing").unwrap(),
+                            name: PerkName::Polishing,
                             rank: 3,
                             cost: 150,
                             threshold: 200,
@@ -5509,7 +5508,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Polishing").unwrap(),
+                            name: PerkName::Polishing,
                             rank: 4,
                             cost: 160,
                             threshold: 240,
@@ -5518,11 +5517,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Precise").unwrap() => PerkRanksData {
+                PerkName::Precise => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Precise").unwrap(),
+                            name: PerkName::Precise,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5530,7 +5529,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Precise").unwrap(),
+                            name: PerkName::Precise,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -5538,7 +5537,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Precise").unwrap(),
+                            name: PerkName::Precise,
                             rank: 2,
                             cost: 65,
                             threshold: 80,
@@ -5546,7 +5545,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Precise").unwrap(),
+                            name: PerkName::Precise,
                             rank: 3,
                             cost: 120,
                             threshold: 130,
@@ -5554,7 +5553,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Precise").unwrap(),
+                            name: PerkName::Precise,
                             rank: 4,
                             cost: 160,
                             threshold: 170,
@@ -5562,7 +5561,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Precise").unwrap(),
+                            name: PerkName::Precise,
                             rank: 5,
                             cost: 195,
                             threshold: 210,
@@ -5570,7 +5569,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Precise").unwrap(),
+                            name: PerkName::Precise,
                             rank: 6,
                             cost: 205,
                             threshold: 250,
@@ -5579,11 +5578,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Preparation").unwrap() => PerkRanksData {
+                PerkName::Preparation => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Preparation").unwrap(),
+                            name: PerkName::Preparation,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5591,7 +5590,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Preparation").unwrap(),
+                            name: PerkName::Preparation,
                             rank: 1,
                             cost: 40,
                             threshold: 55,
@@ -5599,7 +5598,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Preparation").unwrap(),
+                            name: PerkName::Preparation,
                             rank: 2,
                             cost: 90,
                             threshold: 115,
@@ -5607,7 +5606,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Preparation").unwrap(),
+                            name: PerkName::Preparation,
                             rank: 3,
                             cost: 175,
                             threshold: 220,
@@ -5615,7 +5614,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Preparation").unwrap(),
+                            name: PerkName::Preparation,
                             rank: 4,
                             cost: 185,
                             threshold: 260,
@@ -5624,11 +5623,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Profane").unwrap() => PerkRanksData {
+                PerkName::Profane => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Profane").unwrap(),
+                            name: PerkName::Profane,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5636,7 +5635,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Profane").unwrap(),
+                            name: PerkName::Profane,
                             rank: 1,
                             cost: 35,
                             threshold: 45,
@@ -5645,11 +5644,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Prosper").unwrap() => PerkRanksData {
+                PerkName::Prosper => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Prosper").unwrap(),
+                            name: PerkName::Prosper,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5657,7 +5656,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Prosper").unwrap(),
+                            name: PerkName::Prosper,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -5666,11 +5665,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Pyromaniac").unwrap() => PerkRanksData {
+                PerkName::Pyromaniac => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Pyromaniac").unwrap(),
+                            name: PerkName::Pyromaniac,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5678,7 +5677,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Pyromaniac").unwrap(),
+                            name: PerkName::Pyromaniac,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -5686,7 +5685,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Pyromaniac").unwrap(),
+                            name: PerkName::Pyromaniac,
                             rank: 2,
                             cost: 65,
                             threshold: 80,
@@ -5694,7 +5693,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Pyromaniac").unwrap(),
+                            name: PerkName::Pyromaniac,
                             rank: 3,
                             cost: 120,
                             threshold: 130,
@@ -5702,7 +5701,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Pyromaniac").unwrap(),
+                            name: PerkName::Pyromaniac,
                             rank: 4,
                             cost: 160,
                             threshold: 170,
@@ -5710,7 +5709,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Pyromaniac").unwrap(),
+                            name: PerkName::Pyromaniac,
                             rank: 5,
                             cost: 195,
                             threshold: 210,
@@ -5718,7 +5717,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Pyromaniac").unwrap(),
+                            name: PerkName::Pyromaniac,
                             rank: 6,
                             cost: 205,
                             threshold: 250,
@@ -5727,11 +5726,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Rapid").unwrap() => PerkRanksData {
+                PerkName::Rapid => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Rapid").unwrap(),
+                            name: PerkName::Rapid,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5739,7 +5738,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Rapid").unwrap(),
+                            name: PerkName::Rapid,
                             rank: 1,
                             cost: 40,
                             threshold: 55,
@@ -5747,7 +5746,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Rapid").unwrap(),
+                            name: PerkName::Rapid,
                             rank: 2,
                             cost: 90,
                             threshold: 115,
@@ -5755,7 +5754,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Rapid").unwrap(),
+                            name: PerkName::Rapid,
                             rank: 3,
                             cost: 175,
                             threshold: 220,
@@ -5763,7 +5762,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Rapid").unwrap(),
+                            name: PerkName::Rapid,
                             rank: 4,
                             cost: 185,
                             threshold: 260,
@@ -5772,11 +5771,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Refined").unwrap() => PerkRanksData {
+                PerkName::Refined => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Refined").unwrap(),
+                            name: PerkName::Refined,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5784,7 +5783,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Refined").unwrap(),
+                            name: PerkName::Refined,
                             rank: 1,
                             cost: 40,
                             threshold: 55,
@@ -5792,7 +5791,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Refined").unwrap(),
+                            name: PerkName::Refined,
                             rank: 2,
                             cost: 90,
                             threshold: 115,
@@ -5800,7 +5799,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Refined").unwrap(),
+                            name: PerkName::Refined,
                             rank: 3,
                             cost: 175,
                             threshold: 220,
@@ -5808,7 +5807,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Refined").unwrap(),
+                            name: PerkName::Refined,
                             rank: 4,
                             cost: 185,
                             threshold: 260,
@@ -5817,11 +5816,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Reflexes").unwrap() => PerkRanksData {
+                PerkName::Reflexes => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Reflexes").unwrap(),
+                            name: PerkName::Reflexes,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5829,7 +5828,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Reflexes").unwrap(),
+                            name: PerkName::Reflexes,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -5838,11 +5837,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Relentless").unwrap() => PerkRanksData {
+                PerkName::Relentless => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Relentless").unwrap(),
+                            name: PerkName::Relentless,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5850,7 +5849,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Relentless").unwrap(),
+                            name: PerkName::Relentless,
                             rank: 1,
                             cost: 45,
                             threshold: 60,
@@ -5858,7 +5857,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Relentless").unwrap(),
+                            name: PerkName::Relentless,
                             rank: 2,
                             cost: 75,
                             threshold: 130,
@@ -5866,7 +5865,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Relentless").unwrap(),
+                            name: PerkName::Relentless,
                             rank: 3,
                             cost: 130,
                             threshold: 200,
@@ -5874,7 +5873,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Relentless").unwrap(),
+                            name: PerkName::Relentless,
                             rank: 4,
                             cost: 170,
                             threshold: 280,
@@ -5882,7 +5881,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Relentless").unwrap(),
+                            name: PerkName::Relentless,
                             rank: 5,
                             cost: 205,
                             threshold: 380,
@@ -5891,11 +5890,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Ruthless").unwrap() => PerkRanksData {
+                PerkName::Ruthless => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Ruthless").unwrap(),
+                            name: PerkName::Ruthless,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5903,7 +5902,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Ruthless").unwrap(),
+                            name: PerkName::Ruthless,
                             rank: 1,
                             cost: 45,
                             threshold: 60,
@@ -5911,7 +5910,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Ruthless").unwrap(),
+                            name: PerkName::Ruthless,
                             rank: 2,
                             cost: 90,
                             threshold: 130,
@@ -5919,7 +5918,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Ruthless").unwrap(),
+                            name: PerkName::Ruthless,
                             rank: 3,
                             cost: 180,
                             threshold: 250,
@@ -5928,11 +5927,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Scavenging").unwrap() => PerkRanksData {
+                PerkName::Scavenging => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Scavenging").unwrap(),
+                            name: PerkName::Scavenging,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5940,7 +5939,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Scavenging").unwrap(),
+                            name: PerkName::Scavenging,
                             rank: 1,
                             cost: 40,
                             threshold: 55,
@@ -5948,7 +5947,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Scavenging").unwrap(),
+                            name: PerkName::Scavenging,
                             rank: 2,
                             cost: 90,
                             threshold: 115,
@@ -5956,7 +5955,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Scavenging").unwrap(),
+                            name: PerkName::Scavenging,
                             rank: 3,
                             cost: 175,
                             threshold: 220,
@@ -5964,7 +5963,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Scavenging").unwrap(),
+                            name: PerkName::Scavenging,
                             rank: 4,
                             cost: 185,
                             threshold: 260,
@@ -5973,11 +5972,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Shield Bashing").unwrap() => PerkRanksData {
+                PerkName::ShieldBashing => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Shield Bashing").unwrap(),
+                            name: PerkName::ShieldBashing,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -5985,7 +5984,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Shield Bashing").unwrap(),
+                            name: PerkName::ShieldBashing,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -5993,7 +5992,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Shield Bashing").unwrap(),
+                            name: PerkName::ShieldBashing,
                             rank: 2,
                             cost: 80,
                             threshold: 100,
@@ -6001,7 +6000,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Shield Bashing").unwrap(),
+                            name: PerkName::ShieldBashing,
                             rank: 3,
                             cost: 150,
                             threshold: 200,
@@ -6009,7 +6008,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Shield Bashing").unwrap(),
+                            name: PerkName::ShieldBashing,
                             rank: 4,
                             cost: 160,
                             threshold: 240,
@@ -6018,11 +6017,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Spendthrift").unwrap() => PerkRanksData {
+                PerkName::Spendthrift => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Spendthrift").unwrap(),
+                            name: PerkName::Spendthrift,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -6030,7 +6029,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Spendthrift").unwrap(),
+                            name: PerkName::Spendthrift,
                             rank: 1,
                             cost: 40,
                             threshold: 55,
@@ -6038,7 +6037,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Spendthrift").unwrap(),
+                            name: PerkName::Spendthrift,
                             rank: 2,
                             cost: 75,
                             threshold: 90,
@@ -6046,7 +6045,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Spendthrift").unwrap(),
+                            name: PerkName::Spendthrift,
                             rank: 3,
                             cost: 135,
                             threshold: 150,
@@ -6054,7 +6053,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Spendthrift").unwrap(),
+                            name: PerkName::Spendthrift,
                             rank: 4,
                             cost: 170,
                             threshold: 185,
@@ -6062,7 +6061,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Spendthrift").unwrap(),
+                            name: PerkName::Spendthrift,
                             rank: 5,
                             cost: 210,
                             threshold: 220,
@@ -6070,7 +6069,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Spendthrift").unwrap(),
+                            name: PerkName::Spendthrift,
                             rank: 6,
                             cost: 220,
                             threshold: 260,
@@ -6079,11 +6078,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Talking").unwrap() => PerkRanksData {
+                PerkName::Talking => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Talking").unwrap(),
+                            name: PerkName::Talking,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -6091,7 +6090,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Talking").unwrap(),
+                            name: PerkName::Talking,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -6100,11 +6099,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Taunting").unwrap() => PerkRanksData {
+                PerkName::Taunting => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Taunting").unwrap(),
+                            name: PerkName::Taunting,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -6112,7 +6111,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Taunting").unwrap(),
+                            name: PerkName::Taunting,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -6121,11 +6120,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Tinker").unwrap() => PerkRanksData {
+                PerkName::Tinker => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Tinker").unwrap(),
+                            name: PerkName::Tinker,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -6133,7 +6132,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Tinker").unwrap(),
+                            name: PerkName::Tinker,
                             rank: 1,
                             cost: 20,
                             threshold: 40,
@@ -6141,7 +6140,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Tinker").unwrap(),
+                            name: PerkName::Tinker,
                             rank: 2,
                             cost: 30,
                             threshold: 70,
@@ -6149,7 +6148,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Tinker").unwrap(),
+                            name: PerkName::Tinker,
                             rank: 3,
                             cost: 40,
                             threshold: 150,
@@ -6157,7 +6156,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Tinker").unwrap(),
+                            name: PerkName::Tinker,
                             rank: 4,
                             cost: 50,
                             threshold: 180,
@@ -6166,11 +6165,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Trophy-taker's").unwrap() => PerkRanksData {
+                PerkName::TrophyTaker => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Trophy-taker's").unwrap(),
+                            name: PerkName::TrophyTaker,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -6178,7 +6177,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Trophy-taker's").unwrap(),
+                            name: PerkName::TrophyTaker,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -6186,7 +6185,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Trophy-taker's").unwrap(),
+                            name: PerkName::TrophyTaker,
                             rank: 2,
                             cost: 65,
                             threshold: 80,
@@ -6194,7 +6193,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Trophy-taker's").unwrap(),
+                            name: PerkName::TrophyTaker,
                             rank: 3,
                             cost: 120,
                             threshold: 130,
@@ -6202,7 +6201,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Trophy-taker's").unwrap(),
+                            name: PerkName::TrophyTaker,
                             rank: 4,
                             cost: 160,
                             threshold: 170,
@@ -6210,7 +6209,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Trophy-taker's").unwrap(),
+                            name: PerkName::TrophyTaker,
                             rank: 5,
                             cost: 195,
                             threshold: 210,
@@ -6218,7 +6217,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Trophy-taker's").unwrap(),
+                            name: PerkName::TrophyTaker,
                             rank: 6,
                             cost: 205,
                             threshold: 250,
@@ -6227,11 +6226,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Turtling").unwrap() => PerkRanksData {
+                PerkName::Turtling => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Turtling").unwrap(),
+                            name: PerkName::Turtling,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -6239,7 +6238,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Turtling").unwrap(),
+                            name: PerkName::Turtling,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -6247,7 +6246,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Turtling").unwrap(),
+                            name: PerkName::Turtling,
                             rank: 2,
                             cost: 80,
                             threshold: 100,
@@ -6255,7 +6254,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Turtling").unwrap(),
+                            name: PerkName::Turtling,
                             rank: 3,
                             cost: 150,
                             threshold: 200,
@@ -6263,7 +6262,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Turtling").unwrap(),
+                            name: PerkName::Turtling,
                             rank: 4,
                             cost: 160,
                             threshold: 240,
@@ -6272,11 +6271,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Ultimatums").unwrap() => PerkRanksData {
+                PerkName::Ultimatums => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Ultimatums").unwrap(),
+                            name: PerkName::Ultimatums,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -6284,7 +6283,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Ultimatums").unwrap(),
+                            name: PerkName::Ultimatums,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -6292,7 +6291,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Ultimatums").unwrap(),
+                            name: PerkName::Ultimatums,
                             rank: 2,
                             cost: 80,
                             threshold: 100,
@@ -6300,7 +6299,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Ultimatums").unwrap(),
+                            name: PerkName::Ultimatums,
                             rank: 3,
                             cost: 150,
                             threshold: 200,
@@ -6308,7 +6307,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Ultimatums").unwrap(),
+                            name: PerkName::Ultimatums,
                             rank: 4,
                             cost: 160,
                             threshold: 240,
@@ -6317,11 +6316,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Undead Bait").unwrap() => PerkRanksData {
+                PerkName::UndeadBait => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Undead Bait").unwrap(),
+                            name: PerkName::UndeadBait,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -6329,7 +6328,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Undead Bait").unwrap(),
+                            name: PerkName::UndeadBait,
                             rank: 1,
                             cost: 35,
                             threshold: 45,
@@ -6338,11 +6337,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Undead Slayer").unwrap() => PerkRanksData {
+                PerkName::UndeadSlayer => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Undead Slayer").unwrap(),
+                            name: PerkName::UndeadSlayer,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -6350,7 +6349,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Undead Slayer").unwrap(),
+                            name: PerkName::UndeadSlayer,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -6359,11 +6358,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Venomblood").unwrap() => PerkRanksData {
+                PerkName::Venomblood => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Venomblood").unwrap(),
+                            name: PerkName::Venomblood,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -6371,7 +6370,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Venomblood").unwrap(),
+                            name: PerkName::Venomblood,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -6380,11 +6379,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Wise").unwrap() => PerkRanksData {
+                PerkName::Wise => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Wise").unwrap(),
+                            name: PerkName::Wise,
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -6392,7 +6391,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Wise").unwrap(),
+                            name: PerkName::Wise,
                             rank: 1,
                             cost: 35,
                             threshold: 50,
@@ -6400,7 +6399,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Wise").unwrap(),
+                            name: PerkName::Wise,
                             rank: 2,
                             cost: 80,
                             threshold: 100,
@@ -6408,7 +6407,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Wise").unwrap(),
+                            name: PerkName::Wise,
                             rank: 3,
                             cost: 150,
                             threshold: 200,
@@ -6416,7 +6415,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Wise").unwrap(),
+                            name: PerkName::Wise,
                             rank: 4,
                             cost: 160,
                             threshold: 240,

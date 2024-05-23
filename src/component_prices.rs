@@ -28,13 +28,16 @@ pub enum PriceSource {
 pub fn calc_gizmo_price(mat_combination: &[MaterialName], prob_gizmo: f64) -> f64 {
     let shell_price = *SHELL_PRICE.read().unwrap();
     let prices = PRICES.read().unwrap();
-    let prices = prices.as_ref().unwrap();
-    let price = shell_price
-        + mat_combination
-            .iter()
-            .fold(0.0, |acc, x| acc + prices.get(*x));
+    if let Some(prices) = prices.as_ref() {
+        let price = shell_price
+            + mat_combination
+                .iter()
+                .fold(0.0, |acc, x| acc + prices.get(*x));
 
-    price / prob_gizmo
+        price / prob_gizmo
+    } else {
+        0.0
+    }
 }
 
 pub fn load_component_prices(
