@@ -455,7 +455,7 @@ mod tests {
                 PartialPerkValues{ base: 90, name: PerkName::Invigorating, rolls: StackVec::new(&[8, 8    ]) },
                 PartialPerkValues{ base: 12, name: PerkName::Cautious,     rolls: StackVec::new(&[44      ]) },
                 PartialPerkValues{ base: 12, name: PerkName::Blunted,      rolls: StackVec::new(&[45      ]) },
-                PartialPerkValues{ base: 9,  name: PerkName::Equilibrium,  rolls: StackVec::new(&[33      ]) },
+                PartialPerkValues{ base: 9,  name: PerkName::Eruptive,  rolls: StackVec::new(&[33      ]) },
                 PartialPerkValues{ base: 9,  name: PerkName::Flanking,     rolls: StackVec::new(&[32      ]) },
             ];
             let actual = get_perk_values(&*DATA, &input_materials, gizmo_type, is_ancient_gizmo);
@@ -518,7 +518,7 @@ mod tests {
                 PartialPerkValues{ base: 97, name: PerkName::Precise,     rolls: StackVec::new(&[8, 8, 32]) },
                 PartialPerkValues{ base: 12, name: PerkName::Cautious,    rolls: StackVec::new(&[44      ]) },
                 PartialPerkValues{ base: 12, name: PerkName::Blunted,     rolls: StackVec::new(&[45      ]) },
-                PartialPerkValues{ base: 9,  name: PerkName::Equilibrium, rolls: StackVec::new(&[33      ]) },
+                PartialPerkValues{ base: 9,  name: PerkName::Eruptive, rolls: StackVec::new(&[33      ]) },
                 PartialPerkValues{ base: 9,  name: PerkName::Flanking,    rolls: StackVec::new(&[32      ]) },
             ];
             let actual = get_perk_values(&*DATA, &input_materials, gizmo_type, is_ancient_gizmo);
@@ -582,7 +582,7 @@ mod tests {
                 PartialPerkValues{ base: 22, name: PerkName::Looting,     rolls: StackVec::new(&[33, 33          ]) },
                 PartialPerkValues{ base: 9,  name: PerkName::Cautious,    rolls: StackVec::new(&[35              ]) },
                 PartialPerkValues{ base: 9,  name: PerkName::Blunted,     rolls: StackVec::new(&[36              ]) },
-                PartialPerkValues{ base: 7,  name: PerkName::Equilibrium, rolls: StackVec::new(&[26              ]) },
+                PartialPerkValues{ base: 7,  name: PerkName::Eruptive, rolls: StackVec::new(&[26              ]) },
                 PartialPerkValues{ base: 7,  name: PerkName::Flanking,    rolls: StackVec::new(&[25              ]) },
             ];
             let actual = get_perk_values(&*DATA, &input_materials, gizmo_type, is_ancient_gizmo);
@@ -664,12 +664,12 @@ mod tests {
                             PerkRankValues { name: PerkName::Biting, doubleslot: false, rank: 4, threshold: 250, ancient_only: true, ..Default::default() },
                         ])
                     });
-                    map.insert(PerkName::Equilibrium, PerkRanksData {
+                    map.insert(PerkName::Eruptive, PerkRanksData {
                         doubleslot: false,
                         ranks: StackVec::new(&[
-                            PerkRankValues { name: PerkName::Equilibrium, doubleslot: false, rank: 0, threshold: 0, ancient_only: false, ..Default::default() },
-                            PerkRankValues { name: PerkName::Equilibrium, doubleslot: false, rank: 1, threshold: 49, ancient_only: false, ..Default::default() },
-                            PerkRankValues { name: PerkName::Equilibrium, doubleslot: false, rank: 2, threshold: 80, ancient_only: false, ..Default::default() },
+                            PerkRankValues { name: PerkName::Eruptive, doubleslot: false, rank: 0, threshold: 0, ancient_only: false, ..Default::default() },
+                            PerkRankValues { name: PerkName::Eruptive, doubleslot: false, rank: 1, threshold: 49, ancient_only: false, ..Default::default() },
+                            PerkRankValues { name: PerkName::Eruptive, doubleslot: false, rank: 2, threshold: 80, ancient_only: false, ..Default::default() },
                         ])
                     });
                     map
@@ -971,20 +971,20 @@ mod tests {
         #[test]
         fn threshold_equal_to_max_roll_plus_base() {
             let partial_perk_values = vec![
-                PartialPerkValues { name: PerkName::Equilibrium, base: 10, rolls: StackVec::new(&[40]) },
+                PartialPerkValues { name: PerkName::Eruptive, base: 10, rolls: StackVec::new(&[40]) },
             ];
             let expected = smallvec![
                 PerkValues {
                     base: 10,
                     doubleslot: false,
-                    name: PerkName::Equilibrium,
+                    name: PerkName::Eruptive,
                     i_first: 0,
                     i_last: 1,
                     rolls: StackVec::new(&[40]),
                     ranks: StackVec::new(&[
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Equilibrium].ranks[0], probability: 0.975 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Equilibrium].ranks[1], probability: 0.025 },
-                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Equilibrium].ranks[2], probability: 0.0 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Eruptive].ranks[0], probability: 0.975 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Eruptive].ranks[1], probability: 0.025 },
+                        PerkRankValuesProbabilityContainer { values: DATA.perks[PerkName::Eruptive].ranks[2], probability: 0.0 },
                     ])
                 }
             ];
@@ -1027,7 +1027,7 @@ mod tests {
                             PerkRankValues { rank: 4, threshold: 250, ..Default::default() },
                         ])
                     });
-                    map.insert(PerkName::Equilibrium, PerkRanksData {
+                    map.insert(PerkName::Eruptive, PerkRanksData {
                         doubleslot: false,
                         ranks: StackVec::new(&[
                             PerkRankValues { rank: 0, threshold: 0, ..Default::default() },
@@ -1050,7 +1050,7 @@ mod tests {
             ];
             let wanted_gizmo = Gizmo {
                 perks: (
-                    Perk { name: PerkName::Equilibrium, rank: 2, ..Default::default() },
+                    Perk { name: PerkName::Eruptive, rank: 2, ..Default::default() },
                     Perk { name: PerkName::Empty, ..Default::default() },
                 ),
                 ..Default::default()
@@ -1066,7 +1066,7 @@ mod tests {
             ];
             let wanted_gizmo = Gizmo {
                 perks: (
-                    Perk { name: PerkName::Equilibrium, rank: 2, ..Default::default() },
+                    Perk { name: PerkName::Eruptive, rank: 2, ..Default::default() },
                     Perk { name: PerkName::Precise, rank: 2, ..Default::default() },
                 ),
                 ..Default::default()
@@ -1083,7 +1083,7 @@ mod tests {
             let wanted_gizmo = Gizmo {
                 perks: (
                     Perk { name: PerkName::Precise, rank: 2, ..Default::default() },
-                    Perk { name: PerkName::Equilibrium, rank: 2, ..Default::default() },
+                    Perk { name: PerkName::Eruptive, rank: 2, ..Default::default() },
                 ),
                 ..Default::default()
             };
@@ -1318,13 +1318,13 @@ mod tests {
                     ..Default::default()
                 },
                 PerkValues {
-                    name: PerkName::Equilibrium,
+                    name: PerkName::Eruptive,
                     i_first: 1,
                     i_last: 2,
                     ranks: StackVec::new(&[
-                        PerkRankValuesProbabilityContainer { probability: 0.0, values: PerkRankValues { rank: 0, name: PerkName::Equilibrium, ..Default::default() }},
-                        PerkRankValuesProbabilityContainer { probability: 0.25, values: PerkRankValues { rank: 1, name: PerkName::Equilibrium, ..Default::default() }},
-                        PerkRankValuesProbabilityContainer { probability: 0.5, values: PerkRankValues { rank: 2, name: PerkName::Equilibrium, ..Default::default() }},
+                        PerkRankValuesProbabilityContainer { probability: 0.0, values: PerkRankValues { rank: 0, name: PerkName::Eruptive, ..Default::default() }},
+                        PerkRankValuesProbabilityContainer { probability: 0.25, values: PerkRankValues { rank: 1, name: PerkName::Eruptive, ..Default::default() }},
+                        PerkRankValuesProbabilityContainer { probability: 0.5, values: PerkRankValues { rank: 2, name: PerkName::Eruptive, ..Default::default() }},
                     ]),
                     ..Default::default()
                 },
@@ -1383,7 +1383,7 @@ mod tests {
             let wanted_gizmo = Gizmo {
                 perks: (
                     Perk { name: PerkName::Precise, rank: 2, ..Default::default() },
-                    Perk { name: PerkName::Equilibrium, rank: 1, ..Default::default() },
+                    Perk { name: PerkName::Eruptive, rank: 1, ..Default::default() },
                 ),
                 ..Default::default()
             };

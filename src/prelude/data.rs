@@ -758,7 +758,7 @@ impl Data {
                             roll: 33
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Equilibrium").unwrap(),
+                            perk: PerkName::from_str("Eruptive").unwrap(),
                             base: 5,
                             roll: 13
                         },
@@ -2194,7 +2194,7 @@ impl Data {
                             roll: 45
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Equilibrium").unwrap(),
+                            perk: PerkName::from_str("Eruptive").unwrap(),
                             base: 9,
                             roll: 33
                         },
@@ -2400,7 +2400,7 @@ impl Data {
                     ancient_only: false,
                     weapon: StackVec::new(&[
                         ComponentValues {
-                            perk: PerkName::from_str("Equilibrium").unwrap(),
+                            perk: PerkName::from_str("Eruptive").unwrap(),
                             base: 40,
                             roll: 8
                         },
@@ -2677,7 +2677,7 @@ impl Data {
                             roll: 32
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Equilibrium").unwrap(),
+                            perk: PerkName::from_str("Eruptive").unwrap(),
                             base: 5,
                             roll: 13
                         },
@@ -3257,7 +3257,7 @@ impl Data {
                             roll: 13
                         },
                         ComponentValues {
-                            perk: PerkName::from_str("Equilibrium").unwrap(),
+                            perk: PerkName::from_str("Eruptive").unwrap(),
                             base: 26,
                             roll: 33
                         },
@@ -4611,11 +4611,11 @@ impl Data {
                         },
                     ])
                 },
-                PerkName::from_str("Equilibrium").unwrap() => PerkRanksData {
+                PerkName::from_str("Eruptive").unwrap() => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
                         PerkRankValues {
-                            name: PerkName::from_str("Equilibrium").unwrap(),
+                            name: PerkName::from_str("Eruptive").unwrap(),
                             rank: 0,
                             cost: 0,
                             threshold: 0,
@@ -4623,7 +4623,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Equilibrium").unwrap(),
+                            name: PerkName::from_str("Eruptive").unwrap(),
                             rank: 1,
                             cost: 40,
                             threshold: 55,
@@ -4631,7 +4631,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Equilibrium").unwrap(),
+                            name: PerkName::from_str("Eruptive").unwrap(),
                             rank: 2,
                             cost: 90,
                             threshold: 115,
@@ -4639,7 +4639,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Equilibrium").unwrap(),
+                            name: PerkName::from_str("Eruptive").unwrap(),
                             rank: 3,
                             cost: 175,
                             threshold: 220,
@@ -4647,7 +4647,7 @@ impl Data {
                             doubleslot: false
                         },
                         PerkRankValues {
-                            name: PerkName::from_str("Equilibrium").unwrap(),
+                            name: PerkName::from_str("Eruptive").unwrap(),
                             rank: 4,
                             cost: 185,
                             threshold: 260,

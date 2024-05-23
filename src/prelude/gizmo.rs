@@ -232,7 +232,7 @@ mod test {
         };
         let y = Gizmo {
             perks: (
-                Perk { name: PerkName::Equilibrium, rank: 1, ..Default::default() },
+                Perk { name: PerkName::Eruptive, rank: 1, ..Default::default() },
                 Perk { name: PerkName::Biting, rank: 2, ..Default::default() },
             ),
             ..Default::default()

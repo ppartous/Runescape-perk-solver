@@ -51,7 +51,7 @@ pub enum PerkName {
     EnhancedDevoted,
     EnhancedEfficient,
     Enlightened,
-    Equilibrium,
+    Eruptive,
     Fatiguing,
     Flanking,
     Fortune,
