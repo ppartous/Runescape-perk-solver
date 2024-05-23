@@ -162,7 +162,7 @@ impl Solver {
         };
         validate_input(&args, wanted_gizmo, &data)?;
         let materials = get_materials(&args, &data, wanted_gizmo)?;
-        load_component_prices(&args.price_file)?;
+        load_component_prices(&args.price_file, false)?;
         set_shell_price(args.gizmo_type, args.ancient);
         let materials = Arc::new(split_materials(&args, &data, wanted_gizmo, materials));
         let total_combination_count = calc_combination_count(
@@ -1130,8 +1130,6 @@ mod tests {
                 fuzzy: false,
                 ..Default::default()
             };
-            load_component_prices(&args.price_file).ok();
-            set_shell_price(args.gizmo_type, args.ancient);
             let budgets = generate_budgets(&InventionLevel::Range(110, 120), args.ancient);
             let input_materials = vec![
                 MaterialName::ZamorakComponents,

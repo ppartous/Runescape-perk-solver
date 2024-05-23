@@ -1,10 +1,10 @@
 use crate::wiki;
 use dioxus::prelude::*;
-use perk_solver::prelude::*;
+use perk_solver::{component_prices, prelude::*};
 
 pub fn PricesTab<'a>(
     cx: Scope<'a>,
-    prices_status: &'a UseState<Option<Result<(), String>>>,
+    prices_status: &'a UseState<Option<Result<component_prices::PriceSource, String>>>,
 ) -> Element<'a> {
     let shell_price_update_check = use_state(cx, || ());
 
@@ -21,60 +21,64 @@ pub fn PricesTab<'a>(
                     },
                     "Reload"
                 }
-                if let Err(err) = status {
-                    rsx!("{err}")
-                } else {
-                    rsx!(
-                        h3 { "Common materials" }
-                        div {
-                            class: "prices-container",
-                            table {
-                                for mat in COMMON_MATERIALS.iter() {
-                                    PriceTabElement(cx, *mat, &shell_price_update_check)
+                match status {
+                    Err(err) => rsx!("{err}"),
+                    Ok(source) => {
+                        rsx!(
+                            if *source == component_prices::PriceSource::Local {
+                                rsx!("Failed to load prices from Runescape.wiki, falling back to local price file.")
+                            }
+                            h3 { "Common materials" }
+                            div {
+                                class: "prices-container",
+                                table {
+                                    for mat in COMMON_MATERIALS.iter() {
+                                        PriceTabElement(cx, *mat, &shell_price_update_check)
+                                    }
                                 }
                             }
-                        }
-                        h3 { "Uncommon materials" }
-                        div {
-                            class: "prices-container",
-                            table {
-                                for mat in UNCOMMON_MATERIALS.iter() {
-                                    PriceTabElement(cx, *mat, &shell_price_update_check)
+                            h3 { "Uncommon materials" }
+                            div {
+                                class: "prices-container",
+                                table {
+                                    for mat in UNCOMMON_MATERIALS.iter() {
+                                        PriceTabElement(cx, *mat, &shell_price_update_check)
+                                    }
                                 }
                             }
-                        }
-                        h3 { "Rare materials" }
-                        div {
-                            class: "prices-container",
-                            table {
-                                for mat in RARE_MATERIALS.iter() {
-                                    PriceTabElement(cx, *mat, &shell_price_update_check)
+                            h3 { "Rare materials" }
+                            div {
+                                class: "prices-container",
+                                table {
+                                    for mat in RARE_MATERIALS.iter() {
+                                        PriceTabElement(cx, *mat, &shell_price_update_check)
+                                    }
                                 }
                             }
-                        }
-                        h3 { "Gizmo shells" }
-                        div { "Prices are calculated based on the material prices above." }
-                        table {
-                            class: "wikitable align-left-1",
-                            tr {
-                                th { "Shell" }
-                                th { "Price" }
-                                th { "Source materials" }
+                            h3 { "Gizmo shells" }
+                            div { "Prices are calculated based on the material prices above." }
+                            table {
+                                class: "wikitable align-left-1",
+                                tr {
+                                    th { "Shell" }
+                                    th { "Price" }
+                                    th { "Source materials" }
+                                }
+                                PriceTabShellElement(cx, GizmoType::Weapon, false,
+                                    &[(10, MaterialName::BladeParts), (5, MaterialName::CraftedParts), (2, MaterialName::StrongComponents)])
+                                PriceTabShellElement(cx, GizmoType::Armour, false,
+                                    &[(10, MaterialName::DeflectingParts), (5, MaterialName::CraftedParts), (2, MaterialName::ProtectiveComponents)])
+                                PriceTabShellElement(cx, GizmoType::Tool, false,
+                                    &[(10, MaterialName::HeadParts), (5, MaterialName::CraftedParts), (2, MaterialName::PreciseComponents)])
+                                PriceTabShellElement(cx, GizmoType::Weapon, true,
+                                    &[(20, MaterialName::BladeParts), (20, MaterialName::HistoricComponents), (2, MaterialName::ClassicComponents), (2, MaterialName::StrongComponents)])
+                                PriceTabShellElement(cx, GizmoType::Armour, true,
+                                    &[(20, MaterialName::DeflectingParts), (20, MaterialName::HistoricComponents), (2, MaterialName::ClassicComponents), (2, MaterialName::ProtectiveComponents)])
+                                PriceTabShellElement(cx, GizmoType::Tool, true,
+                                    &[(20, MaterialName::HeadParts), (20, MaterialName::HistoricComponents), (2, MaterialName::ClassicComponents), (2, MaterialName::PreciseComponents)])
                             }
-                            PriceTabShellElement(cx, GizmoType::Weapon, false,
-                                &[(10, MaterialName::BladeParts), (5, MaterialName::CraftedParts), (2, MaterialName::StrongComponents)])
-                            PriceTabShellElement(cx, GizmoType::Armour, false,
-                                &[(10, MaterialName::DeflectingParts), (5, MaterialName::CraftedParts), (2, MaterialName::ProtectiveComponents)])
-                            PriceTabShellElement(cx, GizmoType::Tool, false,
-                                &[(10, MaterialName::HeadParts), (5, MaterialName::CraftedParts), (2, MaterialName::PreciseComponents)])
-                            PriceTabShellElement(cx, GizmoType::Weapon, true,
-                                &[(20, MaterialName::BladeParts), (20, MaterialName::HistoricComponents), (2, MaterialName::ClassicComponents), (2, MaterialName::StrongComponents)])
-                            PriceTabShellElement(cx, GizmoType::Armour, true,
-                                &[(20, MaterialName::DeflectingParts), (20, MaterialName::HistoricComponents), (2, MaterialName::ClassicComponents), (2, MaterialName::ProtectiveComponents)])
-                            PriceTabShellElement(cx, GizmoType::Tool, true,
-                                &[(20, MaterialName::HeadParts), (20, MaterialName::HistoricComponents), (2, MaterialName::ClassicComponents), (2, MaterialName::PreciseComponents)])
-                        }
-                    )
+                        )
+                    }
                 }
             )
         } else {

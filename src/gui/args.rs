@@ -193,7 +193,7 @@ pub fn form_to_args(values: &HashMap<String, String>) -> Result<Args, String> {
             exclude,
             sort_type,
             out_file: String::from("false"),
-            price_file: Args::default().price_file,
+            price_file: Args::default().price_file.unwrap_or(String::from("false")),
             alt_count,
             limit_cpu: values.get("limit CPU").unwrap() == "true",
         },

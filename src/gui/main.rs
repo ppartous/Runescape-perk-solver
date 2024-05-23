@@ -14,7 +14,7 @@ use dioxus_desktop::{Config, WindowBuilder};
 
 use indicatif::HumanCount;
 use itertools::Itertools;
-use perk_solver::{prelude::*, Solver, SolverMetadata};
+use perk_solver::{component_prices, prelude::*, Solver, SolverMetadata};
 use strum::{EnumIter, IntoEnumIterator, IntoStaticStr};
 use strum_macros::EnumVariantNames;
 use tokio::time;
@@ -43,7 +43,7 @@ fn App(cx: Scope) -> Element {
     let start_time = use_state(cx, || None);
     let end_time = use_state(cx, || None);
     let tab_selection = use_state(cx, || TabSelection::Result);
-    let prices_status = use_state(cx, || None::<Result<(), String>>);
+    let prices_status = use_state(cx, || None::<Result<component_prices::PriceSource, String>>);
 
     let on_submit = move |ev: FormEvent| {
         if solver.read().is_some() && result.read().is_none() {
@@ -110,7 +110,10 @@ fn App(cx: Scope) -> Element {
     use_future(cx, prices_status, |prices_status| async move {
         if prices_status.get().is_none() {
             let res = tokio::task::spawn_blocking(|| {
-                perk_solver::component_prices::load_component_prices("false")
+                perk_solver::component_prices::load_component_prices(
+                    &Args::default().price_file,
+                    true,
+                )
             })
             .await;
             prices_status.set(Some(res.unwrap()));

@@ -273,35 +273,33 @@ pub fn find_best_alts<'a>(
 }
 
 pub fn write_best_mats_to_file(best_per_level: &Vec<Vec<ResultLine>>, args: &Args) {
-    if args.out_file == "false" {
-        return;
-    }
-
-    colored::control::set_override(false);
-    let str = best_per_level
-        .iter()
-        .cloned()
-        .flatten()
-        .filter(|x| x.prob_gizmo > 0.0)
-        .map(|x| {
-            format!(
-                "{}, {:.3e}, {:.3e}, {:.3e}, {}",
-                x.level,
-                x.prob_gizmo * 100.0,
-                x.prob_attempt * 100.0,
-                x.price,
-                MaterialName::vec_to_string(x.mat_combination.as_ref())
-            )
-        })
-        .join("\n");
-    let str = format!(
-        "Level, Prob gizmo (%), Prob attemp (%), Price, Materials\n{}",
-        str
-    );
-    let res = fs::write(&args.out_file, str);
-    colored::control::unset_override();
-    if let Err(err) = res {
-        print_warning(format!("Unable to write result to file: {}", err).as_str());
+    if let Some(out_file) = &args.out_file {
+        colored::control::set_override(false);
+        let content = best_per_level
+            .iter()
+            .cloned()
+            .flatten()
+            .filter(|x| x.prob_gizmo > 0.0)
+            .map(|x| {
+                format!(
+                    "{}, {:.3e}, {:.3e}, {:.3e}, {}",
+                    x.level,
+                    x.prob_gizmo * 100.0,
+                    x.prob_attempt * 100.0,
+                    x.price,
+                    MaterialName::vec_to_string(x.mat_combination.as_ref())
+                )
+            })
+            .join("\n");
+        let content = format!(
+            "Level, Prob gizmo (%), Prob attemp (%), Price, Materials\n{}",
+            content
+        );
+        let res = fs::write(out_file, content);
+        colored::control::unset_override();
+        if let Err(err) = res {
+            print_warning(format!("Unable to write result to file: {}", err).as_str());
+        }
     }
 }
 

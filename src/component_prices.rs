@@ -18,6 +18,13 @@ type PriceMap = StackMap<MaterialName, f64, { MaterialName::COUNT }>;
 pub static PRICES: RwLock<Option<PriceMap>> = RwLock::new(None);
 static SHELL_PRICE: RwLock<f64> = RwLock::new(0.0);
 
+#[derive(PartialEq)]
+pub enum PriceSource {
+    Online,
+    Local,
+    Cache,
+}
+
 pub fn calc_gizmo_price(mat_combination: &[MaterialName], prob_gizmo: f64) -> f64 {
     let shell_price = *SHELL_PRICE.read().unwrap();
     let prices = PRICES.read().unwrap();
@@ -30,42 +37,51 @@ pub fn calc_gizmo_price(mat_combination: &[MaterialName], prob_gizmo: f64) -> f6
     price / prob_gizmo
 }
 
-pub fn load_component_prices(price_file: &str) -> Result<(), String> {
+pub fn load_component_prices(
+    local_price_file_path: &Option<String>,
+    prefer_online: bool,
+) -> Result<PriceSource, String> {
+    let mut source = PriceSource::Cache;
+    let mut prices = None;
+
     // Don't need to set prices again if the calc is invoked multiple times
     if PRICES.read().unwrap().is_some() {
-        return Ok(());
+        return Ok(source);
     }
 
-    let mut text;
+    if prefer_online {
+        prices = lookup_on_wiki().ok();
+        source = PriceSource::Online;
+    }
 
-    if price_file != "false" && std::path::Path::new(&price_file).exists() {
-        match fs::read_to_string(&price_file) {
-            Ok(file) => text = file,
-            Err(err) => return Err(format!("Failed to read {}: {}", price_file, err)),
-        }
-    } else {
-        if let Ok(response) = lookup_on_wiki() {
-            text = extract_from_response(&response)?;
-        } else {
-            return Err("Failed to fetch prices".to_string());
+    if let Some(file_path) = local_price_file_path {
+        if prices.is_none() && std::path::Path::new(file_path).exists() {
+            prices = Some(load_from_local_file(file_path)?);
+            source = PriceSource::Local;
         }
     }
 
-    let prices = string_to_map(&text);
-
-    if price_file != "false" {
-        text = prices
-            .iter()
-            .map(|(name, value)| format!("{}: {},", name, value))
-            .sorted()
-            .join("\n");
-        fs::write(&price_file, text).unwrap_or_else(|err| {
-            print_warning(format!("Failed to save {}: {}", price_file, err).as_str());
-        });
+    if prices.is_none() {
+        prices = Some(lookup_on_wiki()?);
+        source = PriceSource::Online;
     }
 
-    *PRICES.write().unwrap() = Some(prices);
-    Ok(())
+    if let Some(file_path) = local_price_file_path {
+        if let Some(prices) = &prices {
+            let text = prices
+                .iter()
+                .map(|(name, value)| format!("{}: {},", name, value))
+                .sorted()
+                .join("\n");
+
+            fs::write(&file_path, text).unwrap_or_else(|err| {
+                print_warning(format!("Failed to save {}: {}", file_path, err).as_str());
+            });
+        }
+    }
+
+    *PRICES.write().unwrap() = prices;
+    Ok(source)
 }
 
 pub fn get_shell_price(gizmo_type: GizmoType, ancient: bool) -> f64 {
@@ -116,51 +132,66 @@ pub fn set_shell_price(gizmo_type: GizmoType, ancient: bool) {
     *SHELL_PRICE.write().unwrap() = get_shell_price(gizmo_type, ancient);
 }
 
-fn lookup_on_wiki() -> Result<String, reqwest::Error> {
-    println!("Fetching component prices from Runescape.wiki...");
-    let client = reqwest::blocking::Client::builder()
-        .user_agent(APP_USER_AGENT)
-        .build()?;
+fn lookup_on_wiki() -> Result<PriceMap, &'static str> {
+    fn _lookup() -> Result<String, reqwest::Error> {
+        println!("Fetching component prices from Runescape.wiki...");
+        let client = reqwest::blocking::Client::builder()
+            .user_agent(APP_USER_AGENT)
+            .build()?;
 
-    // use p._all_prices() from: https://runescape.wiki/w/Module:Component_costs
-    let url = format!("https://runescape.wiki/api.php?{}",
-        form_urlencoded::Serializer::new(String::new())
-            .append_pair("action", "parse")
-            .append_pair("text", "{{#invoke:Component costs|_all_prices}}")
-            .append_pair("contentmodel", "wikitext")
-            .append_pair("prop", "text")
-            .append_pair("disablelimitreport", "")
-            .append_pair("wrapoutputclass", "")
-            .append_pair("format", "json")
-            .append_pair("formatversion", "2")
-            .finish()
-    );
-    let body = client.get(url).send()?.text()?;
+        // use p._all_prices() from: https://runescape.wiki/w/Module:Component_costs
+        let url = format!(
+            "https://runescape.wiki/api.php?{}",
+            form_urlencoded::Serializer::new(String::new())
+                .append_pair("action", "parse")
+                .append_pair("text", "{{#invoke:Component costs|_all_prices}}")
+                .append_pair("contentmodel", "wikitext")
+                .append_pair("prop", "text")
+                .append_pair("disablelimitreport", "")
+                .append_pair("wrapoutputclass", "")
+                .append_pair("format", "json")
+                .append_pair("formatversion", "2")
+                .finish()
+        );
+        let body = client.get(url).send()?.text()?;
 
-    Ok(body)
+        Ok(body)
+    }
+
+    match _lookup() {
+        Ok(response) => Ok(string_to_map(&extract_from_response(&response)?)),
+        Err(_) => Err("Failed to fetch prices"),
+    }
 }
 
-fn extract_from_response(response: &str) -> Result<String, String> {
+fn extract_from_response(response: &str) -> Result<String, &'static str> {
     let json: Value = serde_json::from_str(response).unwrap_or_default();
     let text = &json["parse"]["text"];
 
     if let Value::String(text) = text {
-        Ok(text.clone())
+        // strip <p>..</p> or <div ...>...</div> wrappers from MediaWiki parse response
+        let re = Regex::new(r"</?(p|div)[^>]*>").unwrap();
+        Ok(re.replace_all(text, "").into_owned())
     } else {
-        return Err("Unexpected response from Runescape.wiki".to_string());
+        return Err("Unexpected response from Runescape.wiki");
     }
+}
+
+fn load_from_local_file(file_path: &str) -> Result<PriceMap, String> {
+    let text = match fs::read_to_string(&file_path) {
+        Ok(file) => file,
+        Err(err) => return Err(format!("Failed to read {}: {}", file_path, err)),
+    };
+
+    Ok(string_to_map(&text))
 }
 
 fn string_to_map(text: &str) -> PriceMap {
     let mut prices = PriceMap::new();
 
-    // strip <p>..</p> or <div ...>...</div> wrappers from MediaWiki parse response
-    let mut re = Regex::new(r"</?(p|div)[^>]*>").unwrap();
-    let response = &re.replace_all(text, "");
-
     // match "(Component): (Price)" lines
-    re = Regex::new(r"^([^:]+): ?([\d\.]+)").unwrap();
-    let lines = response.split('\n');
+    let re = Regex::new(r"^([^:]+): ?([\d\.]+)").unwrap();
+    let lines = text.split('\n');
 
     for line in lines {
         if let Some(captures) = re.captures(line) {

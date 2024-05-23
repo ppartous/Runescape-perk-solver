@@ -138,8 +138,8 @@ pub struct Args {
     pub fuzzy: bool,
     pub exclude: Vec<MaterialName>,
     pub sort_type: SortType,
-    pub out_file: String,
-    pub price_file: String,
+    pub out_file: Option<String>,
+    pub price_file: Option<String>,
     pub result_depth: u8,
     pub limit_cpu: bool,
 }
@@ -218,6 +218,18 @@ impl Args {
                 }
             }).flatten().collect_vec();
 
+            let out_file = if out_file == "false" {
+                None
+            } else {
+                Some(out_file.clone())
+            };
+
+            let price_file = if price_file == "false" {
+                None
+            } else {
+                Some(price_file.clone())
+            };
+
             Ok(Args {
                 invention_level,
                 gizmo_type: cli.gizmo_type,
@@ -229,8 +241,8 @@ impl Args {
                 fuzzy,
                 sort_type: *sort_type,
                 exclude,
-                out_file: out_file.clone(),
-                price_file: price_file.clone(),
+                out_file,
+                price_file,
                 result_depth: *alt_count + 1,
                 limit_cpu: *limit_cpu,
             })
@@ -253,8 +265,8 @@ impl Default for Args {
             fuzzy: false,
             exclude: vec![],
             sort_type: SortType::Price,
-            out_file: String::from("out.csv"),
-            price_file: String::from("prices.txt"),
+            out_file: Some(String::from("out.csv")),
+            price_file: Some(String::from("prices.txt")),
             result_depth: 1,
             limit_cpu: false,
         }
