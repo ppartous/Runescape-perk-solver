@@ -215,6 +215,9 @@ fn MatCombinationList<'a>(cx: Scope<'a>, mat_combinaton: &[MaterialName]) -> Ele
                 rsx!(", ")
             }
             "{*counts.get(mat).unwrap()} × "
+            if COMMON_MATERIALS.contains(mat) {
+                rsx!{"5 "}
+            }
             WikiImage(cx, mat.to_str())
             "{mat}"
         }

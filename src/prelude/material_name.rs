@@ -107,7 +107,7 @@ pub enum MaterialName {
     #[strum(serialize = "Magic parts")]
     MagicParts,
     #[strum(serialize = "Manufactured components")]
-    ManufacturedComponents, 
+    ManufacturedComponents,
     #[strum(serialize = "Metallic parts")]
     MetallicParts,
     #[strum(serialize = "Noxious components")]
@@ -115,7 +115,7 @@ pub enum MaterialName {
     #[strum(serialize = "Oceanic components")]
     OceanicComponents,
     #[strum(serialize = "Offcut components")]
-    OffcutComponents,    
+    OffcutComponents,
     #[strum(serialize = "Organic parts")]
     OrganicParts,
     #[strum(serialize = "Padded parts")]
@@ -193,9 +193,13 @@ impl MaterialName {
         let counts = v.iter().counts();
         v.iter()
             .unique()
-            .map(|x| {
-                let count = *counts.get(x).unwrap();
-                format!("{} × {}", count, x.to_string().cyan())
+            .map(|mat| {
+                let count = *counts.get(mat).unwrap();
+                if COMMON_MATERIALS.contains(mat) {
+                    format!("{} × 5 {}", count, mat.to_string().cyan())
+                } else {
+                    format!("{} × {}", count, mat.to_string().cyan())
+                }
             })
             .join(", ")
     }

@@ -80,9 +80,9 @@ pub fn format_float(num: f64) -> String {
 
 pub fn format_price(num: f64) -> String {
     if num < 1e4 {
-        format!("{}", num as usize)
+        format!("{:.0}", num)
     } else if num < 1e7 {
-        format!("{} k", (num / 1e3) as usize)
+        format!("{:.0} k", (num / 1e3))
     } else if num < 1e10 {
         format!("{:.1} M", num / 1e6)
     } else if num < 1e13 {
