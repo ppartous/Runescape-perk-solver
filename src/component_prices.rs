@@ -13,8 +13,6 @@ static APP_USER_AGENT: &str = concat!(
     env!("CARGO_PKG_REPOSITORY")
 );
 
-type PriceMap = StackMap<MaterialName, f64, { MaterialName::COUNT }>;
-
 pub static PRICES: RwLock<Option<PriceMap>> = RwLock::new(None);
 static SHELL_PRICE: RwLock<f64> = RwLock::new(0.0);
 
@@ -25,6 +23,42 @@ pub enum PriceSource {
     Cache,
 }
 
+pub struct PriceMap {
+    single: StackMap<MaterialName, f64, { MaterialName::COUNT }>,
+    adjusted: StackMap<MaterialName, f64, { MaterialName::COUNT }>,
+}
+
+impl PriceMap {
+    pub fn new() -> PriceMap {
+        PriceMap {
+            single: StackMap::new(),
+            adjusted: StackMap::new(),
+        }
+    }
+
+    pub fn get(&self, mat: MaterialName) -> f64 {
+        *self.single.get(mat)
+    }
+
+    pub fn set(&mut self, mat: MaterialName, price: f64) {
+        self.single.insert(mat, price);
+        let adjusted_price = if COMMON_MATERIALS.contains(&mat) {
+            price * 5.0
+        } else {
+            price
+        };
+        self.adjusted.insert(mat, adjusted_price);
+    }
+
+    fn get_adjusted(&self, mat: MaterialName) -> f64 {
+        *self.adjusted.get(mat)
+    }
+
+    pub fn iter(&self) -> std::iter::Zip<MaterialNameIter, std::slice::Iter<'_, f64>> {
+        self.single.iter()
+    }
+}
+
 pub fn calc_gizmo_price(mat_combination: &[MaterialName], prob_gizmo: f64) -> f64 {
     let shell_price = *SHELL_PRICE.read().unwrap();
     let prices = PRICES.read().unwrap();
@@ -32,7 +66,7 @@ pub fn calc_gizmo_price(mat_combination: &[MaterialName], prob_gizmo: f64) -> f6
         let price = shell_price
             + mat_combination
                 .iter()
-                .fold(0.0, |acc, x| acc + prices.get(*x));
+                .fold(0.0, |acc, x| acc + prices.get_adjusted(*x));
 
         price / prob_gizmo
     } else {
@@ -204,7 +238,7 @@ fn string_to_map(text: &str) -> PriceMap {
                         print_warning(format!("Failed to parse price for '{}'", mat).as_str());
                         0.0
                     });
-                    prices.insert(mat, price);
+                    prices.set(mat, price);
                 }
             }
         }

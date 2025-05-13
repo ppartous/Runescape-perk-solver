@@ -134,10 +134,10 @@ fn PriceTabElement<'a>(
                 input {
                     r#type: "number",
                     min: "0",
-                    value: *perk_solver::component_prices::PRICES.read().unwrap().as_ref().unwrap().get(mat),
+                    value: perk_solver::component_prices::PRICES.read().unwrap().as_ref().unwrap().get(mat),
                     oninput: move |ev| {
                         if let Some(prices) = perk_solver::component_prices::PRICES.write().unwrap().as_mut() {
-                            *prices.get_mut(mat) = ev.value.parse().unwrap_or(0.0);
+                            prices.set(mat, ev.value.parse().unwrap_or(0.0));
                             update_check.needs_update();
                         }
                     }
