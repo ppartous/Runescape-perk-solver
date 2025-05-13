@@ -127,6 +127,8 @@ fn mat_link_id(mat: MaterialName) -> &'static str {
         MaterialName::HistoricComponents => "77",
         MaterialName::TimewornComponents => "78",
         MaterialName::VintageComponents => "79",
+        MaterialName::OffcutComponents => "80",
+        MaterialName::ManufacturedComponents => "81",
         _ => "0",
     }
 }

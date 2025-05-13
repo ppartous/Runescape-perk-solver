@@ -106,12 +106,16 @@ pub enum MaterialName {
     LivingComponents,
     #[strum(serialize = "Magic parts")]
     MagicParts,
+    #[strum(serialize = "Manufactured components")]
+    ManufacturedComponents, 
     #[strum(serialize = "Metallic parts")]
     MetallicParts,
     #[strum(serialize = "Noxious components")]
     NoxiousComponents,
     #[strum(serialize = "Oceanic components")]
     OceanicComponents,
+    #[strum(serialize = "Offcut components")]
+    OffcutComponents,    
     #[strum(serialize = "Organic parts")]
     OrganicParts,
     #[strum(serialize = "Padded parts")]

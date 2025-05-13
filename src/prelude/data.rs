@@ -115,6 +115,11 @@ impl Data {
                         },
                     ]),
                     tool: StackVec::new(&[
+                        ComponentValues {
+                            perk: PerkName::Careless,
+                            base: 15,
+                            roll: 10
+                        },
                     ])
                 },
                 MaterialName::BaseParts => CompPerksPerGizmoType {
@@ -433,6 +438,11 @@ impl Data {
                             perk: PerkName::Tinker,
                             base: 18,
                             roll: 28
+                        },
+                        ComponentValues {
+                            perk: PerkName::Hasty,
+                            base: 15,
+                            roll: 35
                         },
                     ])
                 },
@@ -1118,6 +1128,11 @@ impl Data {
                             base: 25,
                             roll: 28
                         },
+                        ComponentValues {
+                            perk: PerkName::Explosive,
+                            base: 10,
+                            roll: 25
+                        },
                     ])
                 },
                 MaterialName::FacetedComponents => CompPerksPerGizmoType {
@@ -1784,6 +1799,40 @@ impl Data {
                         },
                     ])
                 },
+                MaterialName::ManufacturedComponents => CompPerksPerGizmoType {
+                    ancient_only: false,
+                    weapon: StackVec::new(&[
+                    ]),
+                    armour: StackVec::new(&[
+                    ]),
+                    tool: StackVec::new(&[
+                        ComponentValues {
+                            perk: PerkName::Explosive,
+                            base: 25,
+                            roll: 10
+                        },
+                        ComponentValues {
+                            perk: PerkName::Oblivious,
+                            base: 25,
+                            roll: 10
+                        },
+                        ComponentValues {
+                            perk: PerkName::WildRunes,
+                            base: 45,
+                            roll: 25
+                        },
+                        ComponentValues {
+                            perk: PerkName::Preservationist,
+                            base: 45,
+                            roll: 25
+                        },
+                        ComponentValues {
+                            perk: PerkName::Hasty,
+                            base: 45,
+                            roll: 25
+                        },
+                    ])
+                },
                 MaterialName::MetallicParts => CompPerksPerGizmoType {
                     ancient_only: false,
                     weapon: StackVec::new(&[
@@ -1868,6 +1917,35 @@ impl Data {
                             perk: PerkName::Polishing,
                             base: 25,
                             roll: 28
+                        },
+                        ComponentValues {
+                            perk: PerkName::WildRunes,
+                            base: 15,
+                            roll: 35
+                        },
+                    ])
+                },
+                MaterialName::OffcutComponents => CompPerksPerGizmoType {
+                    ancient_only: false,
+                    weapon: StackVec::new(&[
+                    ]),
+                    armour: StackVec::new(&[
+                    ]),
+                    tool: StackVec::new(&[
+                        ComponentValues {
+                            perk: PerkName::Scraps,
+                            base: 25,
+                            roll: 25
+                        },
+                        ComponentValues {
+                            perk: PerkName::Careless,
+                            base: 20,
+                            roll: 40
+                        },
+                        ComponentValues {
+                            perk: PerkName::Naturalist,
+                            base: 20,
+                            roll: 40
                         },
                     ])
                 },
@@ -2562,6 +2640,11 @@ impl Data {
                             base: 25,
                             roll: 28
                         },
+                        ComponentValues {
+                            perk: PerkName::Naturalist,
+                            base: 15,
+                            roll: 10
+                        },
                     ])
                 },
                 MaterialName::SilentComponents => CompPerksPerGizmoType {
@@ -2580,6 +2663,11 @@ impl Data {
                             perk: PerkName::Honed,
                             base: 25,
                             roll: 28
+                        },
+                        ComponentValues {
+                            perk: PerkName::Preservationist,
+                            base: 15,
+                            roll: 35
                         },
                     ])
                 },
@@ -3915,6 +4003,59 @@ impl Data {
                         },
                     ])
                 },
+                PerkName::Careless => PerkRanksData {
+                    doubleslot: false,
+                    ranks: StackVec::new(&[
+                        PerkRankValues {
+                            name: PerkName::Careless,
+                            rank: 0,
+                            cost: 0,
+                            threshold: 0,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Careless,
+                            rank: 1,
+                            cost: 35,
+                            threshold: 50,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Careless,
+                            rank: 2,
+                            cost: 65,
+                            threshold: 80,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Careless,
+                            rank: 3,
+                            cost: 120,
+                            threshold: 130,
+                            ancient_only: true,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Careless,
+                            rank: 4,
+                            cost: 160,
+                            threshold: 170,
+                            ancient_only: true,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Careless,
+                            rank: 5,
+                            cost: 195,
+                            threshold: 210,
+                            ancient_only: true,
+                            doubleslot: false
+                        },
+                    ])
+                },
                 PerkName::Caroming => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
@@ -4655,6 +4796,27 @@ impl Data {
                         },
                     ])
                 },
+                PerkName::Explosive => PerkRanksData {
+                    doubleslot: false,
+                    ranks: StackVec::new(&[
+                        PerkRankValues {
+                            name: PerkName::Explosive,
+                            rank: 0,
+                            cost: 0,
+                            threshold: 0,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Explosive,
+                            rank: 1,
+                            cost: 50,
+                            threshold: 65,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                    ])
+                },
                 PerkName::Fatiguing => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
@@ -4877,6 +5039,59 @@ impl Data {
                             rank: 1,
                             cost: 35,
                             threshold: 50,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                    ])
+                },
+                PerkName::Hasty => PerkRanksData {
+                    doubleslot: false,
+                    ranks: StackVec::new(&[
+                        PerkRankValues {
+                            name: PerkName::Hasty,
+                            rank: 0,
+                            cost: 0,
+                            threshold: 0,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Hasty,
+                            rank: 1,
+                            cost: 35,
+                            threshold: 50,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Hasty,
+                            rank: 2,
+                            cost: 65,
+                            threshold: 80,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Hasty,
+                            rank: 3,
+                            cost: 120,
+                            threshold: 130,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Hasty,
+                            rank: 4,
+                            cost: 160,
+                            threshold: 170,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Hasty,
+                            rank: 5,
+                            cost: 195,
+                            threshold: 210,
                             ancient_only: false,
                             doubleslot: false
                         },
@@ -5451,6 +5666,80 @@ impl Data {
                         },
                     ])
                 },
+                PerkName::Naturalist => PerkRanksData {
+                    doubleslot: false,
+                    ranks: StackVec::new(&[
+                        PerkRankValues {
+                            name: PerkName::Naturalist,
+                            rank: 0,
+                            cost: 0,
+                            threshold: 0,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Naturalist,
+                            rank: 1,
+                            cost: 35,
+                            threshold: 50,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Naturalist,
+                            rank: 2,
+                            cost: 65,
+                            threshold: 80,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Naturalist,
+                            rank: 3,
+                            cost: 120,
+                            threshold: 130,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Naturalist,
+                            rank: 4,
+                            cost: 160,
+                            threshold: 170,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Naturalist,
+                            rank: 5,
+                            cost: 195,
+                            threshold: 210,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                    ])
+                },
+                PerkName::Oblivious => PerkRanksData {
+                    doubleslot: false,
+                    ranks: StackVec::new(&[
+                        PerkRankValues {
+                            name: PerkName::Oblivious,
+                            rank: 0,
+                            cost: 0,
+                            threshold: 0,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Oblivious,
+                            rank: 1,
+                            cost: 50,
+                            threshold: 65,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                    ])
+                },
                 PerkName::PlantedFeet => PerkRanksData {
                     doubleslot: false,
                     ranks: StackVec::new(&[
@@ -5619,6 +5908,59 @@ impl Data {
                             cost: 185,
                             threshold: 260,
                             ancient_only: true,
+                            doubleslot: false
+                        },
+                    ])
+                },
+                PerkName::Preservationist => PerkRanksData {
+                    doubleslot: false,
+                    ranks: StackVec::new(&[
+                        PerkRankValues {
+                            name: PerkName::Preservationist,
+                            rank: 0,
+                            cost: 0,
+                            threshold: 0,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Preservationist,
+                            rank: 1,
+                            cost: 35,
+                            threshold: 50,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Preservationist,
+                            rank: 2,
+                            cost: 65,
+                            threshold: 80,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Preservationist,
+                            rank: 3,
+                            cost: 120,
+                            threshold: 130,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Preservationist,
+                            rank: 4,
+                            cost: 160,
+                            threshold: 170,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Preservationist,
+                            rank: 5,
+                            cost: 195,
+                            threshold: 210,
+                            ancient_only: false,
                             doubleslot: false
                         },
                     ])
@@ -5968,6 +6310,27 @@ impl Data {
                             cost: 185,
                             threshold: 260,
                             ancient_only: true,
+                            doubleslot: false
+                        },
+                    ])
+                },
+                PerkName::Scraps => PerkRanksData {
+                    doubleslot: false,
+                    ranks: StackVec::new(&[
+                        PerkRankValues {
+                            name: PerkName::Scraps,
+                            rank: 0,
+                            cost: 0,
+                            threshold: 0,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::Scraps,
+                            rank: 1,
+                            cost: 50,
+                            threshold: 65,
+                            ancient_only: false,
                             doubleslot: false
                         },
                     ])
@@ -6374,6 +6737,59 @@ impl Data {
                             rank: 1,
                             cost: 35,
                             threshold: 50,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                    ])
+                },
+                PerkName::WildRunes => PerkRanksData {
+                    doubleslot: false,
+                    ranks: StackVec::new(&[
+                        PerkRankValues {
+                            name: PerkName::WildRunes,
+                            rank: 0,
+                            cost: 0,
+                            threshold: 0,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::WildRunes,
+                            rank: 1,
+                            cost: 35,
+                            threshold: 50,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::WildRunes,
+                            rank: 2,
+                            cost: 65,
+                            threshold: 80,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::WildRunes,
+                            rank: 3,
+                            cost: 120,
+                            threshold: 130,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::WildRunes,
+                            rank: 4,
+                            cost: 160,
+                            threshold: 170,
+                            ancient_only: false,
+                            doubleslot: false
+                        },
+                        PerkRankValues {
+                            name: PerkName::WildRunes,
+                            rank: 5,
+                            cost: 195,
+                            threshold: 210,
                             ancient_only: false,
                             doubleslot: false
                         },
