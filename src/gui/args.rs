@@ -9,7 +9,7 @@ pub fn ArgsForm<'a>(
     cx: Scope,
     on_submit: EventHandler<'a, FormEvent>,
     is_running: bool,
-) -> Element {
+) -> Element<'a> {
     cx.render(rsx!(
         form {
             id: "ArgsForm",

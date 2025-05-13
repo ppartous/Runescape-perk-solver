@@ -198,7 +198,7 @@ fn ProgressBar(
     max: u64,
     is_running: bool,
     ellapsed: time::Duration,
-) -> Element {
+) -> Element<'a> {
     let width_val = *val as f64 / *max as f64 * 100.0;
     let val = HumanCount(*val);
     let max = HumanCount(*max);
